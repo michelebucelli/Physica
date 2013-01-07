@@ -14,7 +14,7 @@
 #define FRAME_END			if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
 
 //Video output
-SDL_Surface* video = NULL;//Video surface
+SDL_Surface* video = NULL;//Video surface
 int video_w = 800;//Video width
 int video_h = 400;//Video height
 
@@ -35,6 +35,13 @@ Uint8* keys = NULL;//Keys array
 
 //User interface
 Uint32 background = 0x101010;//Background color
+
+string themesFile = "data/cfg/ui/themes.cfg";//Themes file path
+
+string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
+window hud;//Hud window
+control *btnPause, *btnRestart;//Hud buttons
+control *labDeaths, *labTime;//Hud labels
 
 //Control scheme structure
 struct controls {
@@ -158,6 +165,13 @@ class game {
 	
 	vector playerStart;//Player starting position
 	double playerAngle;//Player starting angle
+	
+	bool paused;//If true, frame will do nothing
+	
+	int lastFrameTime;//Last frame time
+	
+	int time;//Start time
+	int deaths;//Death counter
 		
 	//Constructor
 	game(){
@@ -172,6 +186,9 @@ class game {
 		
 		playerStart = {0,0};
 		playerAngle = 0;
+		
+		paused = false;
+		lastFrameTime = 0;
 	}
 	
 	//Function for controls handling
@@ -254,6 +271,9 @@ class game {
 		
 		playerStart = player->position;//Sets player starting position
 		playerAngle = player->theta;//Sets player starting angle
+		
+		time = 0;//Resets timer
+		deaths = 0;//Resets death counter
 	}
 	
 	//Function to reset current level
@@ -263,6 +283,9 @@ class game {
 		
 		player->speed = {0,0};//Resets speed
 		player->omega = 0;//Resets angular speed
+		
+		deaths++;//Increases death counter
+		time = 0;//Resets timer
 	}
 	
 	//Function to move onto next level (if any)
@@ -298,17 +321,45 @@ class game {
 	
 	//Function to handle a frame
 	void frame(double t, Uint8* keys){
+		if (paused) return;//Exits function if paused
+		
 		step(t);//Steps
 		
 		resetForces();//Resets forces
 		handleControls(keys);//Handles controls
+		
+		time += SDL_GetTicks() - lastFrameTime;
+		lastFrameTime = SDL_GetTicks();
 	}
 	
 	//Function for animation step
 	void animStep(){
 		if (*currentLevel) (*currentLevel)->animStep();//Steps animation
 	}
-};
+} current;
+
+//Function to handle pause click
+void pauseClick(clickEventData data){
+	current.paused = true;
+}
+
+//Function to handler reset click
+void restartClick(clickEventData data){
+	current.reset();
+}
+
+//Function to update hud with current game info
+void updateHud(){
+	int t = current.time;//Time lapsed since level beginning
+	
+	int t_min = floor (t / 1000 / 60);//Minutes
+	int t_sec = int(floor (t / 1000)) % 60;//Seconds
+	int t_hun = int(floor (t / 10)) % 100;//Hundreths of second
+	
+	labTime->content.t = (t_min < 10 ? "0" : "") + toString(t_min) + ":" + (t_sec < 10 ? "0" : "") + toString(t_sec) + ":" + (t_hun < 10 ? "0" : "") + toString(t_hun);//Sets timer
+	
+	labDeaths->content.t = (current.deaths < 10 ? "0" : "") + toString(current.deaths);//Sets deaths counter
+}
 
 //Game initialization function
 void gameInit(){
@@ -328,5 +379,14 @@ void gameInit(){
 	
 	keys = SDL_GetKeyState(NULL);//Gets keys
 	
-	loadThemesDB("data/cfg/themes/blocks.cfg");//Loads block themes
+	loadThemesDB(themesFile);//Loads themes
+	
+	hud = loadWindow(hudFile, "hud");//Loads hud
+	btnPause = hud.getControl("pause");//Gets pause button
+	btnRestart = hud.getControl("restart");//Gets restart button
+	labDeaths = hud.getControl("deaths");//Gets deaths counter
+	labTime = hud.getControl("timer");//Gets timer
+	
+	btnPause->release.handlers.push_back(pauseClick);//Adds click handler to pause
+	btnRestart->release.handlers.push_back(restartClick);//Adds click handler to restart
 }

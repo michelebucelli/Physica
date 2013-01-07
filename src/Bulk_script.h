@@ -358,7 +358,7 @@ void object::fromStrings(string type, string id, deque<string> lines){
 			
 			object* searching = parent;//Object in which inherited has to be searched
 			while (!inherited && searching){//While object wasn't found and there's a searching object
-				inherited = get <object> (&parent->o, tokens[1]);//Looks for object in parent object
+				inherited = get <object> (&searching->o, tokens[1]);//Looks for object in parent object
 				searching = searching->parent;//Goes to parent
 			}
 			
