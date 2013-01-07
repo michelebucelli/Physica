@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4"
-     inkscape:cx="174.34345"
-     inkscape:cy="706.20437"
+     inkscape:zoom="4.0000001"
+     inkscape:cx="298.68589"
+     inkscape:cy="731.55569"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -75,7 +75,7 @@
          id="g3799">
         <path
            sodipodi:type="arc"
-           style="fill:#404040;fill-opacity:1;stroke:none"
+           style="fill:#808080;fill-opacity:1;stroke:none"
            id="path2985-1"
            sodipodi:cx="342.85715"
            sodipodi:cy="300.93362"
@@ -83,11 +83,6 @@
            sodipodi:ry="52.857143"
            d="m 395.71429,300.93362 c 0,29.1922 -23.66495,52.85715 -52.85714,52.85715 -29.1922,0 -52.85715,-23.66495 -52.85715,-52.85715 0,-29.19219 23.66495,-52.85714 52.85715,-52.85714 29.19219,0 52.85714,23.66495 52.85714,52.85714 z"
            transform="matrix(0.37837837,0,0,0.37837837,218.12742,219.92398)" />
-        <path
-           style="fill:#ffffff;fill-opacity:1;stroke:none"
-           d="m 347.85715,315.79075 c -9.94113,0 -18,8.05887 -18,18 0,9.94113 8.05887,18 18,18 9.94113,0 18,-8.05887 18,-18 0,-9.94113 -8.05887,-18 -18,-18 z m 0,2 c 8.83656,0 16,7.16344 16,16 0,8.83656 -7.16344,16 -16,16 -8.83656,0 -16,-7.16344 -16,-16 0,-8.83656 7.16344,-16 16,-16 z"
-           id="path2985-7"
-           inkscape:connector-curvature="0" />
       </g>
       <g
          id="g3799-0"
@@ -104,11 +99,6 @@
            transform="matrix(0.37837837,0,0,0.37837837,218.12742,219.92398)"
            inkscape:export-xdpi="90"
            inkscape:export-ydpi="90" />
-        <path
-           style="fill:#ffffff;fill-opacity:1;stroke:none"
-           d="m 347.85715,315.79075 c -9.94113,0 -18,8.05887 -18,18 0,9.94113 8.05887,18 18,18 9.94113,0 18,-8.05887 18,-18 0,-9.94113 -8.05887,-18 -18,-18 z m 0,2 c 8.83656,0 16,7.16344 16,16 0,8.83656 -7.16344,16 -16,16 -8.83656,0 -16,-7.16344 -16,-16 0,-8.83656 7.16344,-16 16,-16 z"
-           id="path2985-7-4"
-           inkscape:connector-curvature="0" />
       </g>
     </g>
     <g
@@ -160,6 +150,39 @@
            x="274.5885"
            y="328.36218" />
       </g>
+    </g>
+    <g
+       id="g3925"
+       inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90">
+      <rect
+         ry="16"
+         rx="16"
+         y="341.86218"
+         x="212"
+         height="48"
+         width="48"
+         id="rect3005"
+         style="fill:#404040;fill-opacity:1;stroke:none" />
+      <rect
+         ry="16"
+         rx="16"
+         y="341.86218"
+         x="260"
+         height="48"
+         width="48"
+         id="rect3005-1"
+         style="fill:#808080;fill-opacity:1;stroke:none" />
+      <rect
+         ry="16"
+         rx="16"
+         y="341.86218"
+         x="308"
+         height="48"
+         width="48"
+         id="rect3005-1-2"
+         style="fill:#c87137;fill-opacity:1;stroke:none" />
     </g>
   </g>
 </svg>

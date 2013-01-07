@@ -8,13 +8,14 @@
 #define OBJTYPE_LEVEL		"level"//Level objects
 
 #define BKG					SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
+#define DARK				boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
 #define UPDATE				SDL_Flip(video)//Video updating macro
 
 #define FRAME_BEGIN			frameBegin = SDL_GetTicks()//Frame beginning macro
 #define FRAME_END			if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
 
 //Video output
-SDL_Surface* video = NULL;//Video surface
+SDL_Surface* video = NULL;//Video surface
 int video_w = 800;//Video width
 int video_h = 400;//Video height
 
@@ -26,7 +27,6 @@ bool running = true;//If true, program is running
 int frames = 0;//Frame counter
 int fps = 60;//Frames per second
 int printFps = 45;//Printing frames per second
-int animFps = 15;//Animation frames per second
 int frameBegin = 0;//Current frame beginning time
 
 //Event handling and input
@@ -42,6 +42,24 @@ string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
 window hud;//Hud window
 control *btnPause, *btnRestart;//Hud buttons
 control *labDeaths, *labTime;//Hud labels
+
+string menuFile = "data/cfg/ui/menu.cfg";//Main menu file path
+window menu;//Menu window
+panel *menuFrame;//Menu frame
+control *btnPlay, *btnCredits, *btnQuit;//Menu buttons
+
+string levelSelectFile = "data/cfg/ui/levels.cfg";//Level selection filepath
+window levelSelect;//Level select window
+control levelButton;//Level button
+int levelSelect_spacing = 16;//Level selection spacing
+int levelSelect_w = 800;//Level selection width
+
+string pauseFile = "data/cfg/ui/pause.cfg";//Pause filepath
+window pause;//Pause window
+panel* pauseFrame;//Pause frame
+control *btnResume, *btnBack;//Pause screen buttons
+
+enum uiMode { ui_mainMenu, ui_levels, ui_paused, ui_game } curUiMode = ui_mainMenu;//Current UI mode
 
 //Control scheme structure
 struct controls {
@@ -151,8 +169,9 @@ level* loadLevel(string path){
 //Game class
 class game {
 	public:
-	list<level*> levels;//Game levels
-	list<level*>::iterator currentLevel;//Current level scene
+	deque<string> levels;//Game level files
+	level* currentLevel;//Current level
+	int levelIndex;//Current level index
 	
 	entity* player;//Entity controlled by player
 	entity* goal;//Goal entity
@@ -189,6 +208,9 @@ class game {
 		
 		paused = false;
 		lastFrameTime = 0;
+		
+		currentLevel = NULL;
+		levelIndex = 0;
 	}
 	
 	//Function for controls handling
@@ -236,10 +258,10 @@ class game {
 	
 	//Function to print
 	void print(SDL_Surface* target, int x, int y){
-		if (*currentLevel){//If current level is valid
-			(*currentLevel)->print(target, x, y);//Prints current level
+		if (currentLevel){//If current level is valid
+			currentLevel->print(target, x, y);//Prints current level
 			
-			if (!(*currentLevel)->printLevelScene){//If level scene wasn't printed
+			if (!currentLevel->printLevelScene){//If level scene wasn't printed
 				if (player) printEntity(player, target, 0, x, y);//Prints player
 				if (goal) printEntity(goal, target, 0, x, y);//Prints goal
 			}
@@ -255,34 +277,35 @@ class game {
 		while (true){//Endless loop
 			var* levelFile = get <var> (&o.v, "level" + toString(i));//Gets variable
 			
-			if (levelFile) levels.push_back(loadLevel(levelFile->value));//Adds level to game if found the variable
+			if (levelFile) levels.push_back(levelFile->value);//Adds level to game if found the variable
 			else break;//Else exits loop
 			
 			i++;//Next level
 		}
-		
-		currentLevel = levels.begin();//Sets first level
 	}
 	
-	//Function to setup current level
-	void setup(){
-		player = get_ptr <entity> (&(*currentLevel)->entities, "player");//Gets player
-		goal = get_ptr <entity> (&(*currentLevel)->entities, "goal");//Gets goal
+	//Function to setup a level
+	void setup(int levelIndex, bool death = false){
+		if (currentLevel) delete currentLevel;//Deletes level if existing
+		currentLevel = loadLevel(levels[levelIndex]);//Loads level
+		
+		this->levelIndex = levelIndex;//Sets level index
+		
+		player = get_ptr <entity> (&currentLevel->entities, "player");//Gets player
+		goal = get_ptr <entity> (&currentLevel->entities, "goal");//Gets goal
 		
 		playerStart = player->position;//Sets player starting position
 		playerAngle = player->theta;//Sets player starting angle
 		
 		time = 0;//Resets timer
-		deaths = 0;//Resets death counter
+		if (!death) deaths = 0;//Resets death counter
+		
+		paused = false;//Unpauses
 	}
 	
 	//Function to reset current level
 	void reset(){	
-		player->translate ({playerStart - player->position});//Resets starting position
-		player->rotate (playerAngle - player->theta);//Resets starting angle
-		
-		player->speed = {0,0};//Resets speed
-		player->omega = 0;//Resets angular speed
+		setup(levelIndex, true);//Resets level
 		
 		deaths++;//Increases death counter
 		time = 0;//Resets timer
@@ -290,10 +313,7 @@ class game {
 	
 	//Function to move onto next level (if any)
 	void next(){
-		if ((*currentLevel)->id != levels.back()->id){//If not on last level
-			currentLevel++;//Moves onto next level
-			setup();//Sets up level
-		}
+		if (levelIndex < levels.size() - 1) setup(levelIndex + 1);//Sets up next level
 	}
 	
 	//Function to check relevant collisions
@@ -308,14 +328,14 @@ class game {
 	
 	//Function to reset forces
 	void resetForces(){
-		if (*currentLevel) (*currentLevel)->resetForces();//Resets forces on level
+		if (currentLevel) currentLevel->resetForces();//Resets forces on level
 	}
 	
 	//Function for time step
 	void step(double t){
-		if (*currentLevel){//If level exists
-			(*currentLevel)->applyGravity(gameRules.gravity);//Applies gravity
-			checkRelevant((*currentLevel)->step(t));//Steps level
+		if (currentLevel){//If level exists
+			currentLevel->applyGravity(gameRules.gravity);//Applies gravity
+			checkRelevant(currentLevel->step(t));//Steps level
 		}
 	}
 	
@@ -334,13 +354,14 @@ class game {
 	
 	//Function for animation step
 	void animStep(){
-		if (*currentLevel) (*currentLevel)->animStep();//Steps animation
+		if (currentLevel) currentLevel->animStep();//Steps animation
 	}
 } current;
 
 //Function to handle pause click
 void pauseClick(clickEventData data){
 	current.paused = true;
+	curUiMode = ui_paused;
 }
 
 //Function to handler reset click
@@ -361,6 +382,32 @@ void updateHud(){
 	labDeaths->content.t = (current.deaths < 10 ? "0" : "") + toString(current.deaths);//Sets deaths counter
 }
 
+//Function to handle play click
+void playClick(clickEventData data){
+	curUiMode = ui_levels;//Goes to level selector
+}
+
+//Function to handle quit click
+void quitClick(clickEventData data){
+	running = false;
+}
+
+//Function to handle level click
+void levelClick(clickEventData data){
+	current.setup(atoi(data.caller->id.c_str()));//Sets up level
+	curUiMode = ui_game;//Starts game
+}
+
+//Function to handle resume click
+void resumeClick(clickEventData data){
+	curUiMode = ui_game;
+}
+
+//Function to handle back click
+void backClick(clickEventData data){
+	curUiMode = ui_levels;
+}
+
 //Game initialization function
 void gameInit(){
 	Bulk_image_init();//Initializes Bulk image
@@ -377,6 +424,8 @@ void gameInit(){
 	
 	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0));//Creates video surface
 	
+	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
+	
 	keys = SDL_GetKeyState(NULL);//Gets keys
 	
 	loadThemesDB(themesFile);//Loads themes
@@ -389,4 +438,59 @@ void gameInit(){
 	
 	btnPause->release.handlers.push_back(pauseClick);//Adds click handler to pause
 	btnRestart->release.handlers.push_back(restartClick);//Adds click handler to restart
+	
+	menu = loadWindow(menuFile, "menu");//Loads menu
+	menuFrame = (panel*) menu.getControl("frame");//Gets frame
+	btnPlay = menu.getControl("frame.play");//Gets play button
+	btnCredits = menu.getControl("frame.credits");//Gets credits button
+	btnQuit = menu.getControl("frame.quit");//Gets quit button
+	
+	menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Centers menu on x
+	menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Centers menu on y
+	
+	btnPlay->release.handlers.push_back(playClick);//Adds click handler to play
+	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
+	
+	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
+	levelButton = *levelSelect.getControl("levelButton");//Sets default level button
+	levelButton.release.handlers.push_back(levelClick);//Adds click handler to level button
+	
+	levelSelect.clear();//Clears level selection window
+	
+	int max = floor((levelSelect_w + levelSelect_spacing) / (levelButton.area.w + levelSelect_spacing));//Maximum number of buttons in a row
+	int rows = ceil (current.levels.size() / max);//Rows needed
+	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
+	int offsetY = (video_h - lsH) / 2;//Y offset
+	
+	int i;//Counter
+	for (i = 0; i <= rows; i++){//For each row
+		int n;//Counter
+		int rowSize = current.levels.size() - i * max > max ? max : current.levels.size() - i * max;//Elements in row
+		int rowW = rowSize * levelButton.area.w + (rowSize - 1) * levelSelect_spacing;//Row width
+		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
+		
+		for (n = 0; n < rowSize; n++){//For each element of the row
+			control* c = new control;//New control
+			*c = levelButton;//Sets control
+			
+			c->id = toString(i * max + n);//Sets id
+			c->content.t = toString(i * max + n + 1);//Sets text
+			
+			c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
+			c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
+			
+			levelSelect.push_back(c);//Adds to controls
+		}
+	}
+	
+	pause = loadWindow(pauseFile, "pause");//Loads pause window
+	pauseFrame = (panel*) pause.getControl("frame");//Gets frame panel
+	btnResume = pause.getControl("frame.resume");//Gets resume button
+	btnBack = pause.getControl("frame.back");//Gets back button
+	
+	pauseFrame->area.x = (video_w - pauseFrame->area.w) / 2;//Centers pause on x
+	pauseFrame->area.y = (video_h - pauseFrame->area.h) / 2;//Centers pause on y
+	
+	btnResume->release.handlers.push_back(resumeClick);//Adds resume click handler
+	btnBack->release.handlers.push_back(backClick);//Adds back click handler
 }
