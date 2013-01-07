@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.99999999"
-     inkscape:cx="17.094742"
-     inkscape:cy="711.73504"
+     inkscape:zoom="2"
+     inkscape:cx="157.08548"
+     inkscape:cy="789.52771"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -132,5 +132,49 @@
        inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\back.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
+    <g
+       id="g3019"
+       transform="translate(-313,-36)">
+      <path
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\stars.png"
+         transform="matrix(0.73843368,0,0,0.77539066,201.09507,57.480427)"
+         inkscape:transform-center-y="-5.1833905"
+         d="m 253.5,124.7197 c 4.51153,0.0829 22.06885,34.4232 25.71939,37.07543 3.53113,2.56547 40.66881,7.90767 41.94111,12.08281 1.31533,4.31632 -25.91875,31.62608 -27.31309,35.91753 -1.34874,4.15108 5.0467,41.12194 1.46908,43.62216 -3.69861,2.58477 -38.08753,-14.87721 -42.59981,-14.87717 -4.36469,3e-5 -37.54977,17.50708 -41.03317,14.87717 -3.6012,-2.71885 2.37937,-40.8207 0.98496,-45.11213 -1.34879,-4.15106 -28.25374,-30.30197 -26.82897,-34.42756 1.47294,-4.26512 39.55806,-10.35138 43.20855,-13.00366 3.53109,-2.56553 20.088,-36.23473 24.45195,-36.15458 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0.1"
+         inkscape:flatsided="false"
+         sodipodi:arg2="-0.92412569"
+         sodipodi:arg1="-1.5707963"
+         sodipodi:r2="42.685478"
+         sodipodi:r1="71.142464"
+         sodipodi:cy="195.86217"
+         sodipodi:cx="253.5"
+         sodipodi:sides="5"
+         id="path2999"
+         style="fill:#1a1a1a;fill-opacity:1;stroke:none"
+         sodipodi:type="star" />
+      <path
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\stars.png"
+         transform="matrix(0.73843368,0,0,0.77539066,305.09507,78.480427)"
+         inkscape:transform-center-y="-5.1833905"
+         d="m 253.5,124.7197 c 4.51153,0.0829 22.06885,34.4232 25.71939,37.07543 3.53113,2.56547 40.66881,7.90767 41.94111,12.08281 1.31533,4.31632 -25.91875,31.62608 -27.31309,35.91753 -1.34874,4.15108 5.0467,41.12194 1.46908,43.62216 -3.69861,2.58477 -38.08753,-14.87721 -42.59981,-14.87717 -4.36469,3e-5 -37.54977,17.50708 -41.03317,14.87717 -3.6012,-2.71885 2.37937,-40.8207 0.98496,-45.11213 -1.34879,-4.15106 -28.25374,-30.30197 -26.82897,-34.42756 1.47294,-4.26512 39.55806,-10.35138 43.20855,-13.00366 3.53109,-2.56553 20.088,-36.23473 24.45195,-36.15458 z"
+         inkscape:randomized="0"
+         inkscape:rounded="0.1"
+         inkscape:flatsided="false"
+         sodipodi:arg2="-0.92412569"
+         sodipodi:arg1="-1.5707963"
+         sodipodi:r2="42.685478"
+         sodipodi:r1="71.142464"
+         sodipodi:cy="195.86217"
+         sodipodi:cx="253.5"
+         sodipodi:sides="5"
+         id="path2999-1"
+         style="fill:#cccccc;fill-opacity:1;stroke:none"
+         sodipodi:type="star" />
+    </g>
   </g>
 </svg>

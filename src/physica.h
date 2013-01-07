@@ -37,6 +37,7 @@ Uint8* keys = NULL;//Keys array
 Uint32 background = 0x101010;//Background color
 
 string themesFile = "data/cfg/ui/themes.cfg";//Themes file path
+string graphicsFile = "data/cfg/ui/graphics.cfg";//Global graphics file
 
 string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
 window hud;//Hud window
@@ -52,14 +53,23 @@ string levelSelectFile = "data/cfg/ui/levels.cfg";//Level selection filepath
 window levelSelect;//Level select window
 control levelButton;//Level button
 int levelSelect_spacing = 16;//Level selection spacing
-int levelSelect_w = 800;//Level selection width
+int levelSelect_w = 4;//Level selection grid width
 
 string pauseFile = "data/cfg/ui/pause.cfg";//Pause filepath
 window pause;//Pause window
 panel* pauseFrame;//Pause frame
 control *btnResume, *btnBack;//Pause screen buttons
 
-enum uiMode { ui_mainMenu, ui_levels, ui_paused, ui_game } curUiMode = ui_mainMenu;//Current UI mode
+string successFile = "data/cfg/ui/success.cfg";//Success file path
+window success;//Success window
+panel* successFrame;//Success frame
+control *btnNext, *btnSuccessBack;//Success window buttons
+control *labSuccessTime, *labSuccessDeaths;//Success timer and deaths count
+control *ratingA, *ratingB, *ratingC;//Rating stars
+
+image starOn, starOff;//Star images
+
+enum uiMode { ui_mainMenu, ui_levels, ui_paused, ui_success, ui_game } curUiMode = ui_mainMenu;//Current UI mode
 
 //Control scheme structure
 struct controls {
@@ -110,6 +120,8 @@ class level: public scene {
 	SDL_Surface* backgroundImage;//Level background image
 	bool printLevelScene;//If true, prints the scene objects above the background
 	
+	int twoStarsTime, threeStarsTime;//Time required for two and three stars rating (in seconds)
+	
 	//Constructor
 	level(){
 		id = "";
@@ -123,6 +135,9 @@ class level: public scene {
 		
 		backgroundImage = NULL;
 		printLevelScene = true;
+		
+		twoStarsTime = 0;
+		threeStarsTime = 0;
 	}
 	
 	//Function to load from script object
@@ -130,6 +145,8 @@ class level: public scene {
 		if (scene::fromScriptObj(o)){//If succeeded loading base data
 			var* backgroundImage = get <var> (&o.v, "background");//Gets background
 			var* print = get <var> (&o.v, "print");//Gets print flag
+			var* twoStarsTime = get <var> (&o.v, "twoStarsTime");//Gets two stars time
+			var* threeStarsTime = get <var> (&o.v, "threeStarsTime");//Gets three stars time
 			
 			if (backgroundImage) this->backgroundImage = CACHEDSURFACE(backgroundImage->value);//Loads background image
 			
@@ -137,6 +154,8 @@ class level: public scene {
 				this->backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, w, h, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);//Creates background
 				
 			if (print) this->printLevelScene = print->intValue();//Sets print flag
+			if (twoStarsTime) this->twoStarsTime = twoStarsTime->intValue();//Gets two stars time
+			if (threeStarsTime) this->threeStarsTime = threeStarsTime->intValue();//Gets three stars time
 			
 			return true;//Returns true
 		}
@@ -192,6 +211,8 @@ class game {
 	int time;//Start time
 	int deaths;//Death counter
 		
+	void (*success)();//Success function
+	
 	//Constructor
 	game(){
 		player = NULL;
@@ -211,6 +232,8 @@ class game {
 		
 		currentLevel = NULL;
 		levelIndex = 0;
+		
+		success = NULL;
 	}
 	
 	//Function for controls handling
@@ -297,8 +320,11 @@ class game {
 		playerStart = player->position;//Sets player starting position
 		playerAngle = player->theta;//Sets player starting angle
 		
-		time = 0;//Resets timer
-		if (!death) deaths = 0;//Resets death counter
+		if (!death){//If not setting up cause death
+			time = 0;//Resets timer
+			deaths = 0;//Resets death counter
+			lastFrameTime = SDL_GetTicks();//Resets frame time
+		}
 		
 		paused = false;//Unpauses
 	}
@@ -308,7 +334,6 @@ class game {
 		setup(levelIndex, true);//Resets level
 		
 		deaths++;//Increases death counter
-		time = 0;//Resets timer
 	}
 	
 	//Function to move onto next level (if any)
@@ -322,7 +347,7 @@ class game {
 		
 		for (i = c.begin(); i != c.end(); i++){//For each collision
 			if ((i->a == player && i->b->special == "hazard") || (i->a->special == "hazard" && i->b == player)){ reset(); break; }//Resets level on death
-			if ((i->a == player && i->b == goal) || (i->a == goal && i->b == player)){ next(); break; }//Next level if hit goal
+			if ((i->a == player && i->b == goal) || (i->a == goal && i->b == player)){ if (success) success(); break; }//Success if hit goal
 		}
 	}
 	
@@ -356,7 +381,25 @@ class game {
 	void animStep(){
 		if (currentLevel) currentLevel->animStep();//Steps animation
 	}
+	
+	//Function to calculate rating (1 to 3, 0 for no level)
+	int rating(){
+		if (!currentLevel) return 0;
+		
+		if (time / 1000 <= currentLevel->threeStarsTime) return 3;
+		else if (time / 1000 <= currentLevel->twoStarsTime) return 2;
+		else return 1;
+	}
 } current;
+
+//Function to convert a time in msec into a string
+string timeToString(int t){
+	int t_min = floor (t / 1000 / 60);//Minutes
+	int t_sec = int(floor (t / 1000)) % 60;//Seconds
+	int t_hun = int(floor (t / 10)) % 100;//Hundreths of second
+	
+	return (t_min < 10 ? "0" : "") + toString(t_min) + ":" + (t_sec < 10 ? "0" : "") + toString(t_sec) + ":" + (t_hun < 10 ? "0" : "") + toString(t_hun);//Sets timer
+}
 
 //Function to handle pause click
 void pauseClick(clickEventData data){
@@ -371,14 +414,7 @@ void restartClick(clickEventData data){
 
 //Function to update hud with current game info
 void updateHud(){
-	int t = current.time;//Time lapsed since level beginning
-	
-	int t_min = floor (t / 1000 / 60);//Minutes
-	int t_sec = int(floor (t / 1000)) % 60;//Seconds
-	int t_hun = int(floor (t / 10)) % 100;//Hundreths of second
-	
-	labTime->content.t = (t_min < 10 ? "0" : "") + toString(t_min) + ":" + (t_sec < 10 ? "0" : "") + toString(t_sec) + ":" + (t_hun < 10 ? "0" : "") + toString(t_hun);//Sets timer
-	
+	labTime->content.t = timeToString(current.time);//Sets timer
 	labDeaths->content.t = (current.deaths < 10 ? "0" : "") + toString(current.deaths);//Sets deaths counter
 }
 
@@ -408,26 +444,37 @@ void backClick(clickEventData data){
 	curUiMode = ui_levels;
 }
 
-//Game initialization function
-void gameInit(){
-	Bulk_image_init();//Initializes Bulk image
-	Bulk_ui_init();//Initializes Bulk user interface
-	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
+//Function to show success window
+void showSuccess(){
+	current.paused = true;//Pauses game
+	curUiMode = ui_success;//Shows success window
+}
+
+//Function to update success window
+void updateSuccess(){
+	labSuccessTime->content.t = timeToString(current.time);//Sets time label
+	labSuccessDeaths->content.t = (current.deaths < 10 ? "0" : "") + toString(current.deaths);//Sets deaths counter
 	
-	if (fullscreen){//If in fullscreen mode
-		SDL_Rect best = *(SDL_ListModes(NULL, SDL_SWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
-		
-		//Gets video size
-		video_w = best.w;
-		video_h = best.h;
+	int rating = current.rating();//Rating
+	
+	//Sets stars
+	ratingA->content.i = rating >= 1 ? starOn : starOff;
+	ratingB->content.i = rating >= 2 ? starOn : starOff;
+	ratingC->content.i = rating >= 3 ? starOn : starOff;
+}
+
+//Function to handle next click
+void nextClick(clickEventData data){
+	if (current.levelIndex < current.levels.size() - 1){//If not on last level
+		current.next();//Jumps to next level
+		curUiMode = ui_game;//Sets game mode
 	}
 	
-	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0));//Creates video surface
-	
-	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
-	
-	keys = SDL_GetKeyState(NULL);//Gets keys
-	
+	else backClick({});//Else goes back
+}
+
+//UI loading and setup function
+void loadUI(){
 	loadThemesDB(themesFile);//Loads themes
 	
 	hud = loadWindow(hudFile, "hud");//Loads hud
@@ -457,15 +504,14 @@ void gameInit(){
 	
 	levelSelect.clear();//Clears level selection window
 	
-	int max = floor((levelSelect_w + levelSelect_spacing) / (levelButton.area.w + levelSelect_spacing));//Maximum number of buttons in a row
-	int rows = ceil (current.levels.size() / max);//Rows needed
+	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
 	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
 	int offsetY = (video_h - lsH) / 2;//Y offset
 	
 	int i;//Counter
 	for (i = 0; i <= rows; i++){//For each row
 		int n;//Counter
-		int rowSize = current.levels.size() - i * max > max ? max : current.levels.size() - i * max;//Elements in row
+		int rowSize = current.levels.size() - i * levelSelect_w > levelSelect_w ? levelSelect_w : current.levels.size() - i * levelSelect_w;//Elements in row
 		int rowW = rowSize * levelButton.area.w + (rowSize - 1) * levelSelect_spacing;//Row width
 		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
 		
@@ -473,8 +519,8 @@ void gameInit(){
 			control* c = new control;//New control
 			*c = levelButton;//Sets control
 			
-			c->id = toString(i * max + n);//Sets id
-			c->content.t = toString(i * max + n + 1);//Sets text
+			c->id = toString(i * levelSelect_w + n);//Sets id
+			c->content.t = toString(i * levelSelect_w + n + 1);//Sets text
 			
 			c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
 			c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
@@ -493,4 +539,58 @@ void gameInit(){
 	
 	btnResume->release.handlers.push_back(resumeClick);//Adds resume click handler
 	btnBack->release.handlers.push_back(backClick);//Adds back click handler
+	
+	success = loadWindow(successFile, "success");//Loads success window
+	successFrame = (panel*) success.getControl("frame");//Gets frame
+	btnNext = success.getControl("frame.next");//Gets next button
+	btnSuccessBack = success.getControl("frame.back");//Gets back button
+	labSuccessTime = success.getControl("frame.time");//Gets time label
+	labSuccessDeaths = success.getControl("frame.deaths");//Gets deaths label
+	ratingA = success.getControl("frame.ratingA");//Gets first star
+	ratingB = success.getControl("frame.ratingB");//Gets second star
+	ratingC = success.getControl("frame.ratingC");//Gets third star
+	
+	successFrame->area.x = (video_w - successFrame->area.w) / 2;//Centers success on x
+	successFrame->area.y = (video_h - successFrame->area.h) / 2;//Centers success on y
+	
+	btnSuccessBack->release.handlers.push_back(backClick);//Adds back click handler
+	btnNext->release.handlers.push_back(nextClick);//Adds next click handler
+}
+
+//Global graphics file loading function
+void loadGraphics(){
+	fileData f (graphicsFile);//Source file
+	object g = f.objGen("graphics");//Generates object
+	
+	//Gets data
+	object* o_starOn = get <object> (&g.o, "starOn");
+	object* o_starOff = get <object> (&g.o, "starOff");
+	
+	if (o_starOn) starOn.fromScriptObj(*o_starOn);
+	if (o_starOff) starOff.fromScriptObj(*o_starOff);
+}
+
+//Game initialization function
+void gameInit(){
+	Bulk_image_init();//Initializes Bulk image
+	Bulk_ui_init();//Initializes Bulk user interface
+	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
+	
+	if (fullscreen){//If in fullscreen mode
+		SDL_Rect best = *(SDL_ListModes(NULL, SDL_SWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
+		
+		//Gets video size
+		video_w = best.w;
+		video_h = best.h;
+	}
+	
+	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0));//Creates video surface
+	
+	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
+	current.success = showSuccess;//Sets success function
+	
+	keys = SDL_GetKeyState(NULL);//Gets keys
+	
+	loadGraphics();//Loads graphics
+	loadUI();//Loads ui
 }

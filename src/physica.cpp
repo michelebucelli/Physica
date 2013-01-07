@@ -83,6 +83,33 @@ int main(int argc, char* argv[]){
 				pause.print(video);//Prints pause screen
 			}
 		}
+		
+		if (curUiMode == ui_success){//If completed level
+			int printOX = video_w / 2 - current.currentLevel->w / 2;//Print offset x
+			int printOY = video_h / 2 - current.currentLevel->h / 2;//Print offset y
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				if (ev.type == SDL_QUIT)//If event type was quit
+					running = false;//Stops execution
+					
+				if (ev.type == SDL_KEYDOWN){//If pressed a key
+					if (ev.key.keysym.sym == SDLK_ESCAPE) backClick({});//Goes back on esc
+					else if (ev.key.keysym.sym == SDLK_RETURN) nextClick({});//Goes next on enter
+				}
+				
+				success.checkEvents(ev);//Checks success window events
+			}
+			
+			if (frames % (fps / printFps) == 0){//On printing frame
+				current.print(video, printOX, printOY);//Prints game scene
+				
+				hud.print(video, printOX, printOY);//Prints hud
+				DARK;//Dark transparent fill
+				
+				updateSuccess();//Updates success screen
+				success.print(video);//Prints success screen
+			}
+		}
 
 		UPDATE;//Updates
 		
