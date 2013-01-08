@@ -15,6 +15,7 @@
 #define OBJTYPE_FILLBAR		"fillbar"//Fillbar objects
 #define OBJTYPE_WINDOW		"window"//Window objects
 #define OBJTYPE_LISTBOX		"listBox"//List box objects
+#define OBJTYPE_CHECKBOX	"checkBox"//Check box objects
 
 //Control content types
 #define CONTENT_TEXT		0//Text content
@@ -26,6 +27,7 @@
 #define CTYPE_INPUTBOX		2//Input box
 #define CTYPE_FILLBAR		3//Fillbar
 #define CTYPE_LISTBOX		4//List box
+#define CTYPE_CHECKBOX		5//Check box
 
 //Macros
 #define RENDERTEXT(FONT,TEXT)	TTF_RenderText_Blended(FONT.f, TEXT, FONT.color)//Macro to render text using font class instead of TTF_Font
@@ -472,6 +474,9 @@ struct clickEventData {
 //Function to give focus to control (prototype)
 void getFocus(clickEventData);
 
+//Function to check control on click (prototype)
+void check(clickEventData);
+
 //Control class
 //	represents a generic user interface control
 class control: public objectBased {
@@ -847,10 +852,79 @@ class fillbar: public control {
 	}
 };
 
+//Checkbox class
+class checkBox: public control {
+	public:
+	theme* checkedTheme;//Theme when checked
+	theme* checkedHoverTheme;//Theme when checked and mouse hover
+	bool checked;//Checked if true
+	
+	//Constructor
+	checkBox(){
+		id = "";
+		type = OBJTYPE_CHECKBOX;
+		controlType = CTYPE_CHECKBOX;
+		
+		parent = NULL;
+		
+		status = normal;//Sets normal status
+	
+		int i;//Counter
+		for (i = 0; i <= pressed; i++)//For each status
+			themes[i] = NULL;//Sets null theme for that status
+			
+		release.handlers.push_back(check);//Adds check to click events
+		
+		checkedTheme = NULL;
+		checkedHoverTheme = NULL;
+		checked = false;
+	}
+	
+	//Function to print
+	void print(SDL_Surface* target, int x = 0, int y = 0){
+		theme *oldHover = themes[hover], *oldNormal = themes[normal];//Hover and normal themes
+		
+		if (checked){//If checked
+			themes[hover] = checkedHoverTheme;//Replaces hover with checked hover
+			themes[normal] = checkedTheme;//Replaces normal with checked
+		}
+		
+		control::print(target, x, y);//Prints control
+		
+		if (checked){//If checked
+			themes[hover] = oldHover;//Resets hover theme
+			themes[normal] = oldNormal;//Resets normal theme
+		}
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (control::fromScriptObj(o)){//If control loaded successfully
+			var* checkedTheme = get <var> (&o.v, "checkedTheme");
+			var* checkedHoverTheme = get <var> (&o.v, "checkedHoverTheme");
+			var* checked = get <var> (&o.v, "checked");
+			
+			if (checkedTheme) this->checkedTheme = get <theme> (&themesDB, checkedTheme->value);
+			if (checkedHoverTheme) this->checkedHoverTheme = get <theme> (&themesDB, checkedHoverTheme->value);
+			if (checked) this->checked = checked->intValue();
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}	
+};
+
 //Function to give focus to control (used to handle focus on click)
 void getFocus(clickEventData data){
 	if (data.caller->controlType == CTYPE_INPUTBOX)//If control is an input box
 		((inputBox*) data.caller)->edit = true;//Sets edit flag to true
+}
+
+//Function to check a checkbox
+void check (clickEventData data){
+	if (data.caller->controlType == CTYPE_CHECKBOX)//If control is a checkbox
+		((checkBox*) data.caller)->checked = !((checkBox*) data.caller)->checked;//Toggles checked
 }
 
 //Fixed size list box class
@@ -1105,6 +1179,7 @@ class panel: public control {
 				else if (i->type == OBJTYPE_INPUTBOX) newControl = new inputBox;//Creates input box
 				else if (i->type == OBJTYPE_LISTBOX) newControl = new listBox;//Creates list box
 				else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
+				else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
 				
 				if (newControl){//If control was successfully created
 					newControl->fromScriptObj(*i);//Loads control
@@ -1258,6 +1333,7 @@ class window: public objectBased, public deque<control*> {
 				else if (i->type == OBJTYPE_INPUTBOX) newControl = new inputBox;//Creates input box
 				else if (i->type == OBJTYPE_LISTBOX) newControl = new listBox;//Creates list box
 				else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
+				else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
 				
 				if (newControl){
 					newControl->fromScriptObj(*i);//Loads control

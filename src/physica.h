@@ -14,10 +14,15 @@
 #define FRAME_BEGIN			frameBegin = SDL_GetTicks()//Frame beginning macro
 #define FRAME_END			if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
 
+#define EVENTS_COMMON(E)	if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
+
 //Video output
 SDL_Surface* video = NULL;//Video surface
 int video_w = 800;//Video width
 int video_h = 400;//Video height
+
+int videoWin_w = 800;//Video width if windowed
+int videoWin_h = 400;//Video height if windowed
 
 bool fullscreen = true;//Fullscreen flag
 
@@ -37,7 +42,8 @@ Uint8* keys = NULL;//Keys array
 Uint32 background = 0x101010;//Background color
 
 string themesFile = "data/cfg/ui/themes.cfg";//Themes file path
-string graphicsFile = "data/cfg/ui/graphics.cfg";//Global graphics file
+string settingsFile = "data/cfg/settings.cfg";//Global settings file
+string graphicsFile = "data/cfg/graphics.cfg";//Global graphics file
 
 string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
 window hud;//Hud window
@@ -47,7 +53,7 @@ control *labDeaths, *labTime;//Hud labels
 string menuFile = "data/cfg/ui/menu.cfg";//Main menu file path
 window menu;//Menu window
 panel *menuFrame;//Menu frame
-control *btnPlay, *btnCredits, *btnQuit;//Menu buttons
+control *btnPlay, *btnEditor, *btnSettings, *btnCredits, *btnQuit;//Menu buttons
 
 string levelSelectFile = "data/cfg/ui/levels.cfg";//Level selection filepath
 window levelSelect;//Level select window
@@ -69,7 +75,27 @@ control *ratingA, *ratingB, *ratingC;//Rating stars
 
 image starOn, starOff;//Star images
 
-enum uiMode { ui_mainMenu, ui_levels, ui_paused, ui_success, ui_game } curUiMode = ui_mainMenu;//Current UI mode
+string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
+window settings;//Settings window
+panel* settingsFrame;//Settings frame
+checkBox *setFullscreen, *setCamFollow;//Settings check boxes
+
+//Misc
+bool camFollow = false;//If true, camera will follow player
+
+//UI mode enumeration
+enum uiMode {
+	ui_mainMenu,//Main menu
+	
+	ui_levels,//Level selection
+	ui_game,//Game view
+	ui_paused,//Paused game
+	ui_success,//Level completion
+	
+	ui_settings,//Settings window
+	
+	ui_credits//Credits
+} curUiMode = ui_mainMenu;//Current UI mode
 
 //Control scheme structure
 struct controls {
@@ -386,8 +412,8 @@ class game {
 	int rating(){
 		if (!currentLevel) return 0;
 		
-		if (time / 1000 <= currentLevel->threeStarsTime) return 3;
-		else if (time / 1000 <= currentLevel->twoStarsTime) return 2;
+		if (time / 1000 < currentLevel->threeStarsTime) return 3;
+		else if (time / 1000 < currentLevel->twoStarsTime) return 2;
 		else return 1;
 	}
 } current;
@@ -473,35 +499,17 @@ void nextClick(clickEventData data){
 	else backClick({});//Else goes back
 }
 
-//UI loading and setup function
-void loadUI(){
-	loadThemesDB(themesFile);//Loads themes
+//Function to show settings window
+void showSettings(clickEventData data){
+	curUiMode = ui_settings;//Settings mode
 	
-	hud = loadWindow(hudFile, "hud");//Loads hud
-	btnPause = hud.getControl("pause");//Gets pause button
-	btnRestart = hud.getControl("restart");//Gets restart button
-	labDeaths = hud.getControl("deaths");//Gets deaths counter
-	labTime = hud.getControl("timer");//Gets timer
-	
-	btnPause->release.handlers.push_back(pauseClick);//Adds click handler to pause
-	btnRestart->release.handlers.push_back(restartClick);//Adds click handler to restart
-	
-	menu = loadWindow(menuFile, "menu");//Loads menu
-	menuFrame = (panel*) menu.getControl("frame");//Gets frame
-	btnPlay = menu.getControl("frame.play");//Gets play button
-	btnCredits = menu.getControl("frame.credits");//Gets credits button
-	btnQuit = menu.getControl("frame.quit");//Gets quit button
-	
-	menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Centers menu on x
-	menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Centers menu on y
-	
-	btnPlay->release.handlers.push_back(playClick);//Adds click handler to play
-	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
-	
-	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
-	levelButton = *levelSelect.getControl("levelButton");//Sets default level button
-	levelButton.release.handlers.push_back(levelClick);//Adds click handler to level button
-	
+	//Sets window content
+	setFullscreen->checked = fullscreen;
+	setCamFollow->checked = camFollow;
+}
+
+//Function to redraw level selection window
+void redrawLevelSelect(){
 	levelSelect.clear();//Clears level selection window
 	
 	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
@@ -528,6 +536,92 @@ void loadUI(){
 			levelSelect.push_back(c);//Adds to controls
 		}
 	}
+}
+
+//Function to resize video
+void resize(int newW, int newH, bool fs){
+	if (fs){//If setting fullscreen
+		videoWin_w = video_w;//Saves video width in windowed mode
+		videoWin_h = video_h;//Saves video height in windowed mode
+	}
+	
+	else {//Else
+		videoWin_w = newW;//Sets new windowed width
+		videoWin_h = newH;//Sets new windowed height
+	}
+	
+	//Sets size
+	video_w = newW;
+	video_h = newH;
+	
+	fullscreen = fs;//Sets fullscreen
+	
+	if (fullscreen){//If in fullscreen mode
+		SDL_Rect best = *(SDL_ListModes(NULL, SDL_SWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
+		
+		//Gets video size
+		video_w = best.w;
+		video_h = best.h;
+	}
+	
+	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+	
+	if (menuFrame){//If menu frame is available
+		menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Re-centers on x
+		menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Re-centers on y
+	}
+	
+	if (pauseFrame){//If pause frame is available
+		pauseFrame->area.x = (video_w - pauseFrame->area.w) / 2;//Re-centers on x
+		pauseFrame->area.y = (video_h - pauseFrame->area.h) / 2;//Re-centers on y
+	}
+	
+	if (successFrame){//If successFrame frame is available
+		successFrame->area.x = (video_w - successFrame->area.w) / 2;//Re-centers on x
+		successFrame->area.y = (video_h - successFrame->area.h) / 2;//Re-centers on y
+	}
+	
+	if (settingsFrame){//If settingsFrame is available
+		settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
+		settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
+	}
+	
+	redrawLevelSelect();//Redraws level selection window
+}
+
+//UI loading and setup function
+void loadUI(){
+	loadThemesDB(themesFile);//Loads themes
+	
+	hud = loadWindow(hudFile, "hud");//Loads hud
+	btnPause = hud.getControl("pause");//Gets pause button
+	btnRestart = hud.getControl("restart");//Gets restart button
+	labDeaths = hud.getControl("deaths");//Gets deaths counter
+	labTime = hud.getControl("timer");//Gets timer
+	
+	btnPause->release.handlers.push_back(pauseClick);//Adds click handler to pause
+	btnRestart->release.handlers.push_back(restartClick);//Adds click handler to restart
+	
+	menu = loadWindow(menuFile, "menu");//Loads menu
+	menuFrame = (panel*) menu.getControl("frame");//Gets frame
+	btnPlay = menu.getControl("frame.play");//Gets play button
+	btnEditor = menu.getControl("frame.editor");//Gets editor button
+	btnSettings = menu.getControl("frame.settings");//Gets settings button
+	btnCredits = menu.getControl("frame.credits");//Gets credits button
+	btnQuit = menu.getControl("frame.quit");//Gets quit button
+	
+	menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Centers menu on x
+	menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Centers menu on y
+	
+	btnPlay->release.handlers.push_back(playClick);//Adds click handler to play
+	btnSettings->release.handlers.push_back(showSettings);//Adds click handler to settings
+	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
+	
+	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
+	levelButton = *levelSelect.getControl("levelButton");//Sets default level button
+	levelButton.release.handlers.push_back(levelClick);//Adds click handler to level button
+	
+	redrawLevelSelect();//Draws level selection
 	
 	pause = loadWindow(pauseFile, "pause");//Loads pause window
 	pauseFrame = (panel*) pause.getControl("frame");//Gets frame panel
@@ -555,9 +649,17 @@ void loadUI(){
 	
 	btnSuccessBack->release.handlers.push_back(backClick);//Adds back click handler
 	btnNext->release.handlers.push_back(nextClick);//Adds next click handler
+	
+	settings = loadWindow(settingsUiFile, "settings");//Loads settings file
+	settingsFrame = (panel*) settings.getControl("frame");//Gets frame
+	setFullscreen = (checkBox*) settings.getControl("frame.fullscreen");//Gets fullscreen checkbox
+	setCamFollow = (checkBox*) settings.getControl("frame.camFollow");//Gets camera follow checkbox
+	
+	settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
+	settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
 }
 
-//Global graphics file loading function
+//Graphics info file loading function
 void loadGraphics(){
 	fileData f (graphicsFile);//Source file
 	object g = f.objGen("graphics");//Generates object
@@ -570,27 +672,66 @@ void loadGraphics(){
 	if (o_starOff) starOff.fromScriptObj(*o_starOff);
 }
 
+//Global settings file loading function
+void loadSettings(){
+	fileData f (settingsFile);//Source file
+	object g = f.objGen("settings");//Generates object
+	
+	//Gets data
+	var* v_fullscreen = get <var> (&g.v, "fullscreen");
+	var* v_camFollow = get <var> (&g.v, "camFollow");
+	var* v_videoW = get <var> (&g.v, "video_w");
+	var* v_videoH = get <var> (&g.v, "video_h");
+	
+	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
+	if (v_camFollow) camFollow = v_camFollow->intValue();
+	if (v_videoW) videoWin_w = v_videoW->intValue();
+	if (v_videoH) videoWin_h = v_videoH->intValue();
+	
+	resize(videoWin_w, videoWin_h, fullscreen);//Resizes window
+}
+
+//Function to save settings
+void saveSettings(){
+	ofstream o (settingsFile.c_str());//Output file
+	object ob ("", "settings");//Settings object
+	
+	//Sets settings data
+	ob.set("video_w", videoWin_w);
+	ob.set("video_h", videoWin_h);
+	ob.set("fullscreen", fullscreen);
+	ob.set("camFollow", camFollow);
+	
+	o << ob.toString();//Outputs settings
+	
+	o.close();//Closes file
+}
+
+//Function to apply settings
+void applySettings(){
+	if (setFullscreen->checked != fullscreen) resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
+	camFollow = setCamFollow->checked;//Applies cam follow
+}
+
 //Game initialization function
 void gameInit(){
 	Bulk_image_init();//Initializes Bulk image
 	Bulk_ui_init();//Initializes Bulk user interface
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
-	
-	if (fullscreen){//If in fullscreen mode
-		SDL_Rect best = *(SDL_ListModes(NULL, SDL_SWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
-		
-		//Gets video size
-		video_w = best.w;
-		video_h = best.h;
-	}
-	
-	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : 0));//Creates video surface
+
+	loadSettings();//Loads graphics
 	
 	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
 	current.success = showSuccess;//Sets success function
 	
 	keys = SDL_GetKeyState(NULL);//Gets keys
-	
+
 	loadGraphics();//Loads graphics
 	loadUI();//Loads ui
+}
+
+//Game quitting function
+void gameQuit(){
+	saveSettings();//Saves settings
+	SDL_Quit();//Quits SDL
 }
