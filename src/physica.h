@@ -5,6 +5,8 @@
 #include "Bulk_graphics.h"//Includes Bulk graphics
 #include "Bulk_physics.h"//Includes Bulk physics
 
+#include "SDL/SDL_mixer.h"//Includes SDL sound effects library
+
 #define OBJTYPE_LEVEL		"level"//Level objects
 
 #define BKG					SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
@@ -15,6 +17,8 @@
 #define FRAME_END			if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
 
 #define EVENTS_COMMON(E)	if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
+
+#define PLAYSOUND(SND)		if (enableSfx) Mix_PlayChannel(-1, SND, 0)//Play sound macro
 
 //Video output
 SDL_Surface* video = NULL;//Video surface
@@ -38,12 +42,14 @@ int frameBegin = 0;//Current frame beginning time
 SDL_Event ev;//Global event
 Uint8* keys = NULL;//Keys array
 
-//User interface
-Uint32 background = 0x101010;//Background color
-
+//Files
 string themesFile = "data/cfg/ui/themes.cfg";//Themes file path
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string graphicsFile = "data/cfg/graphics.cfg";//Global graphics file
+string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
+
+//User interface
+Uint32 background = 0x101010;//Background color
 
 string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
 window hud;//Hud window
@@ -78,7 +84,14 @@ image starOn, starOff;//Star images
 string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
 window settings;//Settings window
 panel* settingsFrame;//Settings frame
-checkBox *setFullscreen, *setCamFollow;//Settings check boxes
+checkBox *setFullscreen, *setCamFollow, *setSound;//Settings check boxes
+
+//Sound
+bool enableSfx = true;//Enables sound
+
+Mix_Chunk *clickSfx;//Click sound
+Mix_Chunk *successSfx;//Success sound
+Mix_Chunk *deathSfx;//Death sound
 
 //Misc
 bool camFollow = false;//If true, camera will follow player
@@ -358,8 +371,9 @@ class game {
 	//Function to reset current level
 	void reset(){	
 		setup(levelIndex, true);//Resets level
-		
 		deaths++;//Increases death counter
+		
+		PLAYSOUND(deathSfx);//Plays sound
 	}
 	
 	//Function to move onto next level (if any)
@@ -412,8 +426,8 @@ class game {
 	int rating(){
 		if (!currentLevel) return 0;
 		
-		if (time / 1000 < currentLevel->threeStarsTime) return 3;
-		else if (time / 1000 < currentLevel->twoStarsTime) return 2;
+		if (time / 1000 + deaths < currentLevel->threeStarsTime) return 3;
+		else if (time / 1000 + deaths < currentLevel->twoStarsTime) return 2;
 		else return 1;
 	}
 } current;
@@ -447,33 +461,40 @@ void updateHud(){
 //Function to handle play click
 void playClick(clickEventData data){
 	curUiMode = ui_levels;//Goes to level selector
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to handle quit click
 void quitClick(clickEventData data){
 	running = false;
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to handle level click
 void levelClick(clickEventData data){
 	current.setup(atoi(data.caller->id.c_str()));//Sets up level
 	curUiMode = ui_game;//Starts game
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to handle resume click
 void resumeClick(clickEventData data){
 	curUiMode = ui_game;
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to handle back click
 void backClick(clickEventData data){
 	curUiMode = ui_levels;
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to show success window
 void showSuccess(){
 	current.paused = true;//Pauses game
 	curUiMode = ui_success;//Shows success window
+	
+	PLAYSOUND(successSfx);//Plays sound
 }
 
 //Function to update success window
@@ -494,9 +515,15 @@ void nextClick(clickEventData data){
 	if (current.levelIndex < current.levels.size() - 1){//If not on last level
 		current.next();//Jumps to next level
 		curUiMode = ui_game;//Sets game mode
+		PLAYSOUND(clickSfx);//Plays sound
 	}
 	
 	else backClick({});//Else goes back
+}
+
+//Standard click function (just plays sound)
+void stdClick(clickEventData data){
+	PLAYSOUND(clickSfx);
 }
 
 //Function to show settings window
@@ -506,6 +533,9 @@ void showSettings(clickEventData data){
 	//Sets window content
 	setFullscreen->checked = fullscreen;
 	setCamFollow->checked = camFollow;
+	setSound->checked = enableSfx;
+	
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to redraw level selection window
@@ -654,9 +684,14 @@ void loadUI(){
 	settingsFrame = (panel*) settings.getControl("frame");//Gets frame
 	setFullscreen = (checkBox*) settings.getControl("frame.fullscreen");//Gets fullscreen checkbox
 	setCamFollow = (checkBox*) settings.getControl("frame.camFollow");//Gets camera follow checkbox
+	setSound = (checkBox*) settings.getControl("frame.enableSfx");
 	
 	settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
 	settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
+	
+	setFullscreen->release.handlers.push_back(stdClick);//Adds click handler
+	setCamFollow->release.handlers.push_back(stdClick);//Adds click handler
+	setSound->release.handlers.push_back(stdClick);//Adds click handler
 }
 
 //Graphics info file loading function
@@ -672,6 +707,21 @@ void loadGraphics(){
 	if (o_starOff) starOff.fromScriptObj(*o_starOff);
 }
 
+//Sound file loading function
+void loadSound(){
+	fileData f (sfxFile);//Loads file
+	object o = f.objGen("sfx");//Generates object
+	
+	//Gets data
+	var* success = get <var> (&o.v, "success");
+	var* death = get <var> (&o.v, "death");
+	var* click = get <var> (&o.v, "click");
+	
+	if (success) successSfx = Mix_LoadWAV(success->value.c_str());
+	if (death) deathSfx = Mix_LoadWAV(death->value.c_str());
+	if (click) clickSfx = Mix_LoadWAV(click->value.c_str());
+}
+
 //Global settings file loading function
 void loadSettings(){
 	fileData f (settingsFile);//Source file
@@ -682,11 +732,13 @@ void loadSettings(){
 	var* v_camFollow = get <var> (&g.v, "camFollow");
 	var* v_videoW = get <var> (&g.v, "video_w");
 	var* v_videoH = get <var> (&g.v, "video_h");
+	var* v_sound = get <var> (&g.v, "enableSfx");
 	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
 	if (v_camFollow) camFollow = v_camFollow->intValue();
 	if (v_videoW) videoWin_w = v_videoW->intValue();
 	if (v_videoH) videoWin_h = v_videoH->intValue();
+	if (v_sound) enableSfx = v_sound->intValue();
 	
 	resize(videoWin_w, videoWin_h, fullscreen);//Resizes window
 }
@@ -701,6 +753,7 @@ void saveSettings(){
 	ob.set("video_h", videoWin_h);
 	ob.set("fullscreen", fullscreen);
 	ob.set("camFollow", camFollow);
+	ob.set("enableSfx", enableSfx);
 	
 	o << ob.toString();//Outputs settings
 	
@@ -711,6 +764,7 @@ void saveSettings(){
 void applySettings(){
 	if (setFullscreen->checked != fullscreen) resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
 	camFollow = setCamFollow->checked;//Applies cam follow
+	enableSfx = setSound->checked;//Applies sound settings
 }
 
 //Game initialization function
@@ -719,6 +773,8 @@ void gameInit(){
 	Bulk_ui_init();//Initializes Bulk user interface
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
 
+	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
+	
 	loadSettings();//Loads graphics
 	
 	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
@@ -727,11 +783,16 @@ void gameInit(){
 	keys = SDL_GetKeyState(NULL);//Gets keys
 
 	loadGraphics();//Loads graphics
+	loadSound();//Loads sound
 	loadUI();//Loads ui
 }
 
 //Game quitting function
 void gameQuit(){
 	saveSettings();//Saves settings
+	
+	while (Mix_Playing(-1)){}//Waits for all channels to finish playing
+	
+	Mix_CloseAudio();//Closes audio
 	SDL_Quit();//Quits SDL
 }
