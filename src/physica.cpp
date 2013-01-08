@@ -125,6 +125,16 @@ int main(int argc, char* argv[]){
 			
 			settings.print(video);//Prints settings window
 		}
+
+		if (curUiMode == ui_credits){//If in credits view
+			while (SDL_PollEvent(&ev)){//While there are events on stack
+				EVENTS_COMMON(ev);//Common events
+				
+				if (ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONUP) curUiMode = ui_mainMenu;//Back to main menu on key press
+			}
+			
+			credits.print(video);//Prints credits
+		}
 		
 		UPDATE;//Updates
 		

@@ -86,6 +86,10 @@ window settings;//Settings window
 panel* settingsFrame;//Settings frame
 checkBox *setFullscreen, *setCamFollow, *setSound;//Settings check boxes
 
+string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
+window credits;//Credits window
+control* creditsLabel;//Credits label
+
 //Sound
 bool enableSfx = true;//Enables sound
 
@@ -521,6 +525,12 @@ void nextClick(clickEventData data){
 	else backClick({});//Else goes back
 }
 
+//Function to handle credits click
+void creditsClick(clickEventData data){
+	curUiMode = ui_credits;
+	PLAYSOUND(clickSfx);
+}
+
 //Standard click function (just plays sound)
 void stdClick(clickEventData data){
 	PLAYSOUND(clickSfx);
@@ -645,6 +655,7 @@ void loadUI(){
 	
 	btnPlay->release.handlers.push_back(playClick);//Adds click handler to play
 	btnSettings->release.handlers.push_back(showSettings);//Adds click handler to settings
+	btnCredits->release.handlers.push_back(creditsClick);//Adds click handler to credits
 	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
 	
 	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
@@ -692,6 +703,12 @@ void loadUI(){
 	setFullscreen->release.handlers.push_back(stdClick);//Adds click handler
 	setCamFollow->release.handlers.push_back(stdClick);//Adds click handler
 	setSound->release.handlers.push_back(stdClick);//Adds click handler
+	
+	credits = loadWindow(creditsFile, "credits");//Loads credits file
+	creditsLabel = credits.getControl("credits");//Gets credits label
+	
+	creditsLabel->area.x = (video_w - creditsLabel->area.w) / 2;//Centers credits on x
+	creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers credits on y
 }
 
 //Graphics info file loading function
