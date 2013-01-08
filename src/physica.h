@@ -775,13 +775,15 @@ void gameInit(){
 
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
 	
-	loadSettings();//Loads graphics
+	SDL_WM_SetCaption("Physica", "PHY");//Sets window caption
 	
 	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
 	current.success = showSuccess;//Sets success function
 	
 	keys = SDL_GetKeyState(NULL);//Gets keys
-
+	
+	loadSettings();//Loads settings
+	
 	loadGraphics();//Loads graphics
 	loadSound();//Loads sound
 	loadUI();//Loads ui

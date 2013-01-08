@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.0000001"
-     inkscape:cx="349.63328"
-     inkscape:cy="672.19095"
+     inkscape:zoom="5.6568545"
+     inkscape:cx="322.3409"
+     inkscape:cy="703.48677"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -56,7 +56,7 @@
      id="layer1">
     <g
        id="g3827"
-       transform="matrix(0.80000002,0,0,0.80000002,-17.297603,26.472431)"
+       transform="matrix(0.80000002,0,0,0.80000002,-16.666757,26.472431)"
        inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
@@ -102,7 +102,7 @@
       </g>
       <path
          transform="matrix(0.18918918,0,0,0.18918918,370.96857,286.85737)"
-         d="m 395.71429,300.93362 a 52.857143,52.857143 0 1 1 -105.71429,0 52.857143,52.857143 0 1 1 105.71429,0 z"
+         d="m 395.71429,300.93362 c 0,29.1922 -23.66495,52.85715 -52.85714,52.85715 -29.1922,0 -52.85715,-23.66495 -52.85715,-52.85715 0,-29.19219 23.66495,-52.85714 52.85715,-52.85714 29.19219,0 52.85714,23.66495 52.85714,52.85714 z"
          sodipodi:ry="52.857143"
          sodipodi:rx="52.857143"
          sodipodi:cy="300.93362"
@@ -216,7 +216,7 @@
     </g>
     <g
        id="g4101"
-       transform="matrix(0.8,0,0,0.8,8.4219109,46.815295)"
+       transform="matrix(0.8,0,0,0.8,9.0527572,46.815295)"
        inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
@@ -268,7 +268,8 @@
        id="g3925"
        inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
        inkscape:export-xdpi="90"
-       inkscape:export-ydpi="90">
+       inkscape:export-ydpi="90"
+       transform="translate(0,-0.35714152)">
       <rect
          ry="16"
          rx="16"
@@ -300,7 +301,7 @@
          ry="16"
          rx="16"
          y="341.86218"
-         x="357"
+         x="356"
          height="48"
          width="48"
          id="rect3005-7"
