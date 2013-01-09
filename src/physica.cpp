@@ -72,6 +72,8 @@ int main(int argc, char* argv[]){
 				pause.checkEvents(ev);//Checks pause events
 			}
 			
+			
+			
 			if (frames % (fps / printFps) == 0){//On printing frame
 				current.print(video, printOX, printOY);//Prints game scene
 				
