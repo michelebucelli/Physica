@@ -29,6 +29,7 @@ int videoWin_w = 800;//Video width if windowed
 int videoWin_h = 400;//Video height if windowed
 
 bool fullscreen = true;//Fullscreen flag
+Uint32 background = 0x101010;//Background color
 
 //Program flow
 bool running = true;//If true, program is running
@@ -55,6 +56,9 @@ Mix_Chunk *deathSfx;//Death sound
 
 //Misc
 bool camFollow = false;//If true, camera will follow player
+
+//Prototypes
+void resize(int,int,bool);//Resizing function
 
 //Control scheme structure
 struct controls {
@@ -378,8 +382,8 @@ class game {
 	}
 } current;
 
-#include "ui.h"//Includes user interface header
 #include "editor.h"//Includes editor
+#include "ui.h"//Includes user interface header
 
 //Sound file loading function
 void loadSound(){
@@ -451,6 +455,8 @@ void gameInit(){
 	loadGraphics();//Loads graphics
 	loadSound();//Loads sound
 	loadUI();//Loads ui
+	
+	loadEditor();//Loads editor
 	
 	keys = SDL_GetKeyState(NULL);//Gets keys
 }

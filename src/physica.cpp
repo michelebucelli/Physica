@@ -6,7 +6,6 @@ int main(int argc, char* argv[]){
 	
 	while (running){//While game is running
 		FRAME_BEGIN;//Frame beginning
-		
 		BKG;//Prints background
 		
 		if (curUiMode == ui_mainMenu){//If in main menu
@@ -14,8 +13,8 @@ int main(int argc, char* argv[]){
 				EVENTS_COMMON(ev);//Common events					
 				menu.checkEvents(ev);//Checks menu events
 			}
-			
-			menu.print(video);//Prints menu
+		
+			if (running) menu.print(video);//Prints menu
 		}
 		
 		if (curUiMode == ui_levels){//If in level selection
@@ -139,7 +138,6 @@ int main(int argc, char* argv[]){
 		}
 		
 		UPDATE;//Updates
-		
 		FRAME_END;//Frame end
 	}
 	

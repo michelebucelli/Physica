@@ -1277,7 +1277,7 @@ class panel: public control {
 //Window class
 //	derived from list of control pointers, includes functions to handle all their events,
 //	print them all, load the whole window from a script object and save it
-class window: public objectBased, public deque<control*> {
+class window: public objectBased, public list<control*> {
 	public:
 	
 	event <clickEventData> press;//Mouse press event

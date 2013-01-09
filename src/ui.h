@@ -11,14 +11,11 @@ string pauseFile = "data/cfg/ui/pause.cfg";//Pause filepath
 string successFile = "data/cfg/ui/success.cfg";//Success file path
 string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
 string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
-string editorFile = "data/cfg/ui/editor.cfg";//Editor window file path
 
 //Global graphics
 image starOn, starOff;//Star images
 
 //User interface
-Uint32 background = 0x101010;//Background color
-
 window hud;//Hud window
 control *btnPause, *btnRestart;//Hud buttons
 control *labDeaths, *labTime;//Hud labels
@@ -93,6 +90,12 @@ void updateHud(){
 void playClick(clickEventData data){
 	curUiMode = ui_levels;//Goes to level selector
 	PLAYSOUND(clickSfx);//Plays sound
+}
+
+//Function to handle editor click
+void editorClick(clickEventData data){
+	editing = true;//Sets editing flag
+	editorLoop();//Starts editor loop
 }
 
 //Function to handle quit click
@@ -288,6 +291,7 @@ void loadUI(){
 	menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Centers menu on y
 	
 	btnPlay->release.handlers.push_back(playClick);//Adds click handler to play
+	btnEditor->release.handlers.push_back(editorClick);//Adds click handler to editor
 	btnSettings->release.handlers.push_back(showSettings);//Adds click handler to settings
 	btnCredits->release.handlers.push_back(creditsClick);//Adds click handler to credits
 	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
@@ -353,7 +357,9 @@ void loadGraphics(){
 	//Gets data
 	object* o_starOn = get <object> (&g.o, "starOn");
 	object* o_starOff = get <object> (&g.o, "starOff");
+	object* o_handle = get <object> (&g.o, "handle");
 	
 	if (o_starOn) starOn.fromScriptObj(*o_starOn);
 	if (o_starOff) starOff.fromScriptObj(*o_starOff);
+	if (o_handle) handle.fromScriptObj(*o_handle);
 }
