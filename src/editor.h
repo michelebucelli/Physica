@@ -14,8 +14,15 @@ control *edBack, *edNew, *edSave, *edLoad, *edProp;//Editor buttons
 
 string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window file path
 window properties;//Properties window
+panel* propFrame;//Properties frame
 control *idField, *wField, *hField, *dTrField, *dRotField, *stars2, *stars3;//Level properties fields
 bool showProperties = false;//Show level properties flag
+
+string selPropFile = "data/cfg/ui/editor_selProp.cfg";//Selected properties file path
+window selProp;//Selected properties window
+panel* selPropFrame;//Selected properties frame
+control *selIdField, *selMassField, *selEField, *selWField, *selHField, *selColorField;//Selected properties fields
+checkBox *selLockTr, *selLockRot, *selPrint;//Selected properties check boxes
 
 bool editing = false;//Editor running flagg
 
@@ -101,6 +108,36 @@ void applyProp(){
 	edited.damping_rot = atof(dRotField->content.t.c_str());
 	edited.twoStarsTime = atoi(stars2->content.t.c_str());
 	edited.threeStarsTime = atoi(stars3->content.t.c_str());
+}
+
+//Function to update selected properties
+void updateSelProp(){
+	if (!selected) return;//Exits function if no entity is selected
+
+	selIdField->content.t = selected->id;
+	selMassField->content.t = toString(selected->mass);
+	selEField->content.t = toString(selected->e);
+	selWField->content.t = toString(selected->w);
+	selHField->content.t = toString(selected->h);
+	selColorField->content.t = toString(selected->color, true);
+	selLockTr->checked = selected->lockTranslation;
+	selLockRot->checked = selected->lockRotation;
+	selPrint->checked = selected->print;
+}
+
+//Function to apply properties to selected
+void applySelProp(){
+	if (!selected) return;//Exits function if no entity is selected
+	
+	selected->id = selIdField->content.t;
+	selected->mass = atof(selMassField->content.t.c_str());
+	selected->e = atof(selEField->content.t.c_str());
+	selected->resize(atof(selWField->content.t.c_str()), atof(selHField->content.t.c_str()));
+	selected->color = strtol(selColorField->content.t.c_str(), NULL, 0);
+	
+	selected->lockTranslation = selLockTr->checked;
+	selected->lockRotation = selLockRot->checked;
+	selected->print = selPrint->checked;
 }
 
 //Add button click
@@ -204,6 +241,9 @@ void loadEditor(){
 	edProp->release.handlers.push_back(editorPropClick);
 	
 	properties = loadWindow(propertiesFile, "properties");//Loads properties
+	
+	//Gets controls
+	propFrame = (panel*) properties.getControl("frame");
 	idField = properties.getControl("frame.idField");
 	wField = properties.getControl("frame.wField");
 	hField = properties.getControl("frame.hField");
@@ -211,6 +251,20 @@ void loadEditor(){
 	dRotField = properties.getControl("frame.dRotField");
 	stars2 = properties.getControl("frame.twoField");
 	stars3 = properties.getControl("frame.threeField");
+	
+	selProp = loadWindow(selPropFile, "selProperties");//Loads selected properties
+	
+	//Gets controls
+	selPropFrame = (panel*) selProp.getControl("frame");
+	selIdField = selProp.getControl("frame.idField");
+	selMassField = selProp.getControl("frame.massField");
+	selEField = selProp.getControl("frame.eField");
+	selWField = selProp.getControl("frame.wField");
+	selHField = selProp.getControl("frame.hField");
+	selColorField = selProp.getControl("frame.colorField");
+	selLockTr = (checkBox*) selProp.getControl("frame.lockTrCheck");
+	selLockRot = (checkBox*) selProp.getControl("frame.lockRotCheck");
+	selPrint = (checkBox*) selProp.getControl("frame.printCheck");
 	
 	edited = *loadLevel(templateFile);//Loads template
 }
@@ -226,8 +280,10 @@ void editorLoop(){
 		
 		while (SDL_PollEvent(&ev)){//While there are events on stack
 			EVENTS_COMMON(ev);//Global events
+			
 			editor.checkEvents(ev);//Checks editor events
 			if (showProperties){ properties.checkEvents(ev); applyProp(); }//Checks properties events
+			if (selected) { selProp.checkEvents(ev); applySelProp(); }//Checks selected properties events
 			
 			if (ev.type == SDL_MOUSEBUTTONDOWN){//On mouse pressure
 				if (ev.button.button == SDL_BUTTON_LEFT){//If clicked left
@@ -254,7 +310,10 @@ void editorLoop(){
 					}
 					else draggedNode = NULL;
 					
-					if (!draggedNode) selected = getSelected(oX, oY);//Gets entity
+					if (!draggedNode && selPropFrame->status != control::pressed && propFrame->status != control::pressed){//If not dragging a node or pressing a panel
+						selected = getSelected(oX, oY);//Gets entity
+						updateSelProp();//Updates selected entity properties
+					}
 				
 					dragged = selected;//Sets dragged
 					if (dragged) dragInitial = {double(ev.button.x - oX), double(ev.button.y - oY)};//Sets dragging initial position
@@ -284,7 +343,7 @@ void editorLoop(){
 		int mX, mY;//Mouse coords
 		int mBtn = SDL_GetMouseState(&mX, &mY);//Gets mouse state
 		
-		if (dragged){//If dragging something (entity or node)
+		if (dragged && selPropFrame->status != control::pressed && propFrame->status != control::pressed){//If dragging something (entity or node but not panel)
 			dragVector = vector {double(ev.button.x - oX), double(ev.button.y - oY)} - dragInitial;//Calculates drag vector
 			
 			SDLMod m = SDL_GetModState();//Modifier state
@@ -328,6 +387,8 @@ void editorLoop(){
 				//Recalculates size
 				dragged->w = (dragged->point[0] - dragged->point[1]).module();
 				dragged->h = (dragged->point[1] - dragged->point[2]).module();
+				
+				updateSelProp();//Updates selected properties with new info
 			}
 			
 			else {//If dragging an entity
@@ -341,7 +402,8 @@ void editorLoop(){
 		printTrControls(oX, oY);//Prints controls
 		
 		editor.print(video);//Prints editor UI
-		if (showProperties) properties.print(video);//Checks properties events
+		if (showProperties) properties.print(video);//Print properties
+		if (selected) selProp.print(video);//Prints selected properties
 		
 		UPDATE;//Updates
 		FRAME_END;//Ends frame

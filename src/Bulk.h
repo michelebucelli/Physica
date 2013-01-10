@@ -18,7 +18,7 @@
 using namespace std;//Uses standard namespace
 
 //Conversion functions
-template <class type> string toString (type);//Function to convert anything to string
+template <class type> string toString (type, bool = false);//Function to convert anything to string
 
 //String splitting functions
 template <class containerType> containerType tokenize(string, string); //Function to split a string into tokens (delimiters are not included in result)
@@ -110,8 +110,11 @@ template <class containerType> string join (containerType source, string delimit
 
 //Function to convert anything to string
 //	first argument is the obejct to convert
-template <class type> string toString (type source){
+template <class type> string toString (type source, bool hex){
 	stringstream s;//Stringstream used for conversion
+	
+	if (hex){ s.setf(ios::hex, ios::basefield); s.setf(ios::showbase); }//Sets hex base
+	
 	s << source;//Outputs source on stream
 	return s.str();//Returns string content of stream
 }
