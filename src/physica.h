@@ -46,6 +46,7 @@ Uint8* keys = NULL;//Keys array
 //Files
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
+string levelsFile = "data/cfg/levelSets/levelSet_core.cfg";//Level set file
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -106,6 +107,7 @@ struct rules {
 //	adds a few stuff to the base scene class
 class level: public scene {
 	public:
+	string bkg;//Background image file
 	SDL_Surface* backgroundImage;//Level background image
 	bool printLevelScene;//If true, prints the scene objects above the background
 	
@@ -132,12 +134,16 @@ class level: public scene {
 	//Function to load from script object
 	bool fromScriptObj(object o){
 		if (scene::fromScriptObj(o)){//If succeeded loading base data
+			var* id = get <var> (&o.v, "id");//Id variable (when loaded directly from file)
+			
 			var* backgroundImage = get <var> (&o.v, "background");//Gets background
 			var* print = get <var> (&o.v, "print");//Gets print flag
 			var* twoStarsTime = get <var> (&o.v, "twoStarsTime");//Gets two stars time
 			var* threeStarsTime = get <var> (&o.v, "threeStarsTime");//Gets three stars time
 			
-			if (backgroundImage) this->backgroundImage = CACHEDSURFACE(backgroundImage->value);//Loads background image
+			if (id) this->id = id->value;//Gets id
+			
+			if (backgroundImage){ this->bkg = backgroundImage->value; this->backgroundImage = CACHEDSURFACE(bkg); }//Gets background image
 			
 			if (!this->backgroundImage)//If background wasn't found
 				this->backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, w, h, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);//Creates background
@@ -152,12 +158,26 @@ class level: public scene {
 		return false;//Returns false
 	}
 	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = scene::toScriptObj();//Result object
+		
+		//Sets variables
+		result.set("id", id);
+		result.set("backgroudImage", bkg);
+		result.set("print", printLevelScene);
+		result.set("twoStarsTime", twoStarsTime);
+		result.set("threeStarsTime", threeStarsTime);
+		
+		return result;//Returns result
+	}
+	
 	//Function to print the level
-	void print(SDL_Surface* target, int x, int y){
+	void print(SDL_Surface* target, int x, int y, bool hidden = false){
 		SDL_Rect offset {x, y};//Offset rect
 		SDL_BlitSurface(backgroundImage, NULL, target, &offset);//Prints background
 		
-		if (printLevelScene) printScene(this, target, x, y);//Prints scene elements
+		if (printLevelScene) printScene(this, target, x, y, hidden);//Prints scene elements
 	}
 };
 
@@ -448,7 +468,7 @@ void gameInit(){
 	
 	SDL_WM_SetCaption("Physica", "PHY");//Sets window caption
 	
-	current.loadLevelSet("data/cfg/levelSets/levelSet_core.cfg");//Loads core level set
+	current.loadLevelSet(levelsFile);//Loads core level set
 	current.success = showSuccess;//Sets success function
 	
 	loadSettings();//Loads settings

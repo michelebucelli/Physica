@@ -209,6 +209,8 @@ class object{
 		
 		deque<var>::iterator j;//Iterator
 		for (j = v.begin(); j != v.end(); j++){//For each variable
+			if (j->value == "") continue;//Skips if empty
+			
 			for (i = 0; i < indent; i++) result += " ";//Indent
 			result += j->id + " = " + j->value + ";\n";//Print variable
 		}

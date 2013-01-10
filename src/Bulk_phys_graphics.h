@@ -34,12 +34,13 @@ void printEntity(entity* e, SDL_Surface* target, Uint32 color, int x, int y){
 }
 
 //Function to print a scene
-void printScene(scene *s, SDL_Surface* target, int x, int y){
+void printScene(scene *s, SDL_Surface* target, int x, int y, bool hidden = false){
 	list <entity*> :: iterator i;//Iterator for entities
 	deque <link*>::iterator j;
 	
 	for (i = s->entities.begin(); i != s->entities.end(); i++)//For each entity
 		if ((*i)->print) printEntity(*i, target, ((*i)->color << 8) + 0xFF, x, y);//Prints the entity
+		else if (hidden) printEntity(*i, target, ((*i)->color << 8) + 0x7F, x, y);//Prints hidden entity
 		
 	for (j = s->links.begin(); j != s->links.end(); j++)//For each link
 		lineColor(target, x + (*j)->a_point->x, y + (*j)->a_point->y, x + (*j)->b_point->x, y + (*j)->b_point->y, 0xFFFFFFFF);

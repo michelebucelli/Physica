@@ -69,6 +69,36 @@ string timeToString(int t){
 	return (t_min < 10 ? "0" : "") + toString(t_min) + ":" + (t_sec < 10 ? "0" : "") + toString(t_sec) + ":" + (t_hun < 10 ? "0" : "") + toString(t_hun);//Sets timer
 }
 
+//Function to redraw level selection window
+void redrawLevelSelect(){
+	levelSelect.clear();//Clears level selection window
+	
+	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
+	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
+	int offsetY = (video_h - lsH) / 2;//Y offset
+	
+	int i;//Counter
+	for (i = 0; i <= rows; i++){//For each row
+		int n;//Counter
+		int rowSize = current.levels.size() - i * levelSelect_w > levelSelect_w ? levelSelect_w : current.levels.size() - i * levelSelect_w;//Elements in row
+		int rowW = rowSize * levelButton.area.w + (rowSize - 1) * levelSelect_spacing;//Row width
+		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
+		
+		for (n = 0; n < rowSize; n++){//For each element of the row
+			control* c = new control;//New control
+			*c = levelButton;//Sets control
+			
+			c->id = toString(i * levelSelect_w + n);//Sets id
+			c->content.t = toString(i * levelSelect_w + n + 1);//Sets text
+			
+			c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
+			c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
+			
+			levelSelect.push_back(c);//Adds to controls
+		}
+	}
+}
+
 //Function to handle pause click
 void pauseClick(clickEventData data){
 	current.paused = true;
@@ -90,6 +120,8 @@ void updateHud(){
 void playClick(clickEventData data){
 	curUiMode = ui_levels;//Goes to level selector
 	PLAYSOUND(clickSfx);//Plays sound
+	
+	redrawLevelSelect();//Draws level selection window
 }
 
 //Function to handle editor click
@@ -176,36 +208,6 @@ void showSettings(clickEventData data){
 	setSound->checked = enableSfx;
 	
 	PLAYSOUND(clickSfx);//Plays sound
-}
-
-//Function to redraw level selection window
-void redrawLevelSelect(){
-	levelSelect.clear();//Clears level selection window
-	
-	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
-	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
-	int offsetY = (video_h - lsH) / 2;//Y offset
-	
-	int i;//Counter
-	for (i = 0; i <= rows; i++){//For each row
-		int n;//Counter
-		int rowSize = current.levels.size() - i * levelSelect_w > levelSelect_w ? levelSelect_w : current.levels.size() - i * levelSelect_w;//Elements in row
-		int rowW = rowSize * levelButton.area.w + (rowSize - 1) * levelSelect_spacing;//Row width
-		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
-		
-		for (n = 0; n < rowSize; n++){//For each element of the row
-			control* c = new control;//New control
-			*c = levelButton;//Sets control
-			
-			c->id = toString(i * levelSelect_w + n);//Sets id
-			c->content.t = toString(i * levelSelect_w + n + 1);//Sets text
-			
-			c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
-			c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
-			
-			levelSelect.push_back(c);//Adds to controls
-		}
-	}
 }
 
 //Function to resize video

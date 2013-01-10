@@ -4,11 +4,18 @@ Uint32 editorSel = 0xFFFFFF30;//Editor selected overlay
 
 image handle;//Transformation handles
 
+string templateFile = "data/cfg/levels/levelPresets.cfg";//Level preset file
 string entitiesFile = "data/cfg/editor/entities.cfg";//Entities file
 deque<entity*> entities;//Loaded entities
 
 string editorFile = "data/cfg/ui/editor.cfg";//Editor window file path
 window editor;//Editor window
+control *edBack, *edNew, *edSave, *edLoad, *edProp;//Editor buttons
+
+string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window file path
+window properties;//Properties window
+control *idField, *wField, *hField, *dTrField, *dRotField, *stars2, *stars3;//Level properties fields
+bool showProperties = false;//Show level properties flag
 
 bool editing = false;//Editor running flagg
 
@@ -24,15 +31,99 @@ vector dragInitial;//Dragging intial position
 vector dragDist;//Distance between dragging point and position of dragged entity
 vector dragVector;//Dragging vector
 
+string lastSaveId = "";//Last ID when saved
+
+//Back button click
+void editorBackClick(clickEventData data){
+	editing = false;//No more editing
+	PLAYSOUND(clickSfx);
+}
+
+//New button click
+void editorNewClick(clickEventData data){
+	edited.entities.clear();//Clears entities
+	PLAYSOUND(clickSfx);
+	
+	edited = *loadLevel(templateFile);//Loads template
+}
+
+//Save button click
+void editorSaveClick(clickEventData data){
+	string lFile = "data/cfg/levels/" + edited.id + ".cfg";//Level file path
+	
+	if (lastSaveId != edited.id){//If id was changed
+		remove(("data/cfg/levels/" + lastSaveId + ".cfg").c_str());//Deletes old file
+		
+		deque<string>::iterator i;//String iterator
+		for (i = current.levels.begin(); i != current.levels.end(); i++){//For each level
+			if (*i == "data/cfg/levels/" + lastSaveId + ".cfg"){//If level was this (with old id)
+				i = current.levels.erase(i);//Erases
+				i--;//Back
+			}
+		}
+	}
+	
+	ofstream o (lFile.c_str());//Output level file
+	o << edited.toScriptObj().toString();//Saves level
+	o.close();//Closes file
+	
+	current.levels.push_back(lFile);
+	
+	ofstream levels(levelsFile.c_str());//Levels file
+	int n;//Counter
+	for (n = 0; n < current.levels.size(); n++)//For each level
+		levels << "level" << n + 1 << " = " << current.levels[n] << ";" << endl;//Adds level file
+	levels.close();//Closes file
+	
+	lastSaveId = edited.id;//Saves ID
+}
+
+//Properties button click
+void editorPropClick(clickEventData data){
+	showProperties = !showProperties;
+	PLAYSOUND(clickSfx);
+	
+	idField->content.t = edited.id;
+	wField->content.t = toString(edited.w);
+	hField->content.t = toString(edited.h);
+	dTrField->content.t = toString(edited.damping_tr);
+	dRotField->content.t = toString(edited.damping_rot);
+	stars2->content.t = toString(edited.twoStarsTime);
+	stars3->content.t = toString(edited.threeStarsTime);
+}
+
+//Function to apply properties
+void applyProp(){
+	edited.id = idField->content.t;
+	edited.w = atoi(wField->content.t.c_str());
+	edited.h = atoi(hField->content.t.c_str());
+	edited.damping_tr = atof(dTrField->content.t.c_str());
+	edited.damping_rot = atof(dRotField->content.t.c_str());
+	edited.twoStarsTime = atoi(stars2->content.t.c_str());
+	edited.threeStarsTime = atoi(stars3->content.t.c_str());
+}
+
 //Add button click
 void addClick(clickEventData data){
 	box* n = (box*) get_ptr <entity> (&entities, data.caller->id);//Requested entity
 	
 	if (n){//If entity was found
 		box *nB = new box (*n);//New box
+		
 		nB->translate(vector{edited.w / 2, edited.h / 2} - nB->position);//Sets position
+		
+		string id = nB->id;//Id
+		int i = 1;//Counter
+		
+		while (get_ptr <entity> (&edited.entities, nB->id)){//While there's an entity with the same name
+			nB->id = id + "_" + toString(i);//Serializes id
+			i++;//Increases counter
+		}
+		
 		edited.entities.push_back((entity*) nB);//Adds to level
 	}
+	
+	PLAYSOUND(clickSfx);
 }
 
 //Function to get entity currently under the mouse
@@ -99,8 +190,29 @@ void loadEditor(){
 		editor.push_back(nC);//Adds to editor
 	}
 	
-	edited.w = 800;
-	edited.h = 400;
+	//Gets buttons
+	edBack = editor.getControl("back");
+	edNew = editor.getControl("new");
+	edSave = editor.getControl("save");
+	edLoad = editor.getControl("load");
+	edProp = editor.getControl("prop");
+	
+	//Sets handlers
+	edBack->release.handlers.push_back(editorBackClick);
+	edNew->release.handlers.push_back(editorNewClick);
+	edSave->release.handlers.push_back(editorSaveClick);
+	edProp->release.handlers.push_back(editorPropClick);
+	
+	properties = loadWindow(propertiesFile, "properties");//Loads properties
+	idField = properties.getControl("frame.idField");
+	wField = properties.getControl("frame.wField");
+	hField = properties.getControl("frame.hField");
+	dTrField = properties.getControl("frame.dTrField");
+	dRotField = properties.getControl("frame.dRotField");
+	stars2 = properties.getControl("frame.twoField");
+	stars3 = properties.getControl("frame.threeField");
+	
+	edited = *loadLevel(templateFile);//Loads template
 }
 
 //Editor loop function
@@ -115,6 +227,7 @@ void editorLoop(){
 		while (SDL_PollEvent(&ev)){//While there are events on stack
 			EVENTS_COMMON(ev);//Global events
 			editor.checkEvents(ev);//Checks editor events
+			if (showProperties){ properties.checkEvents(ev); applyProp(); }//Checks properties events
 			
 			if (ev.type == SDL_MOUSEBUTTONDOWN){//On mouse pressure
 				if (ev.button.button == SDL_BUTTON_LEFT){//If clicked left
@@ -224,10 +337,11 @@ void editorLoop(){
 		
 		SDL_FillRect(video, & SDL_Rect { oX, oY, edited.w, edited.h }, editorBkg);//Fills editor background
 		
-		edited.print(video, oX, oY);//Prints level
+		edited.print(video, oX, oY, true);//Prints level
 		printTrControls(oX, oY);//Prints controls
 		
 		editor.print(video);//Prints editor UI
+		if (showProperties) properties.print(video);//Checks properties events
 		
 		UPDATE;//Updates
 		FRAME_END;//Ends frame

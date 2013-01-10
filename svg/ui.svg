@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="5.6568545"
-     inkscape:cx="313.06012"
-     inkscape:cy="719.75023"
+     inkscape:zoom="4.0000002"
+     inkscape:cx="294.29726"
+     inkscape:cy="676.59683"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -55,14 +55,13 @@
      inkscape:groupmode="layer"
      id="layer1">
     <g
-       id="g3827"
-       transform="matrix(0.80000002,0,0,0.80000002,-16.666757,26.472431)"
+       id="g4592"
        inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
-         transform="matrix(0.37837837,0,0,0.37837837,176.10371,219.92398)"
-         d="m 395.71429,300.93362 c 0,29.1922 -23.66495,52.85715 -52.85714,52.85715 -29.1922,0 -52.85715,-23.66495 -52.85715,-52.85715 0,-29.19219 23.66495,-52.85714 52.85715,-52.85714 29.19219,0 52.85714,23.66495 52.85714,52.85714 z"
+         transform="matrix(0.3027027,0,0,0.3027027,124.21621,202.41162)"
+         d="m 395.71429,300.93362 a 52.857143,52.857143 0 1 1 -105.71429,0 52.857143,52.857143 0 1 1 105.71429,0 z"
          sodipodi:ry="52.857143"
          sodipodi:rx="52.857143"
          sodipodi:cy="300.93362"
@@ -71,7 +70,7 @@
          style="fill:#404040;fill-opacity:1;stroke:none"
          sodipodi:type="arc" />
       <g
-         transform="translate(-2.0237113,0)"
+         transform="matrix(0.80000002,0,0,0.80000002,-18.285726,26.472431)"
          id="g3799">
         <path
            sodipodi:type="arc"
@@ -86,7 +85,7 @@
       </g>
       <g
          id="g3799-0"
-         transform="translate(37.976288,0)">
+         transform="matrix(0.80000002,0,0,0.80000002,13.714274,26.472431)">
         <path
            sodipodi:type="arc"
            style="fill:#c87137;fill-opacity:1;stroke:none"
@@ -101,8 +100,8 @@
            inkscape:export-ydpi="90" />
       </g>
       <path
-         transform="matrix(0.18918918,0,0,0.18918918,370.96857,286.85737)"
-         d="m 395.71429,300.93362 c 0,29.1922 -23.66495,52.85715 -52.85714,52.85715 -29.1922,0 -52.85715,-23.66495 -52.85715,-52.85715 0,-29.19219 23.66495,-52.85714 52.85715,-52.85714 29.19219,0 52.85714,23.66495 52.85714,52.85714 z"
+         transform="matrix(0.15135135,0,0,0.15135135,280.10811,255.95833)"
+         d="m 395.71429,300.93362 a 52.857143,52.857143 0 1 1 -105.71429,0 52.857143,52.857143 0 1 1 105.71429,0 z"
          sodipodi:ry="52.857143"
          sodipodi:rx="52.857143"
          sodipodi:cy="300.93362"
@@ -111,7 +110,7 @@
          style="fill:#404040;fill-opacity:1;stroke:none"
          sodipodi:type="arc" />
       <g
-         transform="matrix(0.49999999,0,0,0.49999999,261.90486,156.89538)"
+         transform="matrix(0.4,0,0,0.4,192.85714,151.98874)"
          id="g3799-4">
         <path
            sodipodi:type="arc"
@@ -126,7 +125,7 @@
       </g>
       <g
          id="g3799-0-5"
-         transform="matrix(0.49999999,0,0,0.49999999,281.90486,156.89538)">
+         transform="matrix(0.4,0,0,0.4,208.85714,151.98874)">
         <path
            sodipodi:type="arc"
            style="fill:#c87137;fill-opacity:1;stroke:none"
@@ -141,6 +140,7 @@
            inkscape:export-ydpi="90" />
       </g>
       <g
+         transform="matrix(0.80000002,0,0,0.80000002,-16.666757,26.472431)"
          id="g3225">
         <g
            transform="matrix(0.49999999,0,0,0.49999999,202.91672,156.89538)"
@@ -182,6 +182,7 @@
         </g>
       </g>
       <g
+         transform="matrix(0.80000002,0,0,0.80000002,-16.666757,26.472431)"
          id="g3254">
         <g
            transform="matrix(0.49999999,0,0,0.49999999,203.6075,176.92363)"
@@ -258,8 +259,7 @@
          style="fill:#333333;fill-opacity:1;stroke:none" />
     </g>
     <g
-       id="g3797"
-       transform="translate(0,-0.88032952)"
+       id="g4631"
        inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
@@ -267,7 +267,7 @@
          inkscape:export-ydpi="90"
          inkscape:export-xdpi="90"
          inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
-         transform="matrix(0.8,0,0,0.8,9.0527572,47.695626)"
+         transform="matrix(0.8,0,0,0.8,9.0527572,46.815296)"
          id="g4101">
         <g
            id="g4032"
@@ -314,8 +314,8 @@
         </g>
       </g>
       <path
-         transform="matrix(0.94280908,0,0,0.94280908,10.666673,16.875418)"
-         d="m 272.9432,315.55695 c 0,2.34314 -1.89949,4.24264 -4.24264,4.24264 -2.34314,0 -4.24264,-1.8995 -4.24264,-4.24264 0,-2.34315 1.8995,-4.24264 4.24264,-4.24264 2.34315,0 4.24264,1.89949 4.24264,4.24264 z"
+         transform="matrix(0.94280908,0,0,0.94280908,10.666673,15.995088)"
+         d="m 272.9432,315.55695 a 4.2426405,4.2426405 0 1 1 -8.48528,0 4.2426405,4.2426405 0 1 1 8.48528,0 z"
          sodipodi:ry="4.2426405"
          sodipodi:rx="4.2426405"
          sodipodi:cy="315.55695"
@@ -323,6 +323,33 @@
          id="path3795"
          style="fill:#c0c0c0;fill-opacity:1;stroke:none"
          sodipodi:type="arc" />
+      <rect
+         ry="0.99999994"
+         rx="1"
+         y="309.50504"
+         x="276"
+         height="32"
+         width="32"
+         id="rect4042"
+         style="fill:#404040;fill-opacity:1;stroke:none" />
+      <rect
+         ry="0.99999994"
+         rx="1"
+         y="309.50504"
+         x="308"
+         height="32"
+         width="32"
+         id="rect4042-7"
+         style="fill:#808080;fill-opacity:1;stroke:none" />
+      <rect
+         ry="0.99999994"
+         rx="1"
+         y="309.50504"
+         x="340"
+         height="32"
+         width="32"
+         id="rect4042-1"
+         style="fill:#c87137;fill-opacity:1;stroke:none" />
     </g>
   </g>
 </svg>

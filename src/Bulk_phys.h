@@ -286,6 +286,42 @@ class entity: public objectBased {
 		
 		return false;//Returns false
 	}
+	
+	//Function to save to script object
+	virtual object toScriptObj(){
+		object result = objectBased::toScriptObj();//Result object
+		
+		//Sets members
+		result.set("mass", mass);
+		result.set("e", e);
+		result.set("position", toString(position.x) + " " + toString(position.y));
+		result.set("lockTranslation", lockTranslation);
+		result.set("theta", theta);
+		result.set("lockRotation", lockRotation);
+		result.set("color", color);
+		result.set("print", print);
+		result.set("special", special);
+		
+		result.o.push_back(anims.toScriptObj());
+		
+		deque<vector*>::iterator i;
+		string s = "";
+		
+		for (i = nodes.begin(); i != nodes.end(); i++)
+			s += ", " + toString((*i)->x - position.x) + " " + toString((*i)->y - position.y);
+		
+		s.erase(0, 2);
+		result.set("nodes", s);
+		s = "";
+		
+		for (i = sensors.begin(); i != sensors.end(); i++)
+			s += ", " + toString((*i)->x - position.x) + " " + toString((*i)->y - position.y);
+		
+		s.erase(0, 2);
+		result.set("sensors", s);
+		
+		return result;//Returns result
+	}
 };
 
 //Box entity class
@@ -401,9 +437,19 @@ class box: public entity {
 		
 		return false;//Returns false
 	}
+	
+	//Function to save to script obj
+	virtual object toScriptObj(){
+		object result = entity::toScriptObj();//Result object
+		
+		result.set("w", w);
+		result.set("h", h);
+		
+		return result;//Returns result
+	}
 };
 
-//Ball entity class
+//Ball entity class [INCOMPLETE]
 class ball: public entity {
 	public:
 	//General
@@ -703,9 +749,11 @@ class link: public objectBased {
 	public:
 	entity* a;//First entity
 	vector* a_point;//First entity application point
+	int aPointIndex;//A point index
 	
 	entity* b;//Second entity
 	vector* b_point;//Second entity application point
+	int bPointIndex;//B point index
 	
 	scene* parent;//Parent scene
 	
@@ -741,6 +789,28 @@ class link: public objectBased {
 	
 	//Function to load from script object
 	virtual bool fromScriptObj(object);
+	
+	//Function to save to script object
+	virtual object toScriptObj(){
+		object result = objectBased::toScriptObj();//Result object
+		
+		//Sets members
+		if (a){//If A entity was given
+			result.set ("a", a->id);//Sets A entity
+			result.set ("a_point", aPointIndex);//Sets a point
+		}
+		
+		else result.set ("a_point", toString(a_point->x) + " " + toString(a_point->y));//Else sets point only
+		
+		if (b){//If B entity was given
+			result.set ("b", b->id);//Sets B entity
+			result.set ("b_point", bPointIndex);//Sets b point
+		}
+		
+		else result.set ("b_point", toString(b_point->x) + " " + toString(b_point->y));//Else sets point only
+		
+		return result;//Returns result
+	}
 };
 
 //Spring class
@@ -788,6 +858,17 @@ class spring: public link {
 		}
 		
 		return false;//Returns false
+	}
+	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = link::toScriptObj();//Result object
+		
+		//Sets members
+		result.set("length_zero", length_zero);
+		result.set("k", k);
+		
+		return result;//Returns result
 	}
 };
 
@@ -976,6 +1057,25 @@ class scene: public objectBased {
 		return false;//Returns false
 	}
 	
+	//Function to save to script obj
+	virtual object toScriptObj(){
+		object result = objectBased::toScriptObj();//Result object
+		
+		//Sets variables
+		result.set("damping_tr", damping_tr);
+		result.set("damping_rot", damping_rot);
+		result.set("w", w);
+		result.set("h", h);
+		
+		list<entity*>::iterator i;//Entity iterator
+		deque<link*>::iterator l;//Link iterator
+		
+		for (i = entities.begin(); i != entities.end(); i++) result.o.push_back((*i)->toScriptObj());//Adds all entities
+		for (l = links.begin(); l != links.end(); i++) result.o.push_back((*l)->toScriptObj());//Adds all links
+		
+		return result;//Returns result
+	}
+	
 	//Function for animation step in animated entities
 	void animStep(){
 		list <entity*>::iterator i;//Iterator
@@ -1017,12 +1117,16 @@ bool link::fromScriptObj(object o){
 		if (a && parent) this->a = get_ptr <entity> (&parent->entities, a->value);//Gets a entity
 		if (b && parent) this->b = get_ptr <entity> (&parent->entities, b->value);//Gets b entity
 		
-		if (this->a && a_point->intValue() < this->a->nodes.size())//If a entity set successfully
+		if (this->a && a_point->intValue() < this->a->nodes.size()){//If a entity set successfully
 			this->a_point = this->a->nodes[a_point->intValue()];//Gets a point
+			this->aPointIndex = a_point->intValue();//Gets a point index
+		}
 		else this->a_point = new vector (a_point->value);//Else loads from string
 		
-		if (this->b && b_point->intValue() < this->b->nodes.size())//If b entity set successfully
+		if (this->b && b_point->intValue() < this->b->nodes.size()){//If b entity set successfully
 			this->b_point = this->b->nodes[b_point->intValue()];//Gets b point
+			this->bPointIndex = b_point->intValue();//Gets b point index
+		}
 		else this->b_point = new vector (b_point->value);//Else loads from string
 	
 		return true;//Returns true

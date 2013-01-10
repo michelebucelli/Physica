@@ -506,6 +506,8 @@ class control: public objectBased {
 	event <clickEventData> press;//Press event (triggered on mouse button press)
 	event <clickEventData> release;//Release event (triggered on mouse button release)
 	
+	bool clickThrough;//If true, clicking this allows panel dragging
+	
 	int pressBtn;//Pressed mouse button
 	
 	//Constructor
@@ -521,6 +523,8 @@ class control: public objectBased {
 		int i;//Counter
 		for (i = 0; i <= pressed; i++)//For each status
 			themes[i] = NULL;//Sets null theme for that status
+			
+		clickThrough = false;
 			
 		release.handlers.push_back(getFocus);//Adds getFocus to click events
 	}
@@ -642,6 +646,8 @@ class control: public objectBased {
 			
 			object* content = get <object, deque<object> > (&o.o, "content");//Control content
 			
+			var* clickThrough = get <var> (&o.v, "clickThrough");//Gets clickThrough variable
+			
 			if (area) this->area.fromScriptObj(*area);//Loads area
 			
 			if (theme_normal) this->themes[normal] = get <theme, list<theme> > (&themesDB, theme_normal->value);//Gets normal theme
@@ -649,6 +655,8 @@ class control: public objectBased {
 			if (theme_pressed) this->themes[pressed] = get <theme, list<theme> > (&themesDB, theme_pressed->value);//Gets pressed theme
 			
 			if (content) this->content.fromScriptObj(*content);//Loads content
+
+			if (clickThrough) this->clickThrough = clickThrough->intValue();//Gets click through flag
 			
 			return true;//Returns true
 		}
@@ -690,6 +698,8 @@ class inputBox: public control {
 		int i;//Counter
 		for (i = 0; i < pressed; i++)//For each status
 			themes[i] = NULL;//Sets null theme for that status
+		
+		clickThrough = false;
 		
 		edit = false;
 	}
@@ -801,6 +811,8 @@ class fillbar: public control {
 		fill = 1;
 		fillTheme = NULL;
 		border = 0;
+		
+		clickThrough = false;
 	}
 	
 	//Print method
@@ -878,6 +890,8 @@ class checkBox: public control {
 		checkedTheme = NULL;
 		checkedHoverTheme = NULL;
 		checked = false;
+		
+		clickThrough = false;
 	}
 	
 	//Function to print
@@ -958,6 +972,8 @@ class listBox: public control {
 		
 		itemCount = 0;
 		items = NULL;
+		
+		clickThrough = false;
 	}
 	
 	//Function to resize box items (deletes previous items)
@@ -1077,6 +1093,8 @@ class panel: public control {
 		int i;//Counter
 		for (i = 0; i < pressed; i++)//For each status
 			themes[i] = NULL;//Sets null theme for that status
+			
+		clickThrough = false;
 	}
 	
 	//Print function
@@ -1109,7 +1127,7 @@ class panel: public control {
 		
 		list<control*>::iterator i;//Children iterator
 		for (i = children.begin(); i != children.end(); i++){//For each child control
-			if ((*i)->status == pressed) anyPressed = true;//Checks for pressed control
+			if ((*i)->status == pressed && !(*i)->clickThrough) anyPressed = true;//Checks for pressed control
 		}
 		
 		if (status == pressed && !anyPressed && allowDrag){//If only the panel was pressed
