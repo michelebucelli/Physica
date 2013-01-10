@@ -46,6 +46,36 @@ checkBox *setFullscreen, *setCamFollow, *setSound;//Settings check boxes
 window credits;//Credits window
 control* creditsLabel;//Credits label
 
+//Function to get input
+string getInput(string prompt){
+	inputPrompt->content.t = prompt;//Sets prompt
+	
+	SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);//Surface to store video
+	SDL_BlitSurface(video, NULL, old, NULL);//Blits video on surface
+	
+	while (running){//While inputting
+		FRAME_BEGIN;//Begins the frame
+		
+		while (SDL_PollEvent(&ev)){//While there are events on stack
+			EVENTS_COMMON(ev);//Common events
+			input.checkEvents(ev);//Checks input events
+			
+			if (ev.type == SDL_KEYDOWN){//If pressed a key
+				if (ev.key.keysym.sym == SDLK_RETURN) return inputField->content.t;//Returns result on enter
+				else if (ev.key.keysym.sym == SDLK_ESCAPE) return "";//Returns empty line else
+			}
+		}
+		
+		BKG;//Prints background
+		
+		SDL_BlitSurface(old, NULL, video, NULL);//Blits old video
+		input.print(video);//Prints input
+		
+		UPDATE;//Updates
+		FRAME_END;//End frame
+	}
+}
+
 //UI mode enumeration
 enum uiMode {
 	ui_mainMenu,//Main menu
@@ -258,6 +288,11 @@ void resize(int newW, int newH, bool fs){
 		settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
 	}
 	
+	if (inputField){//If input field is available
+		inputField->area.x = (video_w - inputField->area.w) / 2;//Centers input on x
+		inputField->area.y = (video_h - inputField->area.h) / 2;//Centers input on y
+	}
+	
 	redrawLevelSelect();//Redraws level selection window
 }
 
@@ -349,6 +384,14 @@ void loadUI(){
 	
 	creditsLabel->area.x = (video_w - creditsLabel->area.w) / 2;//Centers credits on x
 	creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers credits on y
+	
+	input = loadWindow(inputFile, "input");//Loads input window
+	inputFrame = (panel*) input.getControl("frame");//Gets frame
+	inputPrompt = input.getControl("frame.prompt");//Gets prompt
+	inputField = (inputBox*) input.getControl("frame.field");//Gets field
+	
+	inputFrame->area.x = (video_w - inputFrame->area.w) / 2;//Centers input on x
+	inputFrame->area.y = (video_h - inputFrame->area.h) / 2;//Centers input on y
 }
 
 //Graphics info file loading function

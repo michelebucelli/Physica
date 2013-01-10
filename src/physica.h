@@ -55,11 +55,19 @@ Mix_Chunk *clickSfx;//Click sound
 Mix_Chunk *successSfx;//Success sound
 Mix_Chunk *deathSfx;//Death sound
 
+//Global user interface (needed in editor, can't be declared in ui.h)
+string inputFile = "data/cfg/ui/input.cfg";//Input window file path
+window input;//Input window
+panel* inputFrame;//Input frame
+control* inputPrompt;//Input prompt
+inputBox* inputField;//Input field
+
 //Misc
 bool camFollow = false;//If true, camera will follow player
 
 //Prototypes
 void resize(int,int,bool);//Resizing function
+string getInput(string);//Function to get input
 
 //Control scheme structure
 struct controls {
@@ -329,6 +337,9 @@ class game {
 		playerStart = player->position;//Sets player starting position
 		playerAngle = player->theta;//Sets player starting angle
 		
+		releasedJump = true;
+		playerJumps = 0;
+		
 		if (!death){//If not setting up cause death
 			time = 0;//Resets timer
 			deaths = 0;//Resets death counter
@@ -344,6 +355,9 @@ class game {
 		deaths++;//Increases death counter
 		
 		PLAYSOUND(deathSfx);//Plays sound
+		
+		releasedJump = true;
+		playerJumps = 0;
 	}
 	
 	//Function to move onto next level (if any)

@@ -10,7 +10,7 @@ deque<entity*> entities;//Loaded entities
 
 string editorFile = "data/cfg/ui/editor.cfg";//Editor window file path
 window editor;//Editor window
-control *edBack, *edNew, *edSave, *edLoad, *edProp;//Editor buttons
+control *edBack, *edNew, *edSave, *edOpen, *edProp;//Editor buttons
 
 string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window file path
 window properties;//Properties window
@@ -24,7 +24,7 @@ panel* selPropFrame;//Selected properties frame
 control *selIdField, *selMassField, *selEField, *selWField, *selHField, *selColorField;//Selected properties fields
 checkBox *selLockTr, *selLockRot, *selPrint;//Selected properties check boxes
 
-bool editing = false;//Editor running flagg
+bool editing = false;//Editor running flag
 
 level edited;//Edited level
 
@@ -52,16 +52,18 @@ void editorNewClick(clickEventData data){
 	PLAYSOUND(clickSfx);
 	
 	edited = *loadLevel(templateFile);//Loads template
+	lastSaveId = "";
 }
 
 //Save button click
 void editorSaveClick(clickEventData data){
 	string lFile = "data/cfg/levels/" + edited.id + ".cfg";//Level file path
+	bool existing = false;//If true, level is already in level set
+	deque<string>::iterator i;//String iterator
 	
 	if (lastSaveId != edited.id){//If id was changed
 		remove(("data/cfg/levels/" + lastSaveId + ".cfg").c_str());//Deletes old file
 		
-		deque<string>::iterator i;//String iterator
 		for (i = current.levels.begin(); i != current.levels.end(); i++){//For each level
 			if (*i == "data/cfg/levels/" + lastSaveId + ".cfg"){//If level was this (with old id)
 				i = current.levels.erase(i);//Erases
@@ -70,19 +72,34 @@ void editorSaveClick(clickEventData data){
 		}
 	}
 	
+	for (i = current.levels.begin(); i != current.levels.end(); i++)//For each level
+		if (*i == lFile) existing = true;//Sets existing flag
+	
 	ofstream o (lFile.c_str());//Output level file
 	o << edited.toScriptObj().toString();//Saves level
 	o.close();//Closes file
 	
-	current.levels.push_back(lFile);
-	
-	ofstream levels(levelsFile.c_str());//Levels file
-	int n;//Counter
-	for (n = 0; n < current.levels.size(); n++)//For each level
-		levels << "level" << n + 1 << " = " << current.levels[n] << ";" << endl;//Adds level file
-	levels.close();//Closes file
+	if (!existing){//If level doesn't exist
+		current.levels.push_back(lFile);
+		
+		ofstream levels(levelsFile.c_str());//Levels file
+		int n;//Counter
+		for (n = 0; n < current.levels.size(); n++)//For each level
+			levels << "level" << n + 1 << " = " << current.levels[n] << ";" << endl;//Adds level file
+		levels.close();//Closes file
+	}
 	
 	lastSaveId = edited.id;//Saves ID
+}
+
+//Open button click
+void editorOpenClick(clickEventData data){
+	PLAYSOUND(clickSfx);
+	
+	string lFile = getInput("Insert level file name (data/cfg/levels/)");//Level file path
+	if (lFile != "") edited = *loadLevel("data/cfg/levels/" + lFile);//Loads level
+	
+	lastSaveId = "";
 }
 
 //Properties button click
@@ -231,13 +248,14 @@ void loadEditor(){
 	edBack = editor.getControl("back");
 	edNew = editor.getControl("new");
 	edSave = editor.getControl("save");
-	edLoad = editor.getControl("load");
+	edOpen = editor.getControl("open");
 	edProp = editor.getControl("prop");
 	
 	//Sets handlers
 	edBack->release.handlers.push_back(editorBackClick);
 	edNew->release.handlers.push_back(editorNewClick);
 	edSave->release.handlers.push_back(editorSaveClick);
+	edOpen->release.handlers.push_back(editorOpenClick);
 	edProp->release.handlers.push_back(editorPropClick);
 	
 	properties = loadWindow(propertiesFile, "properties");//Loads properties
@@ -273,7 +291,6 @@ void loadEditor(){
 void editorLoop(){
 	while (editing && running){//While editor is in execution
 		FRAME_BEGIN;//Begins frame
-		BKG;//Prints background
 		
 		int oX = (video_w - edited.w) / 2;//Print offset x
 		int oY = (video_h - edited.h) / 2;//Print offset y
@@ -396,6 +413,7 @@ void editorLoop(){
 			}
 		}
 		
+		BKG;//Prints background
 		SDL_FillRect(video, & SDL_Rect { oX, oY, edited.w, edited.h }, editorBkg);//Fills editor background
 		
 		edited.print(video, oX, oY, true);//Prints level

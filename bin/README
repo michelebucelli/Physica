@@ -1,0 +1,15 @@
+PHYSICA
+
+1.GET IT
+	1.1. WINDOWS USERS: just head to https://sourceforge.net/projects/physica/ , download and extract the .zip file
+
+	1.2. LINUX USERS:
+		- download and extract the repository content (button above)
+		- from inside the downloaded folder, run the command
+				g++ -enable-auto-import -w -obin/physica src/physica.cpp -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lSDL_gfx
+		- move into the bin folder and run the command
+				physica
+				
+2. PLAY IT
+	Click the big play button to start playing and pick your level (currently just two, but I'm working on the core level set).
+	WASD to move the green cube, reach the yellow cube to complete the level.
