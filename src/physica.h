@@ -264,9 +264,9 @@ void fillProgress(string id, int time, int deaths, int rating){
 		bool set = p->time > 0;//True if level has already been set
 		
 		//Picks best
-		if (p->time > time && set) p->time = time;
-		if (p->deaths > deaths && set) p->deaths = deaths;
-		if (p->rating < rating && set) p->rating = rating;
+		if (p->time > time || !set) p->time = time;
+		if (p->deaths > deaths || !set) p->deaths = deaths;
+		if (p->rating < rating || !set) p->rating = rating;
 	}
 }
 
