@@ -170,7 +170,8 @@ void addClick(clickEventData data){
 	box* n = (box*) get_ptr <entity> (&entities, data.caller->id);//Requested entity
 	
 	if (n){//If entity was found
-		box *nB = new box (*n);//New box
+		box *nB = new box;//New box
+		n->clone(nB);//Clones preset
 		
 		nB->translate(vector{edited.w / 2, edited.h / 2} - nB->position);//Sets position
 		

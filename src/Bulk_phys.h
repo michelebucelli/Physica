@@ -322,6 +322,18 @@ class entity: public objectBased {
 		
 		return result;//Returns result
 	}
+	
+	//Function to clone entity
+	virtual void clone(entity* target){
+		*target = *this;
+		
+		deque<vector*>::iterator i;
+		target->sensors.clear();
+		target->nodes.clear();
+		
+		for (i = sensors.begin(); i != sensors.end(); i++) target->addSensor(**i);
+		for (i = nodes.begin(); i != nodes.end(); i++) target->addNode(**i);
+	}
 };
 
 //Box entity class
@@ -446,6 +458,12 @@ class box: public entity {
 		result.set("h", h);
 		
 		return result;//Returns result
+	}
+	
+	//Clone function
+	void clone(box* target){
+		entity::clone(target);
+		target->resize(w, h);
 	}
 };
 
