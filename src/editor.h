@@ -112,7 +112,7 @@ void editorOpenClick(clickEventData data){
 	string lFile = getInput("Insert level file name (data/cfg/levels/)");//Level file path
 	if (lFile != "") edited = *loadLevel("data/cfg/levels/" + lFile);//Loads level
 	
-	lastSaveId = "";
+	lastSaveId = edited.id;
 	updateProperties();
 }
 
