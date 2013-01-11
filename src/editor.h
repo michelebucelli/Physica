@@ -16,7 +16,7 @@ string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window 
 window properties;//Properties window
 panel* propFrame;//Properties frame
 control *idField, *wField, *hField, *dTrField, *dRotField, *stars2, *stars3;//Level properties fields
-bool showProperties = false;//Show level properties flag
+bool showProperties = true;//Show level properties flag
 
 string selPropFile = "data/cfg/ui/editor_selProp.cfg";//Selected properties file path
 window selProp;//Selected properties window
@@ -40,6 +40,17 @@ vector dragVector;//Dragging vector
 
 string lastSaveId = "";//Last ID when saved
 
+//Function to update properties content
+void updateProperties(){
+	idField->content.t = edited.id;
+	wField->content.t = toString(edited.w);
+	hField->content.t = toString(edited.h);
+	dTrField->content.t = toString(edited.damping_tr);
+	dRotField->content.t = toString(edited.damping_rot);
+	stars2->content.t = toString(edited.twoStarsTime);
+	stars3->content.t = toString(edited.threeStarsTime);
+}
+
 //Back button click
 void editorBackClick(clickEventData data){
 	editing = false;//No more editing
@@ -53,6 +64,8 @@ void editorNewClick(clickEventData data){
 	
 	edited = *loadLevel(templateFile);//Loads template
 	lastSaveId = "";
+	
+	updateProperties();//Updates properties panel
 }
 
 //Save button click
@@ -100,6 +113,7 @@ void editorOpenClick(clickEventData data){
 	if (lFile != "") edited = *loadLevel("data/cfg/levels/" + lFile);//Loads level
 	
 	lastSaveId = "";
+	updateProperties();
 }
 
 //Properties button click
@@ -107,13 +121,7 @@ void editorPropClick(clickEventData data){
 	showProperties = !showProperties;
 	PLAYSOUND(clickSfx);
 	
-	idField->content.t = edited.id;
-	wField->content.t = toString(edited.w);
-	hField->content.t = toString(edited.h);
-	dTrField->content.t = toString(edited.damping_tr);
-	dRotField->content.t = toString(edited.damping_rot);
-	stars2->content.t = toString(edited.twoStarsTime);
-	stars3->content.t = toString(edited.threeStarsTime);
+	updateProperties();
 }
 
 //Function to apply properties
@@ -285,6 +293,7 @@ void loadEditor(){
 	selPrint = (checkBox*) selProp.getControl("frame.printCheck");
 	
 	edited = *loadLevel(templateFile);//Loads template
+	updateProperties();//Updates properties panel
 }
 
 //Editor loop function

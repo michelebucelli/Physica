@@ -46,7 +46,7 @@ Uint8* keys = NULL;//Keys array
 //Files
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
-string levelsFile = "data/cfg/levelSets/levelSet_core.cfg";//Level set file
+string levelsFile = "data/cfg/levels/levelSet_core.cfg";//Level set file
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -73,8 +73,6 @@ string getInput(string);//Function to get input
 struct controls {
 	Uint8 up, left, down, right;//Movement keys
 	Uint8 rollLeft, rollRight;//Rolling keys (use to rotate player)
-	
-	Uint8 action1, action2, action3;//Action keys
 };
 
 //Function to get an integer representing pressed controls
@@ -235,7 +233,7 @@ class game {
 		player = NULL;
 		goal = NULL;
 		
-		playerControls = {SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_q, SDLK_e, SDLK_i, SDLK_o, SDLK_p};
+		playerControls = {SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_q, SDLK_e};
 		gameRules = {30, 30, 15, 0.8, 15, 7, 100, 25, {0,10}, 2};
 		
 		releasedJump = true;

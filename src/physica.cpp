@@ -44,16 +44,16 @@ int main(int argc, char* argv[]){
 				hud.checkEvents(ev, printOX, printOY);//Checks hud events
 			}
 			
-			current.frame(0.2, keys);//Game frame
-			
 			if (frames % (fps / printFps) == 0){//On printing frame
 				current.print(video, printOX, printOY);//Prints game scene
 				
 				updateHud();//Updates hud
 				
-				if (!camFollow) hud.print(video, printOX, printOY);//Prints hud on level corner if not following player
-				else hud.print(video, (video->w - current.currentLevel->w) / 2, (video->h - current.currentLevel->h) / 2);//Else prints hud on upper-left level
+				if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
+				else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level
 			}
+			
+			current.frame(0.2, keys);//Game frame
 		}
 		
 		if (curUiMode == ui_paused){//If paused
@@ -76,8 +76,8 @@ int main(int argc, char* argv[]){
 			if (frames % (fps / printFps) == 0){//On printing frame
 				current.print(video, printOX, printOY);//Prints game scene
 				
-				if (!camFollow) hud.print(video, printOX, printOY);//Prints hud on level corner if not following player
-				else hud.print(video, (video->w - current.currentLevel->w) / 2, (video->h - current.currentLevel->h) / 2);//Else prints hud on upper-left level				
+				if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
+				else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level				
 				
 				DARK;//Dark transparent fill
 				pause.print(video);//Prints pause screen
@@ -102,8 +102,8 @@ int main(int argc, char* argv[]){
 			if (frames % (fps / printFps) == 0){//On printing frame
 				current.print(video, printOX, printOY);//Prints game scene
 				
-				if (!camFollow) hud.print(video, printOX, printOY);//Prints hud on level corner if not following player
-				else hud.print(video, (video->w - current.currentLevel->w) / 2, (video->h - current.currentLevel->h) / 2);//Else prints hud on upper-left level
+				if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
+				else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level
 				
 				DARK;//Dark transparent fill
 				
