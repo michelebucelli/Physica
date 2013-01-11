@@ -7,18 +7,19 @@
 
 #include "SDL/SDL_mixer.h"//Includes SDL sound effects library
 
-#define OBJTYPE_LEVEL		"level"//Level objects
+#define OBJTYPE_LEVEL			"level"//Level objects
+#define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
 
-#define BKG					SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
-#define DARK				boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
-#define UPDATE				SDL_Flip(video)//Video updating macro
+#define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
+#define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
+#define UPDATE					SDL_Flip(video)//Video updating macro
 
-#define FRAME_BEGIN			frameBegin = SDL_GetTicks()//Frame beginning macro
-#define FRAME_END			if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
+#define FRAME_BEGIN				frameBegin = SDL_GetTicks()//Frame beginning macro
+#define FRAME_END				if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
 
-#define EVENTS_COMMON(E)	if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
+#define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
 
-#define PLAYSOUND(SND)		if (enableSfx) Mix_PlayChannel(-1, SND, 0)//Play sound macro
+#define PLAYSOUND(SND)			if (enableSfx) Mix_PlayChannel(-1, SND, 0)//Play sound macro
 
 //Video output
 SDL_Surface* video = NULL;//Video surface
@@ -47,6 +48,7 @@ Uint8* keys = NULL;//Keys array
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
 string levelsFile = "data/cfg/levels/levelSet_core.cfg";//Level set file
+string progressFile = "data/cfg/progress.cfg";//Progress file
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -63,6 +65,7 @@ control* inputPrompt;//Input prompt
 inputBox* inputField;//Input field
 
 //Misc
+bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 bool camFollow = false;//If true, camera will follow player
 
 //Prototypes
@@ -186,6 +189,112 @@ class level: public scene {
 		if (printLevelScene) printScene(this, target, x, y, hidden);//Prints scene elements
 	}
 };
+
+//Level progress class
+//best times, least deaths, best ratings
+class levelProgress: public objectBased {
+	public:
+	bool unlocked;//If true, level has been unlocked
+	int time, deaths, rating;//Best scores
+	
+	//Constructor
+	levelProgress(){
+		id = "";
+		type = OBJTYPE_LEVELPROGRESS;
+		
+		time = -1;
+		deaths = 0;
+		rating = 0;
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succedeed loading base data
+			var* unlocked = get <var> (&o.v, "unlocked");//Unlocked flag
+			var* time = get <var> (&o.v, "time");//Best time
+			var* deaths = get <var> (&o.v, "deaths");//Best deaths
+			var* rating = get <var> (&o.v, "rating");//Best rating
+			
+			//Gets data
+			if (unlocked) this->unlocked = unlocked->intValue();
+			if (time) this->time = time->intValue();
+			if (deaths) this->deaths = deaths->intValue();
+			if (rating) this->rating = rating->intValue();
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}
+	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = objectBased::toScriptObj();//Stores base data
+		
+		//Sets members
+		result.set("unlocked", unlocked);
+		result.set("time", time);
+		result.set("deaths", deaths);
+		result.set("rating", rating);
+		
+		return result;
+	}
+};
+
+list<levelProgress> progress;//Player progress
+
+//Function to fill in progress info for given level
+void fillProgress(string id, int time, int deaths, int rating){
+	levelProgress* p = get <levelProgress> (&progress, id);//Progress to read/change
+	
+	if (!p){//If progress doesn't exist
+		levelProgress pr;//New progress
+				
+		//Sets members
+		pr.id = id;
+		pr.unlocked = true;
+		pr.time = time;
+		pr.deaths = deaths;
+		pr.rating = rating;
+		
+		progress.push_back(pr);//Adds to data
+	}
+	
+	else {
+		bool set = p->time > 0;//True if level has already been set
+		
+		//Picks best
+		if (p->time > time && set) p->time = time;
+		if (p->deaths > deaths && set) p->deaths = deaths;
+		if (p->rating < rating && set) p->rating = rating;
+	}
+}
+
+//Function to get if a level is available to play
+bool canPlay(string id){
+	levelProgress* p = get <levelProgress> (&progress, id);//Gets progress
+	
+	if ((p && p->unlocked) || debugMode) return true;//If level is unlocked and exists or game is in debug mode
+	else return false;
+}
+
+//Function to unlock a level
+void unlock(string id){
+	if (!canPlay(id)){//If level is locked
+			levelProgress* p = get <levelProgress> (&progress, id);//Level progress
+			if (p) p->unlocked = true;//Unlocks
+			
+			else {
+				levelProgress pr;//New progress
+				
+				//Sets members
+				pr.id = id;
+				pr.unlocked = true;
+				
+				progress.push_back(pr);//Adds to data
+			}
+	}
+}
 
 //Function to load a level from file
 level* loadLevel(string path){
@@ -443,14 +552,31 @@ void loadSettings(){
 	var* v_videoW = get <var> (&g.v, "video_w");
 	var* v_videoH = get <var> (&g.v, "video_h");
 	var* v_sound = get <var> (&g.v, "enableSfx");
+	var* v_debug = get <var> (&g.v, "debugMode");
 	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
 	if (v_camFollow) camFollow = v_camFollow->intValue();
 	if (v_videoW) videoWin_w = v_videoW->intValue();
 	if (v_videoH) videoWin_h = v_videoH->intValue();
 	if (v_sound) enableSfx = v_sound->intValue();
+	if (v_debug) debugMode = v_debug->intValue();
 	
 	resize(videoWin_w, videoWin_h, fullscreen);//Resizes window
+}
+
+//Function to load progress
+void loadProgress(){
+	fileData f (progressFile);//Source file
+	object g = f.objGen("progress");//Generates object
+	
+	deque<object>::iterator i;//Iterator
+	for (i = g.o.begin(); i != g.o.end(); i++){//For each object
+		if (i->type == OBJTYPE_LEVELPROGRESS){//If object is progress info
+			levelProgress p;//New progress
+			p.fromScriptObj(*i);//Loads
+			progress.push_back(p);//Adds to progress
+		}
+	}
 }
 
 //Function to save settings
@@ -464,14 +590,28 @@ void saveSettings(){
 	ob.set("fullscreen", fullscreen);
 	ob.set("camFollow", camFollow);
 	ob.set("enableSfx", enableSfx);
+	ob.set("debugMode", debugMode);
 	
 	o << ob.toString();//Outputs settings
 	
 	o.close();//Closes file
 }
 
+//Function to save progress
+void saveProgress(){
+	object o;//Output object
+	list<levelProgress>::iterator i;//Iterator
+	
+	for (i = progress.begin(); i != progress.end(); i++)//For each progress data
+		o.o.push_back(i->toScriptObj());//Adds to output object
+		
+	ofstream of (progressFile.c_str());//Output file
+	of << o.toString();//Outputs data
+	of.close();//Closes file
+}
+
 //Game initialization function
-void gameInit(){
+void gameInit(int argc, char* argv[]){
 	Bulk_image_init();//Initializes Bulk image
 	Bulk_ui_init();//Initializes Bulk user interface
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
@@ -482,6 +622,11 @@ void gameInit(){
 	
 	current.loadLevelSet(levelsFile);//Loads core level set
 	current.success = showSuccess;//Sets success function
+	
+	loadProgress();//Loads game progress
+	
+	level* first = loadLevel(current.levels[0]);//First level
+	if (first && !canPlay(first->id)) unlock(first->id);//Unlocks first level
 	
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics
@@ -495,6 +640,7 @@ void gameInit(){
 
 //Game quitting function
 void gameQuit(){
+	saveProgress();//Saves progress
 	saveSettings();//Saves settings
 	
 	while (Mix_Playing(-1)){}//Waits for all channels to finish playing

@@ -2,7 +2,7 @@
 
 //Main function
 int main(int argc, char* argv[]){
-	gameInit();//Initializes the game
+	gameInit(argc, argv);//Initializes the game
 	
 	while (running){//While game is running
 		FRAME_BEGIN;//Frame beginning

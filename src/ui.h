@@ -26,6 +26,7 @@ control *btnPlay, *btnEditor, *btnSettings, *btnCredits, *btnQuit;//Menu buttons
 
 window levelSelect;//Level select window
 control levelButton;//Level button
+control lockedButton;//Locked level button
 int levelSelect_spacing = 16;//Level selection spacing
 int levelSelect_w = 4;//Level selection grid width
 
@@ -41,7 +42,7 @@ control *ratingA, *ratingB, *ratingC;//Rating stars
 
 window settings;//Settings window
 panel* settingsFrame;//Settings frame
-checkBox *setFullscreen, *setCamFollow, *setSound;//Settings check boxes
+checkBox *setFullscreen, *setCamFollow, *setSound, *setDebug;//Settings check boxes
 
 window credits;//Credits window
 control* creditsLabel;//Credits label
@@ -115,11 +116,15 @@ void redrawLevelSelect(){
 		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
 		
 		for (n = 0; n < rowSize; n++){//For each element of the row
+			level *toLoad = loadLevel (current.levels[i * levelSelect_w + n]);//Loaded level
+			bool play = toLoad && canPlay(toLoad->id);
+			
 			control* c = new control;//New control
-			*c = levelButton;//Sets control
+			if (play) *c = levelButton;//Sets control
+			else *c = lockedButton;//Sets locked button
 			
 			c->id = toString(i * levelSelect_w + n);//Sets id
-			c->content.t = toString(i * levelSelect_w + n + 1);//Sets text
+			if (play) c->content.t = toString(i * levelSelect_w + n + 1);//Sets text
 			
 			c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
 			c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
@@ -183,6 +188,8 @@ void resumeClick(clickEventData data){
 void backClick(clickEventData data){
 	curUiMode = ui_levels;
 	PLAYSOUND(clickSfx);//Plays sound
+	
+	redrawLevelSelect();//Redraws level select ui
 }
 
 //Function to show success window
@@ -191,6 +198,13 @@ void showSuccess(){
 	curUiMode = ui_success;//Shows success window
 	
 	PLAYSOUND(successSfx);//Plays sound
+	
+	if (!debugMode) fillProgress(current.currentLevel->id, current.time, current.deaths, current.rating());//Fills progress data (if not in debug mode)
+	
+	if (current.levelIndex < current.levels.size() - 1){//If level is not the last
+		level* l = loadLevel(current.levels[current.levelIndex + 1]);//Loads level
+		if (l) unlock(l->id);//Unlocks it
+	}
 }
 
 //Function to update success window
@@ -236,6 +250,7 @@ void showSettings(clickEventData data){
 	setFullscreen->checked = fullscreen;
 	setCamFollow->checked = camFollow;
 	setSound->checked = enableSfx;
+	setDebug->checked = debugMode;
 	
 	PLAYSOUND(clickSfx);//Plays sound
 }
@@ -301,6 +316,7 @@ void applySettings(){
 	if (setFullscreen->checked != fullscreen) resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
 	camFollow = setCamFollow->checked;//Applies cam follow
 	enableSfx = setSound->checked;//Applies sound settings
+	debugMode = setDebug->checked;//Applies debug settings
 }
 
 //UI loading and setup function
@@ -335,6 +351,7 @@ void loadUI(){
 	
 	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
 	levelButton = *levelSelect.getControl("levelButton");//Sets default level button
+	lockedButton = *levelSelect.getControl("lockedButton");//Gets default locked button
 	levelButton.release.handlers.push_back(levelClick);//Adds click handler to level button
 	
 	redrawLevelSelect();//Draws level selection
@@ -370,7 +387,8 @@ void loadUI(){
 	settingsFrame = (panel*) settings.getControl("frame");//Gets frame
 	setFullscreen = (checkBox*) settings.getControl("frame.fullscreen");//Gets fullscreen checkbox
 	setCamFollow = (checkBox*) settings.getControl("frame.camFollow");//Gets camera follow checkbox
-	setSound = (checkBox*) settings.getControl("frame.enableSfx");
+	setSound = (checkBox*) settings.getControl("frame.enableSfx");//Gets sfx checkbox
+	setDebug = (checkBox*) settings.getControl("frame.debug");//Gets debug checkbox
 	
 	settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
 	settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
