@@ -69,7 +69,7 @@ bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 bool camFollow = false;//If true, camera will follow player
 
 //Prototypes
-void resize(int,int,bool);//Resizing function
+void resize(int,int,bool,bool = true);//Resizing function
 string getInput(string);//Function to get input
 
 //Control scheme structure
@@ -268,6 +268,14 @@ void fillProgress(string id, int time, int deaths, int rating){
 		if (p->deaths > deaths || !set) p->deaths = deaths;
 		if (p->rating < rating || !set) p->rating = rating;
 	}
+}
+
+//Function to get rating
+int getRating(string id){
+	levelProgress* p = get <levelProgress> (&progress, id);
+	
+	if (p) return p->rating;
+	else return 0;
 }
 
 //Function to get if a level is available to play
@@ -573,7 +581,7 @@ void loadSettings(){
 	if (v_sound) enableSfx = v_sound->intValue();
 	if (v_debug) debugMode = v_debug->intValue();
 	
-	resize(videoWin_w, videoWin_h, fullscreen);//Resizes window
+	resize(videoWin_w, videoWin_h, fullscreen, false);//Resizes window
 }
 
 //Function to load progress

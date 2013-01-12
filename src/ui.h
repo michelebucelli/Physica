@@ -14,6 +14,7 @@ string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
 
 //Global graphics
 image starOn, starOff;//Star images
+image starOn_sm, starOff_sm;//Small star images
 
 //User interface
 window hud;//Hud window
@@ -25,7 +26,7 @@ panel *menuFrame;//Menu frame
 control *btnPlay, *btnEditor, *btnSettings, *btnCredits, *btnQuit;//Menu buttons
 
 window levelSelect;//Level select window
-control levelButton;//Level button
+panel levelButton;//Level button panel
 control lockedButton;//Locked level button
 int levelSelect_spacing = 16;//Level selection spacing
 int levelSelect_w = 4;//Level selection grid width
@@ -119,17 +120,41 @@ void redrawLevelSelect(){
 			level *toLoad = loadLevel (current.levels[i * levelSelect_w + n]);//Loaded level
 			bool play = toLoad && canPlay(toLoad->id);
 			
-			control* c = new control;//New control
-			if (play) *c = levelButton;//Sets control
-			else *c = lockedButton;//Sets locked button
+			if (play){
+				panel* p = levelButton.copy();//New panel
+				
+				cout << p->children.size() << endl;
+				
+				control *star1, *star2, *star3;//Star controls
+				star1 = p->getControl("rating1"); star2 = p->getControl("rating2"); star3 = p->getControl("rating3");//Gets stars
+				
+				int rating = getRating(toLoad->id);//Level rating
+				
+				//Sets stars
+				if (star1) star1->content.i = rating >= 1 ? starOn_sm : starOff_sm;
+				if (star2) star2->content.i = rating >= 2 ? starOn_sm : starOff_sm;
+				if (star3) star3->content.i = rating >= 3 ? starOn_sm : starOff_sm;
+				
+				p->id = toString(i * levelSelect_w + n);//Sets id
+				p->content.t = toString(i * levelSelect_w + n + 1);//Sets text
+				
+				p->area.x = rowOffsetX + n * (p->area.w + levelSelect_spacing);//Sets x
+				p->area.y = offsetY + i * (p->area.h + levelSelect_spacing);//Sets y
+				
+				levelSelect.push_back(p);//Adds to controls
+			}
 			
-			c->id = toString(i * levelSelect_w + n);//Sets id
-			if (play) c->content.t = toString(i * levelSelect_w + n + 1);//Sets text
+			else {
+				control* c = new control;//Creates new control
+				*c = lockedButton;//Sets locked button
 			
-			c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
-			c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
-			
-			levelSelect.push_back(c);//Adds to controls
+				c->id = toString(i * levelSelect_w + n);//Sets id
+				
+				c->area.x = rowOffsetX + n * (c->area.w + levelSelect_spacing);//Sets x
+				c->area.y = offsetY + i * (c->area.h + levelSelect_spacing);//Sets y
+				
+				levelSelect.push_back(c);//Adds to controls
+			}
 		}
 	}
 }
@@ -138,6 +163,8 @@ void redrawLevelSelect(){
 void pauseClick(clickEventData data){
 	current.paused = true;
 	curUiMode = ui_paused;
+	
+	PLAYSOUND(clickSfx);
 }
 
 //Function to handler reset click
@@ -258,7 +285,7 @@ void showSettings(clickEventData data){
 }
 
 //Function to resize video
-void resize(int newW, int newH, bool fs){
+void resize(int newW, int newH, bool fs, bool redraw){
 	if (fs){//If setting fullscreen
 		videoWin_w = video_w;//Saves video width in windowed mode
 		videoWin_h = video_h;//Saves video height in windowed mode
@@ -285,32 +312,34 @@ void resize(int newW, int newH, bool fs){
 	
 	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
 	
-	if (menuFrame){//If menu frame is available
-		menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Re-centers on x
-		menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Re-centers on y
+	if (redraw){//If has to redraw
+		if (menuFrame){//If menu frame is available
+			menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Re-centers on x
+			menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Re-centers on y
+		}
+		
+		if (pauseFrame){//If pause frame is available
+			pauseFrame->area.x = (video_w - pauseFrame->area.w) / 2;//Re-centers on x
+			pauseFrame->area.y = (video_h - pauseFrame->area.h) / 2;//Re-centers on y
+		}
+		
+		if (successFrame){//If successFrame frame is available
+			successFrame->area.x = (video_w - successFrame->area.w) / 2;//Re-centers on x
+			successFrame->area.y = (video_h - successFrame->area.h) / 2;//Re-centers on y
+		}
+		
+		if (settingsFrame){//If settingsFrame is available
+			settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
+			settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
+		}
+		
+		if (inputField){//If input field is available
+			inputField->area.x = (video_w - inputField->area.w) / 2;//Centers input on x
+			inputField->area.y = (video_h - inputField->area.h) / 2;//Centers input on y
+		}
+		
+		redrawLevelSelect();//Redraws level selection window
 	}
-	
-	if (pauseFrame){//If pause frame is available
-		pauseFrame->area.x = (video_w - pauseFrame->area.w) / 2;//Re-centers on x
-		pauseFrame->area.y = (video_h - pauseFrame->area.h) / 2;//Re-centers on y
-	}
-	
-	if (successFrame){//If successFrame frame is available
-		successFrame->area.x = (video_w - successFrame->area.w) / 2;//Re-centers on x
-		successFrame->area.y = (video_h - successFrame->area.h) / 2;//Re-centers on y
-	}
-	
-	if (settingsFrame){//If settingsFrame is available
-		settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
-		settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
-	}
-	
-	if (inputField){//If input field is available
-		inputField->area.x = (video_w - inputField->area.w) / 2;//Centers input on x
-		inputField->area.y = (video_h - inputField->area.h) / 2;//Centers input on y
-	}
-	
-	redrawLevelSelect();//Redraws level selection window
 }
 
 //Function to apply settings
@@ -352,11 +381,9 @@ void loadUI(){
 	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
 	
 	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
-	levelButton = *levelSelect.getControl("levelButton");//Sets default level button
+	levelButton = * (panel*) levelSelect.getControl("levelButton");//Sets default level button
 	lockedButton = *levelSelect.getControl("lockedButton");//Gets default locked button
 	levelButton.release.handlers.push_back(levelClick);//Adds click handler to level button
-	
-	redrawLevelSelect();//Draws level selection
 	
 	pause = loadWindow(pauseFile, "pause");//Loads pause window
 	pauseFrame = (panel*) pause.getControl("frame");//Gets frame panel
@@ -422,9 +449,13 @@ void loadGraphics(){
 	//Gets data
 	object* o_starOn = get <object> (&g.o, "starOn");
 	object* o_starOff = get <object> (&g.o, "starOff");
+	object* o_starOn_sm = get <object> (&g.o, "starOn_sm");
+	object* o_starOff_sm = get <object> (&g.o, "starOff_sm");
 	object* o_handle = get <object> (&g.o, "handle");
 	
 	if (o_starOn) starOn.fromScriptObj(*o_starOn);
 	if (o_starOff) starOff.fromScriptObj(*o_starOff);
+	if (o_starOn_sm) starOn_sm.fromScriptObj(*o_starOn_sm);
+	if (o_starOff_sm) starOff_sm.fromScriptObj(*o_starOff_sm);
 	if (o_handle) handle.fromScriptObj(*o_handle);
 }
