@@ -11,6 +11,7 @@ deque<entity*> entities;//Loaded entities
 string editorFile = "data/cfg/ui/editor.cfg";//Editor window file path
 window editor;//Editor window
 control *edBack, *edNew, *edSave, *edOpen, *edProp;//Editor buttons
+checkBox* edSpring;//Spring mode checkbox
 
 string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window file path
 window properties;//Properties window
@@ -25,6 +26,9 @@ control *selIdField, *selMassField, *selEField, *selWField, *selHField, *selColo
 checkBox *selLockTr, *selLockRot, *selPrint;//Selected properties check boxes
 
 bool editing = false;//Editor running flag
+bool springMode = false;//True if in spring mode
+spring* adding = NULL;//Spring being added
+double springK = 0.5;//Spring constant
 
 level edited;//Edited level
 
@@ -124,6 +128,15 @@ void editorPropClick(clickEventData data){
 	updateProperties();
 }
 
+//Spring button click
+void editorSpringClick(clickEventData data){
+	PLAYSOUND(clickSfx);
+	springMode = edSpring->checked;
+	
+	selected = NULL;
+	dragged = NULL;
+}
+
 //Function to apply properties
 void applyProp(){
 	edited.id = idField->content.t;
@@ -217,6 +230,27 @@ void printTrControls(int oX, int oY){
 	handle.print_centre(video, oX + b->point[3].x, oY + b->point[3].y);
 }
 
+//Function to check links
+void checkLinks(){
+	deque<link*>::iterator i;//Iterator
+	int n = 0;
+	
+	for (i = edited.links.begin(); i != edited.links.end(); i++, n++){//For each link
+		spring* s = (spring*) *i;//Converts to spring
+		
+		if (!get_ptr <entity> (&edited.entities, s->a->id) || (!get_ptr <entity> (&edited.entities, s->b->id))){//If one of the two entities is no more in the level
+			free (s);//Frees spring
+			i = edited.links.erase(i);//Erases element
+			i--;
+		}
+		
+		else {//Else
+			s->length_zero = (*s->a_point - *s->b_point).module();//Resets length
+			s->id = n > 0 ? "spring_" + toString(n) : "spring";//Resets id
+		}
+	}
+}
+
 //Function to load the editor
 void loadEditor(){
 	fileData f (entitiesFile);//Entities file
@@ -259,6 +293,7 @@ void loadEditor(){
 	edSave = editor.getControl("save");
 	edOpen = editor.getControl("open");
 	edProp = editor.getControl("prop");
+	edSpring = (checkBox*) editor.getControl("spring");
 	
 	//Sets handlers
 	edBack->release.handlers.push_back(editorBackClick);
@@ -266,6 +301,7 @@ void loadEditor(){
 	edSave->release.handlers.push_back(editorSaveClick);
 	edOpen->release.handlers.push_back(editorOpenClick);
 	edProp->release.handlers.push_back(editorPropClick);
+	edSpring->release.handlers.push_back(editorSpringClick);
 	
 	properties = loadWindow(propertiesFile, "properties");//Loads properties
 	
@@ -314,39 +350,100 @@ void editorLoop(){
 			
 			if (ev.type == SDL_MOUSEBUTTONDOWN){//On mouse pressure
 				if (ev.button.button == SDL_BUTTON_LEFT){//If clicked left
-					if (selected){//If there's a selected entity
-						double min = (vector {double(ev.button.x - oX), double(ev.button.y - oY)} - selected->point[0]).module();//Minimum distance
-						int closest = 0;//Closest vertex index
-						int i;//Counter
+					if (springMode){//If in spring mode
+						if (!adding){ adding = new spring; adding->k = springK; }//Creates new spring if it doesn't exist
 						
-						for (i = 1; i < 4; i++){//For each vertex
-							double d = (vector {double(ev.button.x - oX), double(ev.button.y - oY)} - selected->point[i]).module();//Distance
+						box* clicked = (box*) getSelected(oX, oY);//Selected entity
+						vector* node;//Node vector
+						
+						if (clicked){//If clicked on an entity
+							double min = (vector {double(ev.button.x - oX), double(ev.button.y - oY)} - clicked->point[0]).module();//Minimum distance
+							int closest = 0;//Closest vertex index
+							int i;//Counter
 							
-							if (d < min){//If less than minimum
-								min = d;//Sets min
-								closest = i;//Sets closest
+							for (i = 1; i < 4; i++){//For each vertex
+								double d = (vector {double(ev.button.x - oX), double(ev.button.y - oY)} - clicked->point[i]).module();//Distance
+								
+								if (d < min){//If less than minimum
+									min = d;//Sets min
+									closest = i;//Sets closest
+								}
 							}
-						}						
-						
-						if (min < handle.w()){//If inside handle
-							draggedNode = &selected->point[closest];//Sets dragged node
-							draggedNodeIndex = closest;//Sets dragged node index
+							
+							node = &clicked->point[closest];//Gets clicked node
+							
+							if (!adding->a){//If first spring entity is not set
+								adding->a = clicked;//Sets entity
+								adding->a_point = node;//Sets node
+							}
+							
+							else {
+								adding->b = clicked;//Sets entity
+								adding->b_point = node;//Sets node
+								
+								adding->a->addNode(*adding->a_point);//Adds node to a
+								adding->b->addNode(*adding->b_point);//Adds node to b
+								
+								adding->aPointIndex = adding->a->nodes.size() - 1;//Sets a point index
+								adding->bPointIndex = adding->b->nodes.size() - 1;//Sets b point index
+								
+								adding->length_zero = (*adding->a_point - *adding->b_point).module();//Sets zero length
+								adding->id = "spring_" + toString(edited.links.size() + 1);//Sets id
+								
+								edited.links.push_back(adding);//Adds spring to level
+								adding = NULL;
+							}
 						}
+					}
+					
+					else {//If not in spring mode
+						if (selected){//If there's a selected entity
+							double min = (vector {double(ev.button.x - oX), double(ev.button.y - oY)} - selected->point[0]).module();//Minimum distance
+							int closest = 0;//Closest vertex index
+							int i;//Counter
+							
+							for (i = 1; i < 4; i++){//For each vertex
+								double d = (vector {double(ev.button.x - oX), double(ev.button.y - oY)} - selected->point[i]).module();//Distance
+								
+								if (d < min){//If less than minimum
+									min = d;//Sets min
+									closest = i;//Sets closest
+								}
+							}						
+							
+							if (min < handle.w()){//If inside handle
+								draggedNode = &selected->point[closest];//Sets dragged node
+								draggedNodeIndex = closest;//Sets dragged node index
+							}
+							
+							else draggedNode = NULL;//Else removes dragged
+						}
+						else draggedNode = NULL;
 						
-						else draggedNode = NULL;//Else removes dragged
-					}
-					else draggedNode = NULL;
+						if (!draggedNode && selPropFrame->status != control::pressed && propFrame->status != control::pressed){//If not dragging a node or pressing a panel
+							selected = getSelected(oX, oY);//Gets entity
+							updateSelProp();//Updates selected entity properties
+						}
 					
-					if (!draggedNode && selPropFrame->status != control::pressed && propFrame->status != control::pressed){//If not dragging a node or pressing a panel
-						selected = getSelected(oX, oY);//Gets entity
-						updateSelProp();//Updates selected entity properties
+						dragged = selected;//Sets dragged
+						if (dragged) dragInitial = {double(ev.button.x - oX), double(ev.button.y - oY)};//Sets dragging initial position
+						
+						if (!draggedNode && dragged) dragDist = dragInitial - dragged->position;//Gets dragging distance
+						else if (draggedNode) dragDist = dragInitial - *draggedNode;//Gets dragging distance
 					}
+				}
 				
-					dragged = selected;//Sets dragged
-					if (dragged) dragInitial = {double(ev.button.x - oX), double(ev.button.y - oY)};//Sets dragging initial position
+				else if (ev.button.button == SDL_BUTTON_RIGHT){//If clicked right
+					selected = NULL;//Unselects
 					
-					if (!draggedNode && dragged) dragDist = dragInitial - dragged->position;//Gets dragging distance
-					else if (draggedNode) dragDist = dragInitial - *draggedNode;//Gets dragging distance
+					if (adding){//If adding a spring
+						free(adding);//Frees spring
+						adding = NULL;//Sets to null
+					}
+					
+					else if (springMode){//Else if in spring mode
+						springMode = false;
+					}
 				}
 			}
 			
@@ -396,17 +493,30 @@ void editorLoop(){
 				if (draggedNodeIndex == 0) prev = 3;
 				if (draggedNodeIndex == 3) next = 0;
 				
+				deque<vector*>::iterator i;//Iterator for nodes
+				
 				//Drags points
 				if (dragged->point[prev].x == draggedNode->x){
+					for (i = dragged->nodes.begin(); i != dragged->nodes.end(); i++)//For each node
+						if (**i == dragged->point[prev]) (*i)->x = dragInitial.x + dragVector.x;//Moves node
+						else if (**i == dragged->point[next]) (*i)->y = dragInitial.y + dragVector.y;//Moves node
+						
 					dragged->point[prev].x = dragInitial.x + dragVector.x;
 					dragged->point[next].y = dragInitial.y + dragVector.y;
 				}
 				
 				else {
+					for (i = dragged->nodes.begin(); i != dragged->nodes.end(); i++)//For each node
+						if (**i == dragged->point[next]) (*i)->x = dragInitial.x + dragVector.x;//Moves node
+						else if (**i == dragged->point[prev]) (*i)->y = dragInitial.y + dragVector.y;//Moves node
+						
 					dragged->point[next].x = dragInitial.x + dragVector.x;
 					dragged->point[prev].y = dragInitial.y + dragVector.y;
 				}
 				
+				for (i = dragged->nodes.begin(); i != dragged->nodes.end(); i++)//For each node
+						if (**i == *draggedNode) **i = dragInitial + dragVector;//Moves node
+						
 				*draggedNode = dragInitial + dragVector;//Drags node
 				
 				dragged->position = (dragged->point[0] + dragged->point[1] + dragged->point[2] + dragged->point[3]) / 4;//Recalculates position
@@ -429,9 +539,13 @@ void editorLoop(){
 		edited.print(video, oX, oY, true);//Prints level
 		printTrControls(oX, oY);//Prints controls
 		
+		if (springMode && adding && adding->a) lineColor(video, oX + adding->a_point->x, oY + adding->a_point->y, mX, mY, 0x606060FF);//Prints spring
+		
 		editor.print(video);//Prints editor UI
 		if (showProperties) properties.print(video);//Print properties
 		if (selected) selProp.print(video);//Prints selected properties
+		
+		checkLinks();//Checks links
 		
 		UPDATE;//Updates
 		FRAME_END;//Ends frame

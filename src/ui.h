@@ -163,6 +163,8 @@ void playClick(clickEventData data){
 void editorClick(clickEventData data){
 	editing = true;//Sets editing flag
 	editorLoop();//Starts editor loop
+	
+	springMode = false;
 }
 
 //Function to handle quit click

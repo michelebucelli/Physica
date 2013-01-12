@@ -1089,7 +1089,7 @@ class scene: public objectBased {
 		deque<link*>::iterator l;//Link iterator
 		
 		for (i = entities.begin(); i != entities.end(); i++) result.o.push_back((*i)->toScriptObj());//Adds all entities
-		for (l = links.begin(); l != links.end(); i++) result.o.push_back((*l)->toScriptObj());//Adds all links
+		for (l = links.begin(); l != links.end(); l++) result.o.push_back((*l)->toScriptObj());//Adds all links
 		
 		return result;//Returns result
 	}

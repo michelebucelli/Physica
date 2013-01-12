@@ -400,6 +400,18 @@ class game {
 			}
 			
 			else if (ground) player->applyForce(player->position, {-player->speed.x * gameRules.groundDamping, 0});//Applies damping on ground
+			
+			if (!ground){//If not on ground
+				if (keys[playerControls.rollRight] && player->omega < gameRules.rotateSpeed){//If rolling right
+					player->applyForce(player->position - vector {0, 1}, {gameRules.rotateForce, 0});
+					player->applyForce(player->position - vector {0, -1}, {-gameRules.rotateForce, 0});
+				}
+				
+				else if (keys[playerControls.rollLeft] && player->omega > -gameRules.rotateSpeed){//If rolling left
+					player->applyForce(player->position - vector {0, 1}, {-gameRules.rotateForce, 0});
+					player->applyForce(player->position - vector {0, -1}, {gameRules.rotateForce, 0});
+				}
+			}
 		}
 	}
 	
