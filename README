@@ -12,4 +12,7 @@ PHYSICA
 				
 2. PLAY IT
 	Click the big play button to start playing and pick your level (currently just two, but I'm working on the core level set).
-	WASD to move the green cube, reach the yellow cube to complete the level.
+	WASD to move the green cube, reach the yellow cube to complete the level. Oh, and did I tell you to avoid red stuff?
+
+3. ADD NEW LEVELS
+	Just use the editor bundled with the game to make new awesome levels! You can then find the levels you made inside the data/cfg/levels folder, along with core levels. They're automatically queued to the core level set. Switch on debug mode (in the options menu) to have them unlocked immediately for testing.
