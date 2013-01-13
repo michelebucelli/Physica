@@ -192,6 +192,7 @@ void editorClick(clickEventData data){
 	editorLoop();//Starts editor loop
 	
 	springMode = false;
+	edSpring->checked = false;
 }
 
 //Function to handle quit click
