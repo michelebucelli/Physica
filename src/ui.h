@@ -123,8 +123,6 @@ void redrawLevelSelect(){
 			if (play){
 				panel* p = levelButton.copy();//New panel
 				
-				cout << p->children.size() << endl;
-				
 				control *star1, *star2, *star3;//Star controls
 				star1 = p->getControl("rating1"); star2 = p->getControl("rating2"); star3 = p->getControl("rating3");//Gets stars
 				
