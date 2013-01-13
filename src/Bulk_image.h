@@ -174,7 +174,7 @@ class image: public objectBased, public scriptable{
 				this->imageFilePath = imageFilePath->value;//Sets image file path member
 				surface = CACHEDSURFACE(this->imageFilePath);//Loads surface from cache
 				
-				if (!surface) cerr << "Failed loading surface from " << imageFilePath << " - " << __FILE__ << ":" << __LINE__ - 2 << endl;//If failed loading, error message on standard error
+				if (!surface) cerr << "Failed loading surface from " << this->imageFilePath << " - " << __FILE__ << ":" << __LINE__ - 2 << endl;//If failed loading, error message on standard error
 				cached = true;//Sets cached flag
 			}
 			

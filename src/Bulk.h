@@ -99,6 +99,8 @@ template <class containerType> string join (containerType source, string delimit
 	typename containerType::iterator i;//Iterator
 	string result = "";//Result
 	
+	if (source.size() == 0) return "";
+	
 	for (i = source.begin(); i != source.end() - 1; i++)//For each element except the last
 		result += *i + delimiters;//Adds element to result
 		
@@ -116,6 +118,15 @@ template <class type> string toString (type source, bool hex){
 	
 	s << source;//Outputs source on stream
 	return s.str();//Returns string content of stream
+}
+
+//Function to find element in container
+template <class type, class container> type* find (container *source, type data){
+	typename container::iterator i;
+	for (i = source->begin(); i != source->end(); i++)
+		if (*i == data) return &*i;
+		
+	return NULL;
 }
 
 //Function to count the repetition of chars in a string

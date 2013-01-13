@@ -4,6 +4,8 @@
 string themesFile = "data/cfg/ui/themes.cfg";//Themes file path
 string graphicsFile = "data/cfg/graphics.cfg";//Global graphics file
 
+string commonFile = "data/cfg/ui/common.cfg";//Common ui file path
+
 string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
 string menuFile = "data/cfg/ui/menu.cfg";//Main menu file path
 string levelSelectFile = "data/cfg/ui/levels.cfg";//Level selection filepath
@@ -11,12 +13,16 @@ string pauseFile = "data/cfg/ui/pause.cfg";//Pause filepath
 string successFile = "data/cfg/ui/success.cfg";//Success file path
 string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
 string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
+string achievedFile = "data/cfg/ui/achievement.cfg";//Achievement window file path
 
 //Global graphics
 image starOn, starOff;//Star images
 image starOn_sm, starOff_sm;//Small star images
 
 //User interface
+window common;//Common UI
+control* fpsLabel;//Fps label
+
 window hud;//Hud window
 control *btnPause, *btnRestart;//Hud buttons
 control *labDeaths, *labTime;//Hud labels
@@ -47,6 +53,16 @@ checkBox *setFullscreen, *setCamFollow, *setSound, *setDebug;//Settings check bo
 
 window credits;//Credits window
 control* creditsLabel;//Credits label
+
+window achieved;//Achieved window
+panel* achFrame;//Achieved frame
+control* achIcon;//Achieved icon
+control* achName;//Achieved name
+control* achInfo;//Achieved info
+
+int achStartX;//Achieved window start x position
+int achBegin = -1;//Achieved window time counter
+int achDuration = 5000;//Achieved window duration
 
 //Function to get input
 string getInput(string prompt){
@@ -118,7 +134,7 @@ void redrawLevelSelect(){
 		
 		for (n = 0; n < rowSize; n++){//For each element of the row
 			level *toLoad = loadLevel (current.levels[i * levelSelect_w + n]);//Loaded level
-			bool play = toLoad && canPlay(toLoad->id);
+			bool play = toLoad && progress.canPlay(toLoad->id);
 			
 			if (play){
 				panel* p = levelButton.copy();//New panel
@@ -126,7 +142,7 @@ void redrawLevelSelect(){
 				control *star1, *star2, *star3;//Star controls
 				star1 = p->getControl("rating1"); star2 = p->getControl("rating2"); star3 = p->getControl("rating3");//Gets stars
 				
-				int rating = getRating(toLoad->id);//Level rating
+				int rating = progress.getRating(toLoad->id);//Level rating
 				
 				//Sets stars
 				if (star1) star1->content.i = rating >= 1 ? starOn_sm : starOff_sm;
@@ -220,21 +236,6 @@ void backClick(clickEventData data){
 	redrawLevelSelect();//Redraws level select ui
 }
 
-//Function to show success window
-void showSuccess(){
-	current.paused = true;//Pauses game
-	curUiMode = ui_success;//Shows success window
-	
-	PLAYSOUND(successSfx);//Plays sound
-	
-	if (!debugMode) fillProgress(current.currentLevel->id, current.time, current.deaths, current.rating());//Fills progress data (if not in debug mode)
-	
-	if (current.levelIndex < current.levels.size() - 1){//If level is not the last
-		level* l = loadLevel(current.levels[current.levelIndex + 1]);//Loads level
-		if (l) unlock(l->id);//Unlocks it
-	}
-}
-
 //Function to update success window
 void updateSuccess(){
 	labSuccessTime->content.t = timeToString(current.time);//Sets time label
@@ -246,6 +247,23 @@ void updateSuccess(){
 	ratingA->content.i = rating >= 1 ? starOn : starOff;
 	ratingB->content.i = rating >= 2 ? starOn : starOff;
 	ratingC->content.i = rating >= 3 ? starOn : starOff;
+}
+
+//Function to show success window
+void showSuccess(){
+	current.paused = true;//Pauses game
+	curUiMode = ui_success;//Shows success window
+	
+	PLAYSOUND(successSfx);//Plays sound
+	
+	if (!debugMode) progress.fillProgress(current.currentLevel->id, current.time, current.deaths, current.rating());//Fills progress data (if not in debug mode)
+	
+	if (current.levelIndex < current.levels.size() - 1){//If level is not the last
+		level* l = loadLevel(current.levels[current.levelIndex + 1]);//Loads level
+		if (l) progress.unlock(l->id);//Unlocks it
+	}
+	
+	updateSuccess();//Updates success window
 }
 
 //Function to handle next click
@@ -281,6 +299,18 @@ void showSettings(clickEventData data){
 	setDebug->checked = debugMode;
 	
 	PLAYSOUND(clickSfx);//Plays sound
+}
+
+//Unlock achievement function
+void unlockedAchievement(achievement* a){
+	achBegin = SDL_GetTicks();//Sets time beginning
+	
+	achStartX = achFrame->area.x;//Sets starting x position
+	
+	//Sets window parameters
+	achIcon->content.i = a->icon;
+	achName->content.t = a->name;
+	achInfo->content.t = a->info;
 }
 
 //Function to resize video
@@ -332,9 +362,18 @@ void resize(int newW, int newH, bool fs, bool redraw){
 			settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
 		}
 		
+		if (creditsLabel){//If credits is available
+			creditsLabel->area.x = (video_w - creditsLabel->area.w) / 2;//Centers settings on x
+			creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers settings on y
+		}
+		
 		if (inputField){//If input field is available
 			inputField->area.x = (video_w - inputField->area.w) / 2;//Centers input on x
 			inputField->area.y = (video_h - inputField->area.h) / 2;//Centers input on y
+		}
+		
+		if (fpsLabel){//If fps label is available
+			fpsLabel->area.x = video_w - fpsLabel->area.w;//Positions
 		}
 		
 		redrawLevelSelect();//Redraws level selection window
@@ -349,9 +388,19 @@ void applySettings(){
 	debugMode = setDebug->checked;//Applies debug settings
 }
 
+//Function to update common UI
+void updateCommon(){
+	fpsLabel->content.t = "fps:" + toString(actualFps);//Sets fps label
+}
+
 //UI loading and setup function
 void loadUI(){
 	loadThemesDB(themesFile);//Loads themes
+	
+	common = loadWindow(commonFile, "common");//Loads common ui
+	fpsLabel = common.getControl("fps");//Gets fps label
+	
+	fpsLabel->area.x = video_w - fpsLabel->area.w;//Positions fps label
 	
 	hud = loadWindow(hudFile, "hud");//Loads hud
 	btnPause = hud.getControl("pause");//Gets pause button
@@ -438,6 +487,14 @@ void loadUI(){
 	
 	inputFrame->area.x = (video_w - inputFrame->area.w) / 2;//Centers input on x
 	inputFrame->area.y = (video_h - inputFrame->area.h) / 2;//Centers input on y
+	
+	achieved = loadWindow(achievedFile, "achieved");//Loads achieved window
+	achFrame = (panel*) achieved.getControl("frame");//Gets frame
+	achIcon = achieved.getControl("frame.icon");//Gets icon
+	achName = achieved.getControl("frame.name");//Gets name
+	achInfo = achieved.getControl("frame.info");//Gets info
+	
+	achIcon->content.contentType = CONTENT_IMAGE;//Sets content type
 }
 
 //Graphics info file loading function

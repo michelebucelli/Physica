@@ -11,6 +11,7 @@
 
 #define OBJTYPE_LEVEL			"level"//Level objects
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
+#define OBJTYPE_GLOBALPROGRESS	"gProgress"//Global progress objects
 #define OBJTYPE_ACHIEVEMENT		"achievement"//Achievement objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
@@ -18,7 +19,7 @@
 #define UPDATE					SDL_Flip(video)//Video updating macro
 
 #define FRAME_BEGIN				frameBegin = SDL_GetTicks()//Frame beginning macro
-#define FRAME_END				if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
+#define FRAME_END				if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000; if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
 
 #define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
 
@@ -40,8 +41,8 @@ bool running = true;//If true, program is running
 
 int frames = 0;//Frame counter
 int fps = 60;//Frames per second
-int printFps = 45;//Printing frames per second
 int frameBegin = 0;//Current frame beginning time
+int actualFps = 0;//Actual fps
 
 //Event handling and input
 SDL_Event ev;//Global event
@@ -52,6 +53,7 @@ string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
 string levelsFile = "data/cfg/levels/levelSet_core.cfg";//Level set file
 string progressFile = "data/cfg/progress.cfg";//Progress file
+string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -198,7 +200,7 @@ double *getVar(string);//Function to get variable from current game and game pro
 //Achievement class
 class achievement: public objectBased {
 	public:
-	expr<double> verify;//Achievement expression
+	expr<double> verifyExpr;//Achievement expression
 	image icon;//Achievement icon
 	string name, info;//Achievement name and information
 	
@@ -211,8 +213,32 @@ class achievement: public objectBased {
 		info = "";
 	}
 	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
+			var* verifyExpr = get <var> (&o.v, "verify");
+			var* name = get <var> (&o.v, "name");
+			var* info = get <var> (&o.v, "info");
+			object* icon = get <object> (&o.o, "icon");
+			
+			if (verifyExpr) this->verifyExpr.fromString(verifyExpr->value, &doubleOps);
+			if (name) this->name = name->value;
+			if (info) this->info = info->value;
+			if (icon) this->icon.fromScriptObj(*icon);
+			
+			return true;//Returns true
+		}
+		
+		return false;//Else returns false
+	}
 	
+	//Function to verify if achievement was unlocked
+	bool verify(){
+		return verifyExpr.calculate(getVar);//Calculates expression and returns
+	}
 };
+
+deque<achievement> achs;//Achievements
 
 //Level progress class
 //best times, least deaths, best ratings
@@ -265,55 +291,102 @@ class levelProgress: public objectBased {
 	}
 };
 
-list<levelProgress> progress;//Player progress
+void unlockedAchievement(achievement*);//Function to show the unlocked achievement on screen
 
-//Function to fill in progress info for given level
-void fillProgress(string id, int time, int deaths, int rating){
-	levelProgress* p = get <levelProgress> (&progress, id);//Progress to read/change
+//Global progress class
+class globalProgress: public objectBased, public list<levelProgress> {
+	public:
+	deque<string> unlockedAch;//Unlocked achievements
 	
-	if (!p){//If progress doesn't exist
-		levelProgress pr;//New progress
-				
-		//Sets members
-		pr.id = id;
-		pr.unlocked = true;
-		pr.time = time;
-		pr.deaths = deaths;
-		pr.rating = rating;
-		
-		progress.push_back(pr);//Adds to data
+	//Constructor
+	globalProgress(){
+		id = "";
+		type = OBJTYPE_GLOBALPROGRESS;
 	}
 	
-	else {
-		bool set = p->time > 0;//True if level has already been set
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
+			deque<object>::iterator i;//Iterator
+			
+			for (i = o.o.begin(); i != o.o.end(); i++){//For each object
+				if (i->type == OBJTYPE_LEVELPROGRESS){//If object is progress info
+					levelProgress p;//New progress
+					p.fromScriptObj(*i);//Loads
+					push_back(p);//Adds to progress
+				}
+			}
+			
+			var* ach = get <var> (&o.v, "achievements");//Achievements variable
+			
+			if (ach) this->unlockedAch = tokenize <deque<string> > (ach->value, ",");//Gets achievements
+	
+			return true;//Returns true
+		}
 		
-		//Picks best
-		if (p->time > time || !set) p->time = time;
-		if (p->deaths > deaths || !set) p->deaths = deaths;
-		if (p->rating < rating || !set) p->rating = rating;
+		return false;//Returns false
 	}
-}
-
-//Function to get rating
-int getRating(string id){
-	levelProgress* p = get <levelProgress> (&progress, id);
 	
-	if (p) return p->rating;
-	else return 0;
-}
-
-//Function to get if a level is available to play
-bool canPlay(string id){
-	levelProgress* p = get <levelProgress> (&progress, id);//Gets progress
+	//Function to save to script object
+	object toScriptObj(){
+		object o = objectBased::toScriptObj();//Output object
+		list<levelProgress>::iterator i;//Iterator
 	
-	if ((p && p->unlocked) || debugMode) return true;//If level is unlocked and exists or game is in debug mode
-	else return false;
-}
+		for (i = begin(); i != end(); i++)//For each progress data
+			o.o.push_back(i->toScriptObj());//Adds to output object
+			
+		if (unlockedAch.size() > 0) o.set("achievements", join(unlockedAch, ","));//Sets achievements
+		
+		return o;//Returns object
+	}
+	
+	//Function to fill in progress info for given level
+	void fillProgress(string id, int time, int deaths, int rating){
+		levelProgress* p = get <levelProgress> (this, id);//Progress to read/change
+		
+		if (!p){//If progress doesn't exist
+			levelProgress pr;//New progress
+					
+			//Sets members
+			pr.id = id;
+			pr.unlocked = true;
+			pr.time = time;
+			pr.deaths = deaths;
+			pr.rating = rating;
+			
+			push_back(pr);//Adds to data
+		}
+		
+		else {
+			bool set = p->time > 0;//True if level has already been set
+			
+			//Picks best
+			if (p->time > time || !set) p->time = time;
+			if (p->deaths > deaths || !set) p->deaths = deaths;
+			if (p->rating < rating || !set) p->rating = rating;
+		}
+	}
+	
+	//Function to get rating
+	int getRating(string id){
+		levelProgress* p = get <levelProgress> (this, id);
+		
+		if (p) return p->rating;
+		else return 0;
+	}
 
-//Function to unlock a level
-void unlock(string id){
-	if (!canPlay(id)){//If level is locked
-			levelProgress* p = get <levelProgress> (&progress, id);//Level progress
+	//Function to get if a level is available to play
+	bool canPlay(string id){
+		levelProgress* p = get <levelProgress> (this, id);//Gets progress
+		
+		if ((p && p->unlocked) || debugMode) return true;//If level is unlocked and exists or game is in debug mode
+		else return false;
+	}
+
+	//Function to unlock a level
+	void unlock(string id){
+		if (!canPlay(id)){//If level is locked
+			levelProgress* p = get <levelProgress> (this, id);//Level progress
 			if (p) p->unlocked = true;//Unlocks
 			
 			else {
@@ -323,10 +396,34 @@ void unlock(string id){
 				pr.id = id;
 				pr.unlocked = true;
 				
-				progress.push_back(pr);//Adds to data
+				push_back(pr);//Adds to data
 			}
+		}
 	}
-}
+	
+	//Function to verify achievements
+	void verifyAchs(){
+		deque<achievement>::iterator i;//Iterator
+		
+		for (i = achs.begin(); i != achs.end(); i++){//For each achievement
+			if (!find(&unlockedAch, i->id) && i->verify()){//If verified and not unlocked
+				unlockedAch.push_back(i->id);//Adds to unlocked
+				unlockedAchievement(&*i);//Calls unlock function
+			}
+		}
+	}
+	
+	//Function to get completed levels
+	int completed(){
+		iterator i;//Iterator
+		int result = 0;//Result
+		
+		for (i = begin(); i != end(); i++)//For each element
+			if (i->time > 0) result++;//Increments counter if completed
+
+		return result;//Returns result
+	}
+} progress;
 
 //Function to load a level from file
 level* loadLevel(string path){
@@ -567,6 +664,27 @@ class game {
 	}
 } current;
 
+//Function to get variable
+double *getVar(string id){
+	if (id == "unlockedLevels"){//If requested the unlocked levels
+		double *i = new double(0);//Counter
+		deque<string>::iterator l;//Level iterator
+		
+		for (l = current.levels.begin(); l != current.levels.end(); l++)//For each level
+			if (progress.canPlay(loadLevel(*l)->id)) (*i)++;//Increases counter
+			
+		return i;
+	}
+	
+	else if (id == "completedLevels"){//If requested the completed levels
+		return new double(progress.completed());//Returns result
+	}
+	
+	else if (id == "totalLevels"){//If requested the total levels
+		return new double(current.levels.size());//Returns result
+	}
+}
+
 #include "editor.h"//Includes editor
 #include "ui.h"//Includes user interface header
 
@@ -611,14 +729,24 @@ void loadSettings(){
 //Function to load progress
 void loadProgress(){
 	fileData f (progressFile);//Source file
-	object g = f.objGen("progress");//Generates object
+	object o = f.objGen("progress");//Generates object
+	
+	o.type = OBJTYPE_GLOBALPROGRESS;//Sets type
+	
+	progress.fromScriptObj(o);//Loads data
+}
+
+//Function to load achievements
+void loadAchievements(){
+	fileData f (achievementsFile);//Source file
+	object o = f.objGen("ach");//Generates data
 	
 	deque<object>::iterator i;//Iterator
-	for (i = g.o.begin(); i != g.o.end(); i++){//For each object
-		if (i->type == OBJTYPE_LEVELPROGRESS){//If object is progress info
-			levelProgress p;//New progress
-			p.fromScriptObj(*i);//Loads
-			progress.push_back(p);//Adds to progress
+	for (i = o.o.begin(); i != o.o.end(); i++){//For each sub object
+		if (i->type == OBJTYPE_ACHIEVEMENT){//If object is an achievement
+			achievement a;//New achievement
+			a.fromScriptObj(*i);//Loads
+			achs.push_back(a);//Adds to database
 		}
 	}
 }
@@ -643,14 +771,8 @@ void saveSettings(){
 
 //Function to save progress
 void saveProgress(){
-	object o;//Output object
-	list<levelProgress>::iterator i;//Iterator
-	
-	for (i = progress.begin(); i != progress.end(); i++)//For each progress data
-		o.o.push_back(i->toScriptObj());//Adds to output object
-		
 	ofstream of (progressFile.c_str());//Output file
-	of << o.toString();//Outputs data
+	of << progress.toScriptObj().toString();//Outputs data
 	of.close();//Closes file
 }
 
@@ -660,6 +782,8 @@ void gameInit(int argc, char* argv[]){
 	Bulk_ui_init();//Initializes Bulk user interface
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
 
+	Bulk_doubleExpr_init();//Initializes for double expressions
+	
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
 	
 	SDL_WM_SetCaption("Physica", "PHY");//Sets window caption
@@ -670,10 +794,11 @@ void gameInit(int argc, char* argv[]){
 	loadProgress();//Loads game progress
 	
 	level* first = loadLevel(current.levels[0]);//First level
-	if (first && !canPlay(first->id)) unlock(first->id);//Unlocks first level
+	if (first && !progress.canPlay(first->id)) progress.unlock(first->id);//Unlocks first level
 	
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics
+	loadAchievements();//Loads achievements
 	loadSound();//Loads sound
 	loadUI();//Loads ui
 	
