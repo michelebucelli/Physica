@@ -36,7 +36,7 @@ void printEntity(entity* e, SDL_Surface* target, Uint32 color, int x, int y, boo
 //Function to print a scene
 void printScene(scene *s, SDL_Surface* target, int x, int y, bool hidden = false){
 	list <entity*> :: iterator i;//Iterator for entities
-	deque <link*>::iterator j;
+	deque <phLink*>::iterator j;
 	
 	for (i = s->entities.begin(); i != s->entities.end(); i++)//For each entity
 		if ((*i)->print) printEntity(*i, target, ((*i)->color << 8) + 0xFF, x, y);//Prints the entity

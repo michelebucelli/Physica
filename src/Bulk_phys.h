@@ -763,7 +763,7 @@ void handleCollision(entity* a, entity* b, collision c){
 
 //Link base class
 //	represents a force connecting two points-vectors of two entities
-class link: public objectBased {
+class phLink: public objectBased {
 	public:
 	entity* a;//First entity
 	vector* a_point;//First entity application point
@@ -776,7 +776,7 @@ class link: public objectBased {
 	scene* parent;//Parent scene
 	
 	//Constructor
-	link(){
+	phLink(){
 		id = "";
 		type = OBJTYPE_LINK;
 		
@@ -833,7 +833,7 @@ class link: public objectBased {
 
 //Spring class
 //	force is caluclated multiplying distance between points by a factor
-class spring: public link {
+class spring: public phLink {
 	public:
 	double length_zero;//Base length
 	double k;//Spring coefficient
@@ -865,7 +865,7 @@ class spring: public link {
 	
 	//Function to load from script object
 	bool fromScriptObj(object o){
-		if (link::fromScriptObj(o)){//If succeeded loading base data
+		if (phLink::fromScriptObj(o)){//If succeeded loading base data
 			var* length_zero = get <var> (&o.v, "length_zero");//Base length
 			var* k = get <var> (&o.v, "k");//Coefficient
 			
@@ -880,7 +880,7 @@ class spring: public link {
 	
 	//Function to save to script object
 	object toScriptObj(){
-		object result = link::toScriptObj();//Result object
+		object result = phLink::toScriptObj();//Result object
 		
 		//Sets members
 		result.set("length_zero", length_zero);
@@ -894,7 +894,7 @@ class spring: public link {
 class scene: public objectBased {
 	public:
 	list <entity*> entities;//Entities in scene
-	deque <link*> links;//Links in scene
+	deque <phLink*> links;//Links in scene
 	
 	double damping_tr;//Translation damping factor
 	double damping_rot;//Angular damping factor
@@ -1018,7 +1018,7 @@ class scene: public objectBased {
 	//Function for time step
 	list<collision> step(double t){
 		list <entity*> :: iterator i;//Iterator for entities
-		deque <link*> :: iterator l;//Iterator for links
+		deque <phLink*> :: iterator l;//Iterator for links
 		
 		for (l = links.begin(); l != links.end(); l++)//For each link
 			(*l)->apply();//Applies link
@@ -1062,7 +1062,7 @@ class scene: public objectBased {
 				}
 				
 				else if (b){//Else (if object is a link)
-					link* l = (link*) b;//Converts to link
+					phLink* l = (phLink*) b;//Converts to link
 					l->parent = this;//Sets parent
 					l->fromScriptObj(*i);//Loads link
 					links.push_back(l);//Adds to links
@@ -1086,7 +1086,7 @@ class scene: public objectBased {
 		result.set("h", h);
 		
 		list<entity*>::iterator i;//Entity iterator
-		deque<link*>::iterator l;//Link iterator
+		deque<phLink*>::iterator l;//Link iterator
 		
 		for (i = entities.begin(); i != entities.end(); i++) result.o.push_back((*i)->toScriptObj());//Adds all entities
 		for (l = links.begin(); l != links.end(); l++) result.o.push_back((*l)->toScriptObj());//Adds all links
@@ -1125,7 +1125,7 @@ bool entity::checkSensor(int id){
 }
 
 //Function to load link from script object
-bool link::fromScriptObj(object o){
+bool phLink::fromScriptObj(object o){
 	if (objectBased::fromScriptObj(o)){//If succeeded loading base data
 		var* a = get <var> (&o.v, "a");//A entity
 		var* b = get <var> (&o.v, "b");//B entity

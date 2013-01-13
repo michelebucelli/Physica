@@ -232,7 +232,7 @@ void printTrControls(int oX, int oY){
 
 //Function to check links
 void checkLinks(){
-	deque<link*>::iterator i;//Iterator
+	deque<phLink*>::iterator i;//Iterator
 	int n = 0;
 	
 	for (i = edited.links.begin(); i != edited.links.end(); i++, n++){//For each link

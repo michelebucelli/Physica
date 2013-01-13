@@ -5,10 +5,13 @@
 #include "Bulk_graphics.h"//Includes Bulk graphics
 #include "Bulk_physics.h"//Includes Bulk physics
 
+#include "Bulk_expr_double.h"//Includes double expressions (for achievements)
+
 #include "SDL/SDL_mixer.h"//Includes SDL sound effects library
 
 #define OBJTYPE_LEVEL			"level"//Level objects
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
+#define OBJTYPE_ACHIEVEMENT		"achievement"//Achievement objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
@@ -188,6 +191,27 @@ class level: public scene {
 		
 		if (printLevelScene) printScene(this, target, x, y, hidden);//Prints scene elements
 	}
+};
+
+double *getVar(string);//Function to get variable from current game and game progress data
+
+//Achievement class
+class achievement: public objectBased {
+	public:
+	expr<double> verify;//Achievement expression
+	image icon;//Achievement icon
+	string name, info;//Achievement name and information
+	
+	//Constructor
+	achievement(){
+		id = "";
+		type = OBJTYPE_ACHIEVEMENT;
+		
+		name = "";
+		info = "";
+	}
+	
+	
 };
 
 //Level progress class

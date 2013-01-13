@@ -36,7 +36,6 @@ int howMany(string, char);//Function to count the number of repetitions of a cha
 #include "Bulk_language.h"//Includes the localization handling header
 
 #include "Bulk_expr.h"//Includes the expression handling header
-#include "Bulk_expr_double.h"//Includes the double expressions handling header
 
 //Function to get a random element from a container
 template <class type, class containerType> type random(containerType container){
