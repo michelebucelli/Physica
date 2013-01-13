@@ -68,7 +68,7 @@ int main(int argc, char* argv[]){
 					else if (ev.key.keysym.sym == SDLK_RETURN) resumeClick({});//Resumes on enter
 				}
 					
-				pause.checkEvents(ev);//Checks pause events
+				pauseWindow.checkEvents(ev);//Checks pause events
 			}
 			
 			
@@ -80,7 +80,7 @@ int main(int argc, char* argv[]){
 				else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level				
 				
 				DARK;//Dark transparent fill
-				pause.print(video);//Prints pause screen
+				pauseWindow.print(video);//Prints pause screen
 			}
 		}
 		

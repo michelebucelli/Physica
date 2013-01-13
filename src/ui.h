@@ -31,7 +31,7 @@ control lockedButton;//Locked level button
 int levelSelect_spacing = 16;//Level selection spacing
 int levelSelect_w = 4;//Level selection grid width
 
-window pause;//Pause window
+window pauseWindow;//Pause window
 panel* pauseFrame;//Pause frame
 control *btnResume, *btnBack;//Pause screen buttons
 
@@ -384,10 +384,10 @@ void loadUI(){
 	lockedButton = *levelSelect.getControl("lockedButton");//Gets default locked button
 	levelButton.release.handlers.push_back(levelClick);//Adds click handler to level button
 	
-	pause = loadWindow(pauseFile, "pause");//Loads pause window
-	pauseFrame = (panel*) pause.getControl("frame");//Gets frame panel
-	btnResume = pause.getControl("frame.resume");//Gets resume button
-	btnBack = pause.getControl("frame.back");//Gets back button
+	pauseWindow = loadWindow(pauseFile, "pause");//Loads pause window
+	pauseFrame = (panel*) pauseWindow.getControl("frame");//Gets frame panel
+	btnResume = pauseWindow.getControl("frame.resume");//Gets resume button
+	btnBack = pauseWindow.getControl("frame.back");//Gets back button
 	
 	pauseFrame->area.x = (video_w - pauseFrame->area.w) / 2;//Centers pause on x
 	pauseFrame->area.y = (video_h - pauseFrame->area.h) / 2;//Centers pause on y
