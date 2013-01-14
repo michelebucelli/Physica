@@ -17,6 +17,7 @@
 SDL_Surface* loadImg (const char* source){
 	SDL_Surface* s = IMG_Load(source);//Loads surface
 	s = SDL_DisplayFormatAlpha(s);//Converts surface to display format
+	
 	return s;//Returns surface
 }
 
@@ -155,7 +156,7 @@ class image: public objectBased, public scriptable{
 	//Print function
 	//	offset is related to the centre
 	void print_centre (SDL_Surface* target, int x, int y){
-		if (!surface) print(target, x, y);//If no surface is available, prints referring to topleft corner
+		if (!surface){ print(target, x, y); return; }//If no surface is available, prints referring to topleft corner
 		
 		SDL_Rect offset = {x - (useRect ? rect.w / 2 : surface->w / 2) + offsetX, y - (useRect ? rect.h / 2 : surface->h / 2) + offsetY};//Offset rectangle
 		SDL_BlitSurface(surface, useRect ? &rect : NULL, target, &offset);//Blits surface

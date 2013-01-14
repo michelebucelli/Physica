@@ -15,7 +15,7 @@
    version="1.1"
    inkscape:version="0.48.4 r9939"
    sodipodi:docname="icons.svg"
-   inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\icons.png"
+   inkscape:export-filename="F:\Documents\Programming\WIP\Physica\bin\data\graphics\misc\icons.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -25,11 +25,11 @@
      pagecolor="#000000"
      bordercolor="#666666"
      borderopacity="1.0"
-     inkscape:pageopacity="1"
+     inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8266594"
-     inkscape:cx="198.18702"
-     inkscape:cy="622.88602"
+     inkscape:cx="176.05519"
+     inkscape:cy="692.3408"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -332,5 +332,10 @@
        inkscape:export-filename="F:\Documents\Programming\WIP\Physica\bin\data\graphics\misc\icons.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90" />
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:none"
+       d="m 229.65043,321.66877 c -0.48232,0.89888 -0.85582,1.8664 -1.0955,2.88289 -2.57207,0.32849 -4.55495,2.52725 -4.55495,5.18919 0,2.88894 2.33868,5.22762 5.22763,5.22762 0.59973,0 1.1742,-0.10271 1.71051,-0.28828 1.65893,2.00956 3.97285,3.47214 6.61141,4.03603 l 0,4.95856 -3.24805,0 c -0.94172,0 -1.18827,0.65916 -1.69129,1.36457 l -3.3057,4.63182 c -0.50398,0.70676 1.09718,1.38379 2.46006,1.38379 l 16.49008,0 c 1.36288,0 2.96404,-0.67703 2.46006,-1.38379 l -3.32492,-4.63182 c -0.50302,-0.70541 -0.74957,-1.36457 -1.69129,-1.36457 l -3.22883,0 0,-4.95856 c 2.63668,-0.56389 4.95657,-2.02647 6.61141,-4.03603 0.53142,0.1818 1.09795,0.28828 1.69129,0.28828 2.88895,0 5.22763,-2.33868 5.22763,-5.22762 0,-2.66194 -1.98288,-4.8607 -4.55495,-5.18919 -0.23968,-1.01649 -0.61318,-1.98401 -1.0955,-2.88289 l -20.6991,0 z m -1.38378,4.997 c -0.008,0.17794 -0.0192,0.35804 -0.0192,0.53814 0,2.07745 0.55123,4.03222 1.4991,5.72732 -0.16922,0.0273 -0.34194,0.0385 -0.51892,0.0385 -1.78435,0 -3.22883,-1.44448 -3.22883,-3.22883 0,-1.44978 0.95319,-2.66651 2.26787,-3.07507 z m 23.46666,0 c 1.31468,0.40856 2.26787,1.6253 2.26787,3.07508 0,1.78434 -1.44448,3.22882 -3.22883,3.22882 -0.17698,0 -0.3497,-0.0111 -0.51892,-0.0385 0.94554,-1.69534 1.4991,-3.64946 1.4991,-5.72733 0,-0.18009 -0.011,-0.3602 -0.0192,-0.53813 z"
+       id="path3164"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

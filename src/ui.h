@@ -332,7 +332,7 @@ void resize(int newW, int newH, bool fs, bool redraw){
 	fullscreen = fs;//Sets fullscreen
 	
 	if (fullscreen){//If in fullscreen mode
-		SDL_Rect best = *(SDL_ListModes(NULL, SDL_SWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
+		SDL_Rect best = *(SDL_ListModes(NULL, SDL_HWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
 		
 		//Gets video size
 		video_w = best.w;

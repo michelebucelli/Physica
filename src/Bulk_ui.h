@@ -521,23 +521,17 @@ class control: public objectBased {
 		status = normal;//Sets normal status
 	
 		int i;//Counter
-		for (i = 0; i <= pressed; i++)//For each status
+		for (i = 0; i <= pressed; i++){//For each status
 			themes[i] = NULL;//Sets null theme for that status
+		}
 			
 		clickThrough = false;
 			
 		release.handlers.push_back(getFocus);//Adds getFocus to click events
 	}
 	
-	//Print function
-	virtual void print(SDL_Surface* target, int x = 0, int y = 0){
-		//Adds offset
-		area.x += x;
-		area.y += y;
-		
-		if (themes[status])//If there's a valid theme for current status
-			themes[status]->printRect(target, area);//Prints the control rectangle
-			
+	//Content printing function
+	void printContent(SDL_Surface* target, int x = 0, int y = 0){
 		if (content.contentType == CONTENT_TEXT){//If content is text
 			if (content.t != "" && themes[status] && themes[status]->themeFont.isValid()){//If text is valid
 				SDL_Surface* text = RENDERTEXT(themes[status]->themeFont, content.t.c_str());//Renders text
@@ -584,6 +578,18 @@ class control: public objectBased {
 			
 			content.i.print(target, x, y);//Prints image
 		}
+	}
+	
+	//Print function
+	virtual void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		//Adds offset
+		area.x += x;
+		area.y += y;
+		
+		if (printTheme && themes[status])//If there's a valid theme for current status
+			themes[status]->printRect(target, area);//Prints the control rectangle
+			
+		printContent(target, x, y);//Prints content
 		
 		//Removes offset
 		area.x -= x;
@@ -705,62 +711,14 @@ class inputBox: public control {
 	}
 	
 	//Print function
-	void print(SDL_Surface* target, int x = 0, int y = 0){
-		//Adds offset
-		area.x += x;
-		area.y += y;
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		string oldText = content.t;//Old text
+
+		if (edit) content.t += "_";//Adds caret to text if in edit mode
+	
+		control::print(target, x, y, printTheme);//Normally prints control
 		
-		if (themes[status])//If there's a valid theme for current status
-			themes[status]->printRect(target, area);//Prints the control rectangle
-			
-		if (content.contentType == CONTENT_TEXT){//If content is text
-			if (content.t != "" || edit && themes[status]->themeFont.isValid()){//If text is valid
-				SDL_Surface* text = RENDERTEXT(themes[status]->themeFont, (content.t + (edit ? "_" : "")).c_str());//Renders text
-				
-				SDL_Rect offset;//Offset rectangle
-				
-				//Sets X according to horizontal alignment
-				switch (content.hAlignment){
-					case controlContent::left: offset.x = area.x + content.margin; break;
-					case controlContent::hcentre: offset.x = area.x + (area.w - text->w) / 2; break;
-					case controlContent::right: offset.x = area.x + area.w - text->w - content.margin; break;
-				}
-				
-				//Sets Y according to vertical alignment
-				switch (content.vAlignment){
-					case controlContent::top: offset.y = area.y + content.margin; break;
-					case controlContent::vcentre: offset.y = area.y + (area.h - text->h) / 2 + 1; break;
-					case controlContent::bottom: offset.y = area.y + area.h - text->h - content.margin; break;
-				}
-				
-				SDL_BlitSurface(text, NULL, target, &offset);//Blits text
-				SDL_FreeSurface(text);//Frees text
-			}
-		}
-		
-		else if (content.contentType == CONTENT_IMAGE){//If content is image
-			int x, y;//Image print coords
-			
-			//Sets X according to horizontal alignment
-			switch (content.hAlignment){
-				case controlContent::left: x = area.x + content.margin; break;
-				case controlContent::hcentre: x = area.x + (area.w - content.i.w()) / 2; break;
-				case controlContent::right: x = area.x + area.w - content.i.w() - content.margin; break;
-			}
-			
-			//Sets Y according to vertical alignment
-			switch (content.vAlignment){
-				case controlContent::top: y = area.y + content.margin; break;
-				case controlContent::vcentre: y = area.y + (area.h - content.i.h()) / 2; break;
-				case controlContent::bottom: y = area.y + area.h - content.i.h() - content.margin; break;
-			}
-			
-			content.i.print(target, x, y);//Prints image
-		}
-		
-		//Removes offset
-		area.x -= x;
-		area.y -= y;
+		content.t = oldText;//Resets text
 	}
 	
 	//Function to check events
@@ -816,8 +774,8 @@ class fillbar: public control {
 	}
 	
 	//Print method
-	void print(SDL_Surface* target, int x = 0, int y = 0){
-		control::print(target, x, y);//Prints control normally
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		control::print(target, x, y, printTheme);//Prints control normally
 		
 		if (fillTheme && fill > 0){//If fill theme is available
 			rectangle r = area;//Fill rectangle
@@ -895,7 +853,7 @@ class checkBox: public control {
 	}
 	
 	//Function to print
-	void print(SDL_Surface* target, int x = 0, int y = 0){
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
 		theme *oldHover = themes[hover], *oldNormal = themes[normal];//Hover and normal themes
 		
 		if (checked){//If checked
@@ -903,7 +861,7 @@ class checkBox: public control {
 			themes[normal] = checkedTheme;//Replaces normal with checked
 		}
 		
-		control::print(target, x, y);//Prints control
+		control::print(target, x, y, printTheme);//Prints control
 		
 		if (checked){//If checked
 			themes[hover] = oldHover;//Resets hover theme
@@ -994,8 +952,8 @@ class listBox: public control {
 	}
 	
 	//Print function
-	void print(SDL_Surface* target, int x = 0, int y = 0){
-		control::print(target, x, y);//Prints control
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		control::print(target, x, y, printTheme);//Prints control
 		
 		int i;//Counter
 		for (i = 0; i < itemCount; i++){//For each item
@@ -1099,8 +1057,8 @@ class panel: public control {
 	
 	//Print function
 	//	prints panel and children controls
-	void print(SDL_Surface* target, int x = 0, int y = 0){
-		control::print(target, x, y);//Prints panel
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		control::print(target, x, y, printTheme);//Prints panel
 		
 		//Adds offset
 		area.x += x;
@@ -1163,30 +1121,11 @@ class panel: public control {
 	}
 	
 	//Function to load from script object
-	//	loads control data (couldn't call control::fromScriptObj, since it would have returned false due to different object type;
-	//	simply copied that function's content); all child controls are declared as sub-objects inside the panel object, and any object
-	//	of type control found inside given object will be added as a child control
 	bool fromScriptObj(object o){
-		if (objectBased::fromScriptObj(o)){//If succedeed loading base data
-			object* area = get <object, deque<object> > (&o.o, "area");//Gets control area
-			
-			var* theme_normal = get <var, deque<var> > (&o.v, "normalTheme");//Control normal theme
-			var* theme_hover = get <var, deque<var> > (&o.v, "hoverTheme");//Control hover theme
-			var* theme_pressed = get <var, deque<var> > (&o.v, "pressedTheme");//Control pressed theme
-			
+		if (control::fromScriptObj(o)){//If succedeed loading base data
 			var* allowDrag = get <var> (&o.v, "allowDrag");//Allow drag variable
 			
-			object* content = get <object, deque<object> > (&o.o, "content");//Control content
-			
-			if (area) this->area.fromScriptObj(*area);//Loads area
-			
-			if (theme_normal) this->themes[normal] = get <theme, list<theme> > (&themesDB, theme_normal->value);//Gets normal theme
-			if (theme_hover) this->themes[hover] = get <theme, list<theme> > (&themesDB, theme_hover->value);//Gets hover theme
-			if (theme_pressed) this->themes[pressed] = get <theme, list<theme> > (&themesDB, theme_pressed->value);//Gets pressed theme
-			
 			if (allowDrag) this->allowDrag = allowDrag->intValue();//Sets allow drag variable
-			
-			if (content) this->content.fromScriptObj(*content);//Loads content
 			
 			deque<object>::iterator i;//Iterator for child objects
 			for (i = o.o.begin(); i != o.o.end(); i++){//For each child object
