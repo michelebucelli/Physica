@@ -142,15 +142,15 @@ int main(int argc, char* argv[]){
 		
 		if (!debugMode){//If not in debug mode
 			if (achBegin > 0 && SDL_GetTicks() - achBegin < achDuration){//If has to print achievement
-				if (achFrame->area.x < achFrame->area.y) achFrame->area.x = achFrame->area.y;//Moves window
-				if (achFrame->area.x > achFrame->area.y) achFrame->area.x = achFrame->area.y;//Adjusts position
+				if (achFrame->area.y < 0) achFrame->area.y += achSpeed;//Moves on y
+				if (achFrame->area.y > 0) achFrame->area.y = 0;//Adjusts position
 				
 				achieved.print(video);//Prints achieved window
 			}
 			
-			else if (achBegin > 0 && achFrame->area.x > achStartX){//If has to hide achievement
-				achFrame->area.x = achStartX;//Moves window
-				if (achFrame->area.x < achStartX) achFrame->area.x = achStartX;//Adjusts position
+			else if (achBegin > 0 && achFrame->area.y > -achFrame->area.h){//If has to hide achievement
+				if (achFrame->area.y > -achFrame->area.h) achFrame->area.y -= achSpeed;//Moves on y
+				if (achFrame->area.y < -achFrame->area.h) achFrame->area.y = -achFrame->area.h;//Adjusts position
 				
 				achieved.print(video);//Prints window
 			}

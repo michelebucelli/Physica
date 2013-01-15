@@ -60,9 +60,9 @@ control* achIcon;//Achieved icon
 control* achName;//Achieved name
 control* achInfo;//Achieved info
 
-int achStartX;//Achieved window start x position
 int achBegin = -1;//Achieved window time counter
 int achDuration = 5000;//Achieved window duration
+int achSpeed = 1;//Pixels per frame of achievement window movement
 
 //Function to get input
 string getInput(string prompt){
@@ -305,8 +305,6 @@ void showSettings(clickEventData data){
 void unlockedAchievement(achievement* a){
 	achBegin = SDL_GetTicks();//Sets time beginning
 	
-	achStartX = achFrame->area.x;//Sets starting x position
-	
 	//Sets window parameters
 	achIcon->content.i = a->icon;
 	achName->content.t = a->name;
@@ -374,6 +372,10 @@ void resize(int newW, int newH, bool fs, bool redraw){
 		
 		if (fpsLabel){//If fps label is available
 			fpsLabel->area.x = video_w - fpsLabel->area.w;//Positions
+		}
+		
+		if (achFrame){
+			achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
 		}
 		
 		redrawLevelSelect();//Redraws level selection window
@@ -494,6 +496,8 @@ void loadUI(){
 	achName = achieved.getControl("frame.name");//Gets name
 	achInfo = achieved.getControl("frame.info");//Gets info
 	
+	achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
+	achFrame->area.y = -achFrame->area.h;//Hides on y
 	achIcon->content.contentType = CONTENT_IMAGE;//Sets content type
 }
 

@@ -296,9 +296,10 @@ class theme: public objectBased {
 												rect.w - panel_topLeft.w() - panel_topLeft.offsetX - panel_topRight.w() + panel_topRight.offsetX,
 												rect.h - panel_topLeft.h() - panel_topLeft.offsetY - panel_bottomLeft.h() + panel_bottomLeft.offsetY});//Sets surface clip rect
 		
-		for (curY = panel_topLeft.h() + panel_topLeft.offsetY; curY < rect.h - panel_bottomLeft.h() + panel_bottomLeft.offsetY; curY += panel_centre.h())//For each line
-			for (curX = panel_topLeft.w() + panel_topLeft.offsetX; curX < rect.w - panel_topRight.w() + panel_topRight.offsetX; curX += panel_centre.w())//For each column
-				panel_centre.print(target, rect.x + curX, rect.y + curY);//Prints panel centre image
+		if (panel_centre.valid())
+			for (curY = panel_topLeft.h() + panel_topLeft.offsetY; curY < rect.h - panel_bottomLeft.h() + panel_bottomLeft.offsetY; curY += panel_centre.h())//For each line
+				for (curX = panel_topLeft.w() + panel_topLeft.offsetX; curX < rect.w - panel_topRight.w() + panel_topRight.offsetX; curX += panel_centre.w())//For each column
+					panel_centre.print(target, rect.x + curX, rect.y + curY);//Prints panel centre image
 		
 		SDL_SetClipRect (target, & SDL_Rect {	rect.x + panel_topLeft.w() + panel_topLeft.offsetX,
 												0,
@@ -306,12 +307,14 @@ class theme: public objectBased {
 												target->h});//Sets surface clip rect
 		
 		//Prints top side
-		for (curX = panel_topLeft.w() + panel_topLeft.offsetX; curX < rect.w - panel_topRight.w(); curX += panel_top.w())//For each column
-			panel_top.print(target, rect.x + curX, rect.y);//Prints panel top image
+		if (panel_top.valid())
+			for (curX = panel_topLeft.w() + panel_topLeft.offsetX; curX < rect.w - panel_topRight.w(); curX += panel_top.w())//For each column
+				panel_top.print(target, rect.x + curX, rect.y);//Prints panel top image
 			
 		//Prints bottom side
-		for (curX = panel_bottomLeft.w() + panel_bottomLeft.offsetX; curX < rect.w - panel_bottomRight.w(); curX += panel_bottom.w())//For each column
-			panel_bottom.print(target, rect.x + curX, rect.y + rect.h - panel_bottom.h());//Prints panel bottom image
+		if (panel_bottom.valid())
+			for (curX = panel_bottomLeft.w() + panel_bottomLeft.offsetX; curX < rect.w - panel_bottomRight.w(); curX += panel_bottom.w())//For each column
+				panel_bottom.print(target, rect.x + curX, rect.y + rect.h - panel_bottom.h());//Prints panel bottom image
 			
 		SDL_SetClipRect (target, & SDL_Rect {	0,
 												rect.y + panel_topRight.h() + panel_topRight.offsetY,
@@ -319,20 +322,22 @@ class theme: public objectBased {
 												rect.h - panel_topRight.h() - panel_topRight.offsetY - panel_bottomRight.h() + panel_bottomRight.offsetY});//Sets surface clip rect
 			
 		//Prints right side
-		for (curY = panel_topRight.h() + panel_topRight.offsetY; curY < rect.h - panel_bottomRight.h() + panel_bottomRight.offsetY; curY += panel_right.h())//For each column
-			panel_right.print(target, rect.x + rect.w - panel_right.w(), rect.y + curY);//Prints panel right image
+		if (panel_right.valid())
+			for (curY = panel_topRight.h() + panel_topRight.offsetY; curY < rect.h - panel_bottomRight.h() + panel_bottomRight.offsetY; curY += panel_right.h())//For each column
+				panel_right.print(target, rect.x + rect.w - panel_right.w(), rect.y + curY);//Prints panel right image
 			
 		//Prints left side
-		for (curY = panel_topLeft.h() + panel_topLeft.offsetX; curY < rect.h - panel_bottomLeft.h() + panel_bottomLeft.offsetY; curY += panel_left.h())//For each column
-			panel_left.print(target, rect.x, rect.y + curY);//Prints panel left image
+		if (panel_left.valid())
+			for (curY = panel_topLeft.h() + panel_topLeft.offsetX; curY < rect.h - panel_bottomLeft.h() + panel_bottomLeft.offsetY; curY += panel_left.h())//For each column
+				panel_left.print(target, rect.x, rect.y + curY);//Prints panel left image
 		
 		SDL_SetClipRect (target, NULL);//Resets surface clip rect
 		
 		//Prints corners
-		panel_topLeft.print(target, rect.x, rect.y);//Prints topleft corner
-		panel_topRight.print(target, rect.x + rect.w - panel_topRight.w(), rect.y);//Prints topright corner
-		panel_bottomRight.print(target, rect.x + rect.w - panel_bottomRight.w(), rect.y + rect.h - panel_bottomRight.h());//Prints bottomright corner
-		panel_bottomLeft.print(target, rect.x, rect.y + rect.h - panel_bottomLeft.h());//Prints bottomleft corner
+		if (panel_topRight.valid()) panel_topLeft.print(target, rect.x, rect.y);//Prints topleft corner
+		if (panel_topRight.valid()) panel_topRight.print(target, rect.x + rect.w - panel_topRight.w(), rect.y);//Prints topright corner
+		if (panel_topRight.valid()) panel_bottomRight.print(target, rect.x + rect.w - panel_bottomRight.w(), rect.y + rect.h - panel_bottomRight.h());//Prints bottomright corner
+		if (panel_topRight.valid()) panel_bottomLeft.print(target, rect.x, rect.y + rect.h - panel_bottomLeft.h());//Prints bottomleft corner
 		
 		list<uiElement>::iterator i;//Element iterator
 		for (i = elements.begin(); i != elements.end(); i++){//For each element
@@ -348,7 +353,7 @@ class theme: public objectBased {
 			else if (i->whichY == 1) y = rect.h / 2 + i->y - i->elementImage.h() / 2;
 			else if (i->whichY == 2) y = rect.h - i->y - i->elementImage.h();
 			
-			i->elementImage.print(target, rect.x + x, rect.y + y);//Prints element
+			if (i->elementImage.valid()) i->elementImage.print(target, rect.x + x, rect.y + y);//Prints element
 		}
 	}
 };

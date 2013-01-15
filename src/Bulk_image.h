@@ -153,6 +153,9 @@ class image: public objectBased, public scriptable{
 		SDL_BlitSurface(surface, useRect ? &rect : NULL, target, &offset);//Blits surface
 	}
 	
+	//Function to determine if image is valid (surface not null)
+	bool valid() { return surface != NULL; }
+	
 	//Print function
 	//	offset is related to the centre
 	void print_centre (SDL_Surface* target, int x, int y){
