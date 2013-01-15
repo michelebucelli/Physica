@@ -14,6 +14,7 @@ string successFile = "data/cfg/ui/success.cfg";//Success file path
 string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
 string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
 string achievedFile = "data/cfg/ui/achievement.cfg";//Achievement window file path
+string achievementsUiFile = "data/cfg/ui/achievements.cfg";//Achievements window file path
 
 //Global graphics
 image starOn, starOff;//Star images
@@ -29,7 +30,7 @@ control *labDeaths, *labTime;//Hud labels
 
 window menu;//Menu window
 panel *menuFrame;//Menu frame
-control *btnPlay, *btnEditor, *btnSettings, *btnCredits, *btnQuit;//Menu buttons
+control *btnPlay, *btnEditor, *btnSettings, *btnAchs, *btnCredits, *btnQuit;//Menu buttons
 
 window levelSelect;//Level select window
 panel levelButton;//Level button panel
@@ -50,6 +51,11 @@ control *ratingA, *ratingB, *ratingC;//Rating stars
 window settings;//Settings window
 panel* settingsFrame;//Settings frame
 checkBox *setFullscreen, *setCamFollow, *setSound, *setDebug;//Settings check boxes
+
+window achievements;//Achievements window
+panel defaultAch;//Achievement info panel
+int achs_spacing = 16;//Grid spacing
+int achs_w = 2;//Achievements grid width
 
 window credits;//Credits window
 control* creditsLabel;//Credits label
@@ -104,6 +110,8 @@ enum uiMode {
 	ui_success,//Level completion
 	
 	ui_settings,//Settings window
+	
+	ui_achievements,//Achievements window
 	
 	ui_credits//Credits
 } curUiMode = ui_mainMenu;//Current UI mode
@@ -173,6 +181,44 @@ void redrawLevelSelect(){
 	}
 }
 
+//Function to redraw achievements window
+void redrawAchievements(){
+	achievements.clear();//Clears window
+	
+	int rows = ceil (progress.unlockedAch.size() / achs_w);//Rows needed
+	int lsH = rows * defaultAch.area.h + (rows - 1) * achs_spacing;//Selector height
+	int offsetY = (video_h - lsH) / 2;//Y offset
+	
+	int i;//Counter
+	for (i = 0; i <= rows; i++){//For each row
+		int n;//Counter
+		int rowSize = progress.unlockedAch.size() - i * achs_w > achs_w ? achs_w : progress.unlockedAch.size() - i * achs_w;//Elements in row
+		int rowW = rowSize * defaultAch.area.w + (rowSize - 1) * achs_spacing;//Row width
+		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
+		
+		for (n = 0; n < rowSize; n++){//For each element of the row
+			panel* p = defaultAch.copy();//New panel
+				
+			p->id = toString(i * achs_w + n);//Sets id
+			
+			control* icon = p->getControl("icon");//Icon
+			control* name = p->getControl("name");//Name
+			control* info = p->getControl("info");//Info
+			
+			achievement* a = get <achievement> (&achs, progress.unlockedAch[i * achs_w + n]);//Achievement to show
+			
+			if (icon){ icon->content.contentType = CONTENT_IMAGE; icon->content.i = a->icon; }//Sets icon
+			if (name) name->content.t = a->name;//Sets name
+			if (info) info->content.t = a->info;//Sets info
+			
+			p->area.x = rowOffsetX + n * (p->area.w + achs_spacing);//Sets x
+			p->area.y = offsetY + i * (p->area.h + achs_spacing);//Sets y
+			
+			achievements.push_back(p);//Adds to controls
+		}
+	}
+}
+
 //Function to handle pause click
 void pauseClick(clickEventData data){
 	current.paused = true;
@@ -207,6 +253,12 @@ void editorClick(clickEventData data){
 	
 	springMode = false;
 	edSpring->checked = false;
+}
+
+//Function to handle achievements click
+void achsClick(clickEventData data){
+	curUiMode = ui_achievements;
+	redrawAchievements();
 }
 
 //Function to handle quit click
@@ -378,7 +430,8 @@ void resize(int newW, int newH, bool fs, bool redraw){
 			achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
 		}
 		
-		redrawLevelSelect();//Redraws level selection window
+		if (curUiMode == ui_levels) redrawLevelSelect();//Redraws level selection window
+		if (curUiMode == ui_achievements) redrawAchievements();//Redraws achievements
 	}
 }
 
@@ -418,6 +471,7 @@ void loadUI(){
 	btnPlay = menu.getControl("frame.play");//Gets play button
 	btnEditor = menu.getControl("frame.editor");//Gets editor button
 	btnSettings = menu.getControl("frame.settings");//Gets settings button
+	btnAchs = menu.getControl("frame.achievements");//Gets achievements button
 	btnCredits = menu.getControl("frame.credits");//Gets credits button
 	btnQuit = menu.getControl("frame.quit");//Gets quit button
 	
@@ -426,6 +480,7 @@ void loadUI(){
 	
 	btnPlay->release.handlers.push_back(playClick);//Adds click handler to play
 	btnEditor->release.handlers.push_back(editorClick);//Adds click handler to editor
+	btnAchs->release.handlers.push_back(achsClick);//Adds click handler to achievements
 	btnSettings->release.handlers.push_back(showSettings);//Adds click handler to settings
 	btnCredits->release.handlers.push_back(creditsClick);//Adds click handler to credits
 	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
@@ -499,6 +554,9 @@ void loadUI(){
 	achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
 	achFrame->area.y = -achFrame->area.h;//Hides on y
 	achIcon->content.contentType = CONTENT_IMAGE;//Sets content type
+	
+	achievements = loadWindow(achievementsUiFile, "achievements");//Loads achievements window
+	defaultAch = * (panel*) achievements.getControl("defaultAchievement");//Gets achievement info
 }
 
 //Graphics info file loading function

@@ -128,6 +128,18 @@ int main(int argc, char* argv[]){
 			settings.print(video);//Prints settings window
 		}
 
+		if (curUiMode == ui_achievements){//If in achievements view
+			BKG;//Prints background
+			
+			while (SDL_PollEvent(&ev)){//While there are events on stack
+				EVENTS_COMMON(ev);//Common events
+				
+				if (ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONUP) curUiMode = ui_mainMenu;//Back to main menu on key press
+			}
+			
+			achievements.print(video);//Prints achievements
+		}
+		
 		if (curUiMode == ui_credits){//If in credits view
 			BKG;//Prints background
 			

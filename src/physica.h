@@ -463,6 +463,8 @@ class game {
 	
 	int time;//Start time
 	int deaths;//Death counter
+	
+	bool completed;//Completed flag
 		
 	void (*success)();//Success function
 	
@@ -487,6 +489,8 @@ class game {
 		levelIndex = 0;
 		
 		success = NULL;
+		
+		completed = false;
 	}
 	
 	//Function for controls handling
@@ -595,6 +599,7 @@ class game {
 		}
 		
 		paused = false;//Unpauses
+		completed = false;//Not completed
 	}
 	
 	//Function to reset current level
@@ -619,7 +624,7 @@ class game {
 		
 		for (i = c.begin(); i != c.end(); i++){//For each collision
 			if ((i->a == player && i->b->special == "hazard") || (i->a->special == "hazard" && i->b == player)){ reset(); break; }//Resets level on death
-			if ((i->a == player && i->b == goal) || (i->a == goal && i->b == player)){ if (success) success(); break; }//Success if hit goal
+			if ((i->a == player && i->b == goal) || (i->a == goal && i->b == player)){ completed = true; if (success) success(); break; }//Success if hit goal
 		}
 	}
 	
@@ -675,14 +680,36 @@ double *getVar(string id){
 			
 		return i;
 	}
-	
-	else if (id == "completedLevels"){//If requested the completed levels
+
+	else if (id == "completedLevels")//If requested the completed levels
 		return new double(progress.completed());//Returns result
+	
+	else if (id == "totalLevels")//If requested the total levels
+		return new double(current.levels.size());//Returns result
+	
+	else if (id == "deaths")//If requested the deaths
+		return new double(current.deaths);//Returns result
+	
+	else if (id == "finished")//If requested the finished flag
+		return new double(current.completed);//Returns result
+		
+	else if (id == "aveRating"){//If requested the average rating
+		if (progress.size() == 0) return new double (0);//Returns 0 if no level was unlocked
+		
+		globalProgress::iterator i;//Iterator
+		int result = 0;//Result
+		
+		for (i = progress.begin(); i != progress.end(); i++)//For each progress info
+			result += i->rating;//Adds to total
+		
+		return new double (result / progress.size());//Returns result
 	}
 	
-	else if (id == "totalLevels"){//If requested the total levels
-		return new double(current.levels.size());//Returns result
-	}
+	else if (id == "achs")//If requested unlocked achievements
+		return new double(progress.unlockedAch.size());
+		
+	else if (id == "totalAchs")//If requested total achievements
+		return new double(achs.size());//Returns result
 }
 
 #include "editor.h"//Includes editor
