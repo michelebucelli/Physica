@@ -13,6 +13,7 @@
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
 #define OBJTYPE_GLOBALPROGRESS	"gProgress"//Global progress objects
 #define OBJTYPE_ACHIEVEMENT		"achievement"//Achievement objects
+#define OBJTYPE_RULES			"rules"//Rules objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
@@ -54,6 +55,7 @@ string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
 string levelsFile = "data/cfg/levels/levelSet_core.cfg";//Level set file
 string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
+string rulesFile = "data/cfg/rules.cfg";//Rules file
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -98,8 +100,9 @@ int controlsToInt(controls c, Uint8* keys){
 	return result;//Returns result
 }
 
-//Rules structure
-struct rules {
+//Rules class
+class rules: public objectBased {
+	public:
 	double jumpImpulse;//Module of jump impulse
 	
 	double groundSpeed;//Module of max speed when on the ground
@@ -115,6 +118,60 @@ struct rules {
 	vector gravity;//Gravity vector
 	
 	int jumpCount;//Jumps counter
+	
+	//Constructor
+	rules(){
+		id = "";
+		type = OBJTYPE_RULES;
+		
+		jumpImpulse = 30;
+		
+		groundSpeed = 30;
+		groundForce = 15;
+		groundDamping = 0.8;
+		
+		airSpeed = 15;
+		airForce = 7;
+		
+		rotateSpeed = 100;
+		rotateForce = 25;
+		
+		gravity = {0,10};
+		
+		jumpCount = 2;
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
+			var* jumpImpulse = get <var> (&o.v, "jumpImpulse");
+			var* groundSpeed = get <var> (&o.v, "groundSpeed");
+			var* groundForce = get <var> (&o.v, "groundForce");
+			var* groundDamping = get <var> (&o.v, "groundDamping");
+			var* airSpeed = get <var> (&o.v, "airSpeed");
+			var* airForce = get <var> (&o.v, "airForce");
+			var* rotateSpeed = get <var> (&o.v, "rotateSpeed");
+			var* rotateForce = get <var> (&o.v, "rotateForce");
+			var* gravity = get <var> (&o.v, "gravity");
+			var* jumpCount = get <var> (&o.v, "jumpCount");
+			
+			if (jumpImpulse) this->jumpImpulse = jumpImpulse->doubleValue();
+			if (groundSpeed) this->groundSpeed = groundSpeed->doubleValue();
+			if (groundForce) this->groundForce = groundForce->doubleValue();
+			if (groundDamping) this->groundDamping = groundDamping->doubleValue();
+			if (airSpeed) this->airSpeed = airSpeed->doubleValue();
+			if (airForce) this->airForce = airForce->doubleValue();
+			if (rotateSpeed) this->rotateSpeed = rotateSpeed->doubleValue();
+			if (rotateForce) this->rotateForce = rotateForce->doubleValue();
+			if (jumpCount) this->jumpCount = jumpCount->intValue();
+			
+			if (gravity) this->gravity.fromString(gravity->value);
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}
 };
 
 //Level class
@@ -474,7 +531,6 @@ class game {
 		goal = NULL;
 		
 		playerControls = {SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_q, SDLK_e};
-		gameRules = {30, 30, 15, 0.8, 15, 7, 100, 25, {0,10}, 2};
 		
 		releasedJump = true;
 		playerJumps = 0;
@@ -778,6 +834,15 @@ void loadAchievements(){
 	}
 }
 
+//Function to load rules
+void loadRules(){
+	fileData f (rulesFile);//Source file
+	object o = f.objGen("rules");//Generated object
+	
+	o.type = OBJTYPE_RULES;//Sets rules
+	current.gameRules.fromScriptObj(o);//Loads rules
+}
+
 //Function to save settings
 void saveSettings(){
 	ofstream o (settingsFile.c_str());//Output file
@@ -818,6 +883,7 @@ void gameInit(int argc, char* argv[]){
 	current.loadLevelSet(levelsFile);//Loads core level set
 	current.success = showSuccess;//Sets success function
 	
+	loadRules();//Loads rules
 	loadProgress();//Loads game progress
 	
 	level* first = loadLevel(current.levels[0]);//First level
