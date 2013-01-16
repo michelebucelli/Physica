@@ -14,6 +14,7 @@
 #define OBJTYPE_GLOBALPROGRESS	"gProgress"//Global progress objects
 #define OBJTYPE_ACHIEVEMENT		"achievement"//Achievement objects
 #define OBJTYPE_RULES			"rules"//Rules objects
+#define OBJTYPE_CONTROLS		"controls"//Controls objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
@@ -47,7 +48,7 @@ int actualFps = 0;//Actual fps
 
 //Event handling and input
 SDL_Event ev;//Global event
-Uint8* keys = NULL;//Keys array
+Uint8 *keys;//Keys array
 
 //Files
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
@@ -79,10 +80,18 @@ bool camFollow = false;//If true, camera will follow player
 void resize(int,int,bool,bool = true);//Resizing function
 string getInput(string);//Function to get input
 
-//Control scheme structure
-struct controls {
-	Uint8 up, left, down, right;//Movement keys
-	Uint8 rollLeft, rollRight;//Rolling keys (use to rotate player)
+//Control scheme class
+class controls: public objectBased {
+	public:
+	int up, left, right;//Movement keys
+	
+	//Constructor
+	controls(){
+		id = "";
+		type = OBJTYPE_CONTROLS;
+	}
+	
+	
 };
 
 //Function to get an integer representing pressed controls
@@ -92,10 +101,7 @@ int controlsToInt(controls c, Uint8* keys){
 	//Sets result bits
 	if (keys[c.up]) result += 0b10000000;
 	if (keys[c.left]) result += 0b01000000;
-	if (keys[c.down]) result += 0b00100000;
 	if (keys[c.right]) result += 0b00010000;
-	if (keys[c.rollLeft]) result += 0b0000100;
-	if (keys[c.rollRight]) result += 0b0000010;
 	
 	return result;//Returns result
 }
@@ -111,9 +117,6 @@ class rules: public objectBased {
 	
 	double airSpeed;//Module of speed when in the air
 	double airForce;//Module of force applied when in air
-	
-	double rotateSpeed;//Rotation max speed
-	double rotateForce;//Rotation force
 	
 	vector gravity;//Gravity vector
 	
@@ -133,9 +136,6 @@ class rules: public objectBased {
 		airSpeed = 15;
 		airForce = 7;
 		
-		rotateSpeed = 100;
-		rotateForce = 25;
-		
 		gravity = {0,10};
 		
 		jumpCount = 2;
@@ -150,8 +150,6 @@ class rules: public objectBased {
 			var* groundDamping = get <var> (&o.v, "groundDamping");
 			var* airSpeed = get <var> (&o.v, "airSpeed");
 			var* airForce = get <var> (&o.v, "airForce");
-			var* rotateSpeed = get <var> (&o.v, "rotateSpeed");
-			var* rotateForce = get <var> (&o.v, "rotateForce");
 			var* gravity = get <var> (&o.v, "gravity");
 			var* jumpCount = get <var> (&o.v, "jumpCount");
 			
@@ -161,8 +159,6 @@ class rules: public objectBased {
 			if (groundDamping) this->groundDamping = groundDamping->doubleValue();
 			if (airSpeed) this->airSpeed = airSpeed->doubleValue();
 			if (airForce) this->airForce = airForce->doubleValue();
-			if (rotateSpeed) this->rotateSpeed = rotateSpeed->doubleValue();
-			if (rotateForce) this->rotateForce = rotateForce->doubleValue();
 			if (jumpCount) this->jumpCount = jumpCount->intValue();
 			
 			if (gravity) this->gravity.fromString(gravity->value);
@@ -205,8 +201,11 @@ class level: public scene {
 	//Destructor
 	~level(){
 		list<entity*>::iterator i;//Iterator for entities
+		deque<phLink*>::iterator l;//Iterator for links
 		
 		for (i = entities.begin(); i != entities.end(); i++){ delete *i; i = entities.erase(i); i--; }//Deletes each entity
+		for (l = links.begin(); l != links.end(); l++){ delete *l; l = links.erase(l); l--; }//Deletes each link
+		
 		if (backgroundImage) SDL_FreeSurface(backgroundImage);//Frees background
 	}
 	
@@ -538,7 +537,7 @@ class game {
 		player = NULL;
 		goal = NULL;
 		
-		playerControls = {SDLK_w, SDLK_a, SDLK_s, SDLK_d, SDLK_q, SDLK_e};
+		playerControls = {SDLK_UP, SDLK_LEFT, SDLK_RIGHT};
 		
 		releasedJump = true;
 		playerJumps = 0;
@@ -563,12 +562,20 @@ class game {
 			int lowestSensor = 0;//Lowest player sensor
 			int i;//Counter
 			
+			cout << keys[playerControls.up] << "," << keys[playerControls.right] << "," << keys[playerControls.left] << endl;
+			
+			bool up = int(keys[playerControls.up]) == 1;
+			bool right = int(keys[playerControls.right]) == 1;
+			bool left = int(keys[playerControls.left]) == 1;
+			
+			cout << up << "," << right << "," << left << endl << endl;
+			
 			for (i = 0; i < player->sensors.size(); i++)//For each sensor in player
 				if (player->sensors[i]->y > player->sensors[lowestSensor]->y) lowestSensor = i;//Sets lowest sensor
 			
 			bool ground = player->checkSensor(lowestSensor);//True if touching the ground
 			
-			if (!keys[playerControls.up] || ground) releasedJump = true;//Resets released jump flag if jump is not pressed
+			if (!up || ground) releasedJump = true;//Resets released jump flag if jump is not pressed
 			if (ground) playerJumps = 0;//Resets jump count
 			if (!ground && playerJumps == 0) playerJumps = 1;//If on air, at least one jump
 			
@@ -580,7 +587,7 @@ class game {
 				releasedJump = false;//Not released jump
 			}
 			
-			if (keys[playerControls.right]){//If pressing right
+			if (right){//If pressing right
 				if (ground && player->speed.x < gameRules.groundSpeed)//If on ground and moving slower
 					player->applyForce(player->position, {gameRules.groundForce, 0});//Applies force
 					
@@ -588,7 +595,7 @@ class game {
 					player->applyForce(player->position, {gameRules.airForce, 0});//Applies force
 			}
 			
-			else if (keys[playerControls.left]){//If pressing left
+			else if (left){//If pressing left
 				if (ground && player->speed.x > -gameRules.groundSpeed)//If on ground and moving slower
 					player->applyForce(player->position, {-gameRules.groundForce, 0});//Applies force
 					
@@ -597,18 +604,6 @@ class game {
 			}
 			
 			else if (ground) player->applyForce(player->position, {-player->speed.x * gameRules.groundDamping, 0});//Applies damping on ground
-			
-			if (!ground){//If not on ground
-				if (keys[playerControls.rollRight] && player->omega < gameRules.rotateSpeed){//If rolling right
-					player->applyForce(player->position - vector {0, 1}, {gameRules.rotateForce, 0});
-					player->applyForce(player->position - vector {0, -1}, {-gameRules.rotateForce, 0});
-				}
-				
-				else if (keys[playerControls.rollLeft] && player->omega > -gameRules.rotateSpeed){//If rolling left
-					player->applyForce(player->position - vector {0, 1}, {-gameRules.rotateForce, 0});
-					player->applyForce(player->position - vector {0, -1}, {gameRules.rotateForce, 0});
-				}
-			}
 		}
 	}
 	
@@ -896,6 +891,7 @@ void gameInit(int argc, char* argv[]){
 	
 	level* first = loadLevel(current.levels[0]);//First level
 	if (first && !progress.canPlay(first->id)) progress.unlock(first->id);//Unlocks first level
+	if (first) delete first;//Deletes loaded level
 	
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics
@@ -904,7 +900,7 @@ void gameInit(int argc, char* argv[]){
 	loadUI();//Loads ui
 	
 	loadEditor();//Loads editor
-	
+
 	keys = SDL_GetKeyState(NULL);//Gets keys
 }
 
