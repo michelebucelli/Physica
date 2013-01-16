@@ -27,6 +27,8 @@
 
 #define PLAYSOUND(SND)			if (enableSfx) Mix_PlayChannel(-1, SND, 0)//Play sound macro
 
+#define KEYNAME(KEY)			SDL_GetKeyName(SDLKey(KEY))//Key name macro
+
 //Video output
 SDL_Surface* video = NULL;//Video surface
 int video_w = 800;//Video width
@@ -80,19 +82,59 @@ bool camFollow = false;//If true, camera will follow player
 void resize(int,int,bool,bool = true);//Resizing function
 string getInput(string);//Function to get input
 
+//Function to convert text into keysym
+SDLKey strToKey(string s){
+	int i;//Counter
+	for (i = 0; i < SDLK_LAST; i++)//For each key
+		if (string(KEYNAME(i)) == s) return SDLKey(i);//If name matches, returns code
+	
+	return SDLKey(0);//Returns -1 if failed
+}
+
 //Control scheme class
 class controls: public objectBased {
 	public:
-	int up, left, right;//Movement keys
+	SDLKey up, left, right;//Movement keys
 	
 	//Constructor
 	controls(){
 		id = "";
 		type = OBJTYPE_CONTROLS;
+		
+		up = SDLK_UP;
+		left = SDLK_LEFT;
+		right = SDLK_RIGHT;
 	}
 	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
+			var* up = get <var> (&o.v, "up");//Up key
+			var* left = get <var> (&o.v, "left");//Left key
+			var* right = get <var> (&o.v, "right");//Right key
+			
+			if (up) this->up = strToKey(up->value);//Gets up
+			if (left) this->left = strToKey(left->value);//Gets left
+			if (right) this->right = strToKey(right->value);//Gets right
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}
 	
-};
+	//Function to save to script object
+	object toScriptObj(){
+		object result = objectBased::toScriptObj();//Result
+		
+		//Sets members
+		result.set("up", KEYNAME(up));
+		result.set("left", KEYNAME(left));
+		result.set("right", KEYNAME(right));
+		
+		return result;//Returns result
+	}
+} playerControls;
 
 //Function to get an integer representing pressed controls
 int controlsToInt(controls c, Uint8* keys){
@@ -511,7 +553,6 @@ class game {
 	
 	entity* player;//Entity controlled by player
 	entity* goal;//Goal entity
-	controls playerControls;//Player controls
 	
 	rules gameRules;//Game rules
 	
@@ -537,8 +578,6 @@ class game {
 		player = NULL;
 		goal = NULL;
 		
-		playerControls = {SDLK_UP, SDLK_LEFT, SDLK_RIGHT};
-		
 		releasedJump = true;
 		playerJumps = 0;
 		
@@ -562,13 +601,9 @@ class game {
 			int lowestSensor = 0;//Lowest player sensor
 			int i;//Counter
 			
-			cout << keys[playerControls.up] << "," << keys[playerControls.right] << "," << keys[playerControls.left] << endl;
-			
 			bool up = int(keys[playerControls.up]) == 1;
 			bool right = int(keys[playerControls.right]) == 1;
 			bool left = int(keys[playerControls.left]) == 1;
-			
-			cout << up << "," << right << "," << left << endl << endl;
 			
 			for (i = 0; i < player->sensors.size(); i++)//For each sensor in player
 				if (player->sensors[i]->y > player->sensors[lowestSensor]->y) lowestSensor = i;//Sets lowest sensor
@@ -802,12 +837,17 @@ void loadSettings(){
 	var* v_sound = get <var> (&g.v, "enableSfx");
 	var* v_debug = get <var> (&g.v, "debugMode");
 	
+	object* c = get <object> (&g.o, "controls");
+	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
 	if (v_camFollow) camFollow = v_camFollow->intValue();
 	if (v_videoW) videoWin_w = v_videoW->intValue();
 	if (v_videoH) videoWin_h = v_videoH->intValue();
 	if (v_sound) enableSfx = v_sound->intValue();
 	if (v_debug) debugMode = v_debug->intValue();
+	
+	if (c) playerControls.fromScriptObj(*c);
+	playerControls.id = "controls";
 	
 	resize(videoWin_w, videoWin_h, fullscreen, false);//Resizes window
 }
@@ -858,6 +898,8 @@ void saveSettings(){
 	ob.set("camFollow", camFollow);
 	ob.set("enableSfx", enableSfx);
 	ob.set("debugMode", debugMode);
+	
+	ob.o.push_back(playerControls.toScriptObj());
 	
 	o << ob.toString();//Outputs settings
 	

@@ -51,6 +51,7 @@ control *ratingA, *ratingB, *ratingC;//Rating stars
 window settings;//Settings window
 panel* settingsFrame;//Settings frame
 checkBox *setFullscreen, *setCamFollow, *setSound, *setDebug;//Settings check boxes
+keyBox *setUp, *setLeft, *setRight;//Controls key boxes
 
 window achievements;//Achievements window
 panel defaultAch;//Achievement info panel
@@ -352,6 +353,10 @@ void showSettings(clickEventData data){
 	setSound->checked = enableSfx;
 	setDebug->checked = debugMode;
 	
+	setUp->key = playerControls.up;
+	setRight->key = playerControls.right;
+	setLeft->key = playerControls.left;
+	
 	PLAYSOUND(clickSfx);//Plays sound
 }
 
@@ -443,6 +448,10 @@ void applySettings(){
 	camFollow = setCamFollow->checked;//Applies cam follow
 	enableSfx = setSound->checked;//Applies sound settings
 	debugMode = setDebug->checked;//Applies debug settings
+	
+	playerControls.up = setUp->key;
+	playerControls.left = setLeft->key;
+	playerControls.right = setRight->key;
 }
 
 //Function to update common UI
@@ -525,6 +534,9 @@ void loadUI(){
 	setCamFollow = (checkBox*) settings.getControl("frame.camFollow");//Gets camera follow checkbox
 	setSound = (checkBox*) settings.getControl("frame.enableSfx");//Gets sfx checkbox
 	setDebug = (checkBox*) settings.getControl("frame.debug");//Gets debug checkbox
+	setUp = (keyBox*) settings.getControl("frame.upKey");//Gets up key box
+	setRight = (keyBox*) settings.getControl("frame.rightKey");//Gets right key box
+	setLeft = (keyBox*) settings.getControl("frame.leftKey");//Gets left key box
 	
 	settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
 	settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y

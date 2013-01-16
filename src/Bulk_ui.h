@@ -16,6 +16,7 @@
 #define OBJTYPE_WINDOW		"window"//Window objects
 #define OBJTYPE_LISTBOX		"listBox"//List box objects
 #define OBJTYPE_CHECKBOX	"checkBox"//Check box objects
+#define OBJTYPE_KEYBOX		"keyBox"//Key box objects
 
 //Control content types
 #define CONTENT_TEXT		0//Text content
@@ -28,6 +29,7 @@
 #define CTYPE_FILLBAR		3//Fillbar
 #define CTYPE_LISTBOX		4//List box
 #define CTYPE_CHECKBOX		5//Check box
+#define CTYPE_KEYBOX		6//Key box
 
 //Macros
 #define RENDERTEXT(FONT,TEXT)	TTF_RenderText_Blended(FONT.f, TEXT, FONT.color)//Macro to render text using font class instead of TTF_Font
@@ -892,12 +894,6 @@ class checkBox: public control {
 	}	
 };
 
-//Function to give focus to control (used to handle focus on click)
-void getFocus(clickEventData data){
-	if (data.caller->controlType == CTYPE_INPUTBOX)//If control is an input box
-		((inputBox*) data.caller)->edit = true;//Sets edit flag to true
-}
-
 //Function to check a checkbox
 void check (clickEventData data){
 	if (data.caller->controlType == CTYPE_CHECKBOX)//If control is a checkbox
@@ -1026,6 +1022,88 @@ class listBox: public control {
 	}
 };
 
+//Key box
+//when focuses, inputs and stores a single key from the user
+class keyBox: public control {
+	public:
+	SDLKey key;//Stored key
+	
+	bool active;
+	theme* activeTheme;//Active theme
+	
+	//Constructor
+	keyBox(){
+		id = "";
+		type = OBJTYPE_KEYBOX;
+		controlType = CTYPE_KEYBOX;
+		
+		parent = NULL;
+		
+		status = normal;//Sets normal status
+	
+		int i;//Counter
+		for (i = 0; i <= pressed; i++)//For each status
+			themes[i] = NULL;//Sets null theme for that status
+		
+		active = false;
+		activeTheme = NULL;
+			
+		release.handlers.push_back(getFocus);//Adds getFocus to click events
+		
+		clickThrough = false;
+	}
+	
+	//Printing function
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		theme *oldNormal = themes[normal], *oldHover = themes[hover];//Old themes
+		
+		if (active){//If active
+			themes[normal] = activeTheme;//Sets active theme
+			themes[hover] = activeTheme;//Sets hover theme
+		}
+		
+		content.t = SDL_GetKeyName(key);//Gets text
+		control::print(target, x, y, printTheme);//Prints
+		
+		if (active){//If active
+			themes[normal] = oldNormal;//Resets normal theme
+			themes[hover] = oldHover;//Resets hover theme
+		}
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (control::fromScriptObj(o)){//If succeeded loading control
+			var* activeTheme = get <var> (&o.v, "activeTheme");//Active theme variable
+			
+			if (activeTheme) this->activeTheme = get <theme> (&themesDB, activeTheme->value);//Gets active theme
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}
+	
+	//Function to check events
+	void checkEvents(SDL_Event e, int x = 0, int y = 0){
+		control::checkEvents(e, x, y);//Checks control events
+		
+		if (e.type == SDL_KEYUP && active){//If released a key while active
+			key = e.key.keysym.sym;//Sets stored key
+			active = false;//Deactivates
+		}
+	}
+};
+
+//Function to give focus to control (used to handle focus on click)
+void getFocus(clickEventData data){
+	if (data.caller->controlType == CTYPE_INPUTBOX)//If control is an input box
+		((inputBox*) data.caller)->edit = true;//Sets edit flag to true
+		
+	else if (data.caller->controlType == CTYPE_KEYBOX)//If control is a keybox
+		((keyBox*) data.caller)->active = true;//Activates
+}
+
 //Panel class
 //	sort of control container
 class panel: public control {
@@ -1142,6 +1220,7 @@ class panel: public control {
 				else if (i->type == OBJTYPE_LISTBOX) newControl = new listBox;//Creates list box
 				else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
 				else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
+				else if (i->type == OBJTYPE_KEYBOX) newControl = new keyBox;//Creates keybox
 				
 				if (newControl){//If control was successfully created
 					newControl->fromScriptObj(*i);//Loads control
@@ -1197,6 +1276,7 @@ class panel: public control {
 		for (i = children.begin(); i != children.end(); i++)//For each child control
 			if ((*i)->controlType == CTYPE_INPUTBOX) ((inputBox*) (*i))->edit = false;//Removes edit mode from input boxes
 			else if ((*i)->controlType == CTYPE_PANEL) ((panel*) (*i))->unfocusAll();//Unfocus child controls for all panels
+			else if ((*i)->controlType == CTYPE_KEYBOX) ((keyBox*) (*i))->active = false;//Unactivates key boxes
 	}
 	
 	//Function to copy panel
@@ -1305,6 +1385,7 @@ class window: public objectBased, public list<control*> {
 				else if (i->type == OBJTYPE_LISTBOX) newControl = new listBox;//Creates list box
 				else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
 				else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
+				else if (i->type == OBJTYPE_KEYBOX) newControl = new keyBox;//Creates keybox
 				
 				if (newControl){
 					newControl->fromScriptObj(*i);//Loads control
