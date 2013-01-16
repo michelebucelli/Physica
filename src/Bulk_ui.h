@@ -1234,6 +1234,15 @@ class panel: public control {
 		
 		return result;//Returns result
 	}
+	
+	//Destructor
+	~panel(){
+		list<control*>::iterator i;//Children iterator
+		
+		for (i = children.begin(); i != children.end(); i++){//For each child control
+			delete *i;//Deletes control
+		}
+	}
 };
 
 //Window class
@@ -1342,6 +1351,17 @@ class window: public objectBased, public list<control*> {
 		for (i = begin(); i != end(); i++)//For each control
 			if ((*i)->controlType == CTYPE_INPUTBOX) ((inputBox*) (*i))->edit = false;//Removes edit mode from input boxes
 			else if ((*i)->controlType == CTYPE_PANEL) ((panel*) (*i))->unfocusAll();//Unfocus child controls for all panels
+	}
+	
+	//Function to clear all controls (deleting them)
+	void clearControls(){
+		iterator i;//Iterator
+		
+		for (i = begin(); i != end(); i++){//For each control
+			delete *i;//Deletes control
+			i = erase(i);//Erases control
+			i--;//Back to previous
+		}
 	}
 };
 

@@ -127,7 +127,7 @@ string timeToString(int t){
 
 //Function to redraw level selection window
 void redrawLevelSelect(){
-	levelSelect.clear();//Clears level selection window
+	levelSelect.clearControls();//Clears level selection window
 	
 	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
 	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
@@ -142,7 +142,7 @@ void redrawLevelSelect(){
 		
 		for (n = 0; n < rowSize; n++){//For each element of the row
 			level *toLoad = loadLevel (current.levels[i * levelSelect_w + n]);//Loaded level
-			bool play = toLoad && progress.canPlay(toLoad->id);
+			bool play = true;//toLoad && progress.canPlay(toLoad->id);
 			
 			if (play){
 				panel* p = levelButton.copy();//New panel
@@ -177,13 +177,15 @@ void redrawLevelSelect(){
 				
 				levelSelect.push_back(c);//Adds to controls
 			}
+			
+			delete toLoad;//Frees level
 		}
 	}
 }
 
 //Function to redraw achievements window
 void redrawAchievements(){
-	achievements.clear();//Clears window
+	achievements.clearControls();//Clears window
 	
 	int rows = ceil (progress.unlockedAch.size() / achs_w);//Rows needed
 	int lsH = rows * defaultAch.area.h + (rows - 1) * achs_spacing;//Selector height

@@ -915,6 +915,13 @@ class scene: public objectBased {
 		h = 0;
 	}
 	
+	//Destructor
+	~scene(){
+		list<entity*>::iterator i;//Iterator for entities
+		
+		for (i = entities.begin(); i != entities.end(); i++) delete *i;//Deletes each entity
+	}
+	
 	//Function to reset forces on entities
 	void resetForces(){
 		list <entity*> :: iterator i;//Iterator for entities

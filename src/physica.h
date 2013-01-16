@@ -202,6 +202,14 @@ class level: public scene {
 		threeStarsTime = 0;
 	}
 	
+	//Destructor
+	~level(){
+		list<entity*>::iterator i;//Iterator for entities
+		
+		for (i = entities.begin(); i != entities.end(); i++){ delete *i; i = entities.erase(i); i--; }//Deletes each entity
+		if (backgroundImage) SDL_FreeSurface(backgroundImage);//Frees background
+	}
+	
 	//Function to load from script object
 	bool fromScriptObj(object o){
 		if (scene::fromScriptObj(o)){//If succeeded loading base data
