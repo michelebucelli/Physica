@@ -32,35 +32,6 @@ int main(int argc, char* argv[]){
 			levelSelect.print(video);//Prints level selector
 		}
 		
-		if (curUiMode == ui_game){//If in game mode
-			BKG;//Prints background
-			
-			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
-			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
-			
-			while (SDL_PollEvent(&ev)){//While there are stacked events
-				EVENTS_COMMON(ev);//Common events
-					
-				if (ev.type == SDL_KEYDOWN){//If pressed a key
-					if (ev.key.keysym.sym == SDLK_ESCAPE) pauseClick ({});//Pauses on esc
-					else current.paused = false;//Unpause
-				}
-					
-				//Checks hud events
-				if (!camFollow) hud.checkEvents(ev, printOX + 2, printOY + 2);
-				else hud.checkEvents(ev, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);
-			}
-			
-			current.print(video, printOX, printOY);//Prints game scene
-				
-			updateHud();//Updates hud
-			
-			if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
-			else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level
-			
-			current.frame(0.2, keys);//Game frame
-		}
-		
 		if (curUiMode == ui_paused){//If paused
 			BKG;//Prints background
 			
@@ -111,6 +82,35 @@ int main(int argc, char* argv[]){
 			success.print(video);//Prints success screen
 		}
 
+		if (curUiMode == ui_game){//If in game mode
+			BKG;//Prints background
+			
+			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
+			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				EVENTS_COMMON(ev);//Common events
+					
+				if (ev.type == SDL_KEYDOWN){//If pressed a key
+					if (ev.key.keysym.sym == SDLK_ESCAPE) pauseClick ({});//Pauses on esc
+					else current.paused = false;//Unpause
+				}
+					
+				//Checks hud events
+				if (!camFollow) hud.checkEvents(ev, printOX + 2, printOY + 2);
+				else hud.checkEvents(ev, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);
+			}
+			
+			current.print(video, printOX, printOY);//Prints game scene
+				
+			updateHud();//Updates hud
+			
+			if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
+			else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level
+			
+			current.frame(0.2, keys);//Game frame
+		}
+		
 		if (curUiMode == ui_settings){//If in settings view
 			BKG;//Prints background
 			

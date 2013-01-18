@@ -101,6 +101,34 @@ string getInput(string prompt){
 	}
 }
 
+//Function to show message
+void message(string text){
+	msgText->content.t = text;//Sets text
+	
+	SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);//Surface to store video
+	SDL_BlitSurface(video, NULL, old, NULL);//Blits video on surface
+	
+	while (running){//While inputting
+		FRAME_BEGIN;//Begins the frame
+		
+		while (SDL_PollEvent(&ev)){//While there are events on stack
+			EVENTS_COMMON(ev);//Common events
+			
+			if (ev.type == SDL_KEYDOWN){//If pressed a key
+				return;//Returns
+			}
+		}
+		
+		BKG;//Prints background
+		
+		SDL_BlitSurface(old, NULL, video, NULL);//Blits old video
+		msg.print(video);//Prints input
+		
+		UPDATE;//Updates
+		FRAME_END;//End frame
+	}
+}
+
 //UI mode enumeration
 enum uiMode {
 	ui_mainMenu,//Main menu
@@ -558,6 +586,13 @@ void loadUI(){
 	
 	inputFrame->area.x = (video_w - inputFrame->area.w) / 2;//Centers input on x
 	inputFrame->area.y = (video_h - inputFrame->area.h) / 2;//Centers input on y
+	
+	msg = loadWindow(msgFile, "msg");//Loads message window
+	msgFrame = (panel*) msg.getControl("frame");//Gets message
+	msgText = msg.getControl("frame.text");//Gets message text
+	
+	msgFrame->area.x = (video_w - msgFrame->area.w) / 2;//Centers msg on x
+	msgFrame->area.y = (video_h - msgFrame->area.h) / 2;//Centers msg on y
 	
 	achieved = loadWindow(achievedFile, "achieved");//Loads achieved window
 	achFrame = (panel*) achieved.getControl("frame");//Gets frame

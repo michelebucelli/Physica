@@ -74,6 +74,11 @@ panel* inputFrame;//Input frame
 control* inputPrompt;//Input prompt
 inputBox* inputField;//Input field
 
+string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
+window msg;//Message window
+panel* msgFrame;//Message frame
+control* msgText;//Message text
+
 //Misc
 bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 bool camFollow = false;//If true, camera will follow player
@@ -81,6 +86,7 @@ bool camFollow = false;//If true, camera will follow player
 //Prototypes
 void resize(int,int,bool,bool = true);//Resizing function
 string getInput(string);//Function to get input
+void message(string);//Function to send message
 
 //Function to convert text into keysym
 SDLKey strToKey(string s){
@@ -221,8 +227,8 @@ class level: public scene {
 	bool printLevelScene;//If true, prints the scene objects above the background
 	
 	int twoStarsTime, threeStarsTime;//Time required for two and three stars rating (in seconds)
-	
-	bool allowAchievements;//Flag to allow achievements within this level
+
+	string message;//Level message
 	
 	//Constructor
 	level(){
@@ -237,11 +243,11 @@ class level: public scene {
 		
 		backgroundImage = NULL;
 		printLevelScene = true;
-		
-		allowAchievements = true;
-		
+				
 		twoStarsTime = 0;
 		threeStarsTime = 0;
+		
+		message = "";
 	}
 	
 	//Destructor
@@ -264,7 +270,8 @@ class level: public scene {
 			var* print = get <var> (&o.v, "print");//Gets print flag
 			var* twoStarsTime = get <var> (&o.v, "twoStarsTime");//Gets two stars time
 			var* threeStarsTime = get <var> (&o.v, "threeStarsTime");//Gets three stars time
-			var* allowAchievements = get <var> (&o.v, "allowAchievements");//Allow achievements flag
+			
+			var* message = get <var> (&o.v, "message");//Gets message
 			
 			if (id) this->id = id->value;//Gets id
 			
@@ -274,7 +281,7 @@ class level: public scene {
 			if (twoStarsTime) this->twoStarsTime = twoStarsTime->intValue();//Gets two stars time
 			if (threeStarsTime) this->threeStarsTime = threeStarsTime->intValue();//Gets three stars time
 			
-			if (allowAchievements) this->allowAchievements = allowAchievements->intValue();//Gets achievements flag
+			if (message) this->message = message->value;//Gets message
 			
 			return true;//Returns true
 		}
@@ -689,6 +696,8 @@ class game {
 		
 		releasedJump = true;
 		playerJumps = 0;
+		
+		if (currentLevel->message != "") message(currentLevel->message);//Shows level message
 		
 		if (!death){//If not setting up cause death
 			time = 0;//Resets timer
