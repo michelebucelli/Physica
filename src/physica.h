@@ -222,6 +222,8 @@ class level: public scene {
 	
 	int twoStarsTime, threeStarsTime;//Time required for two and three stars rating (in seconds)
 	
+	bool allowAchievements;//Flag to allow achievements within this level
+	
 	//Constructor
 	level(){
 		id = "";
@@ -235,6 +237,8 @@ class level: public scene {
 		
 		backgroundImage = NULL;
 		printLevelScene = true;
+		
+		allowAchievements = true;
 		
 		twoStarsTime = 0;
 		threeStarsTime = 0;
@@ -260,17 +264,17 @@ class level: public scene {
 			var* print = get <var> (&o.v, "print");//Gets print flag
 			var* twoStarsTime = get <var> (&o.v, "twoStarsTime");//Gets two stars time
 			var* threeStarsTime = get <var> (&o.v, "threeStarsTime");//Gets three stars time
+			var* allowAchievements = get <var> (&o.v, "allowAchievements");//Allow achievements flag
 			
 			if (id) this->id = id->value;//Gets id
 			
 			if (backgroundImage){ this->bkg = backgroundImage->value; this->backgroundImage = CACHEDSURFACE(bkg); }//Gets background image
 			
-			if (!this->backgroundImage)//If background wasn't found
-				this->backgroundImage = SDL_CreateRGBSurface(SDL_SWSURFACE | SDL_SRCALPHA, w, h, 32, 0xFF000000, 0x00FF0000, 0x0000FF00, 0x000000FF);//Creates background
-				
 			if (print) this->printLevelScene = print->intValue();//Sets print flag
 			if (twoStarsTime) this->twoStarsTime = twoStarsTime->intValue();//Gets two stars time
 			if (threeStarsTime) this->threeStarsTime = threeStarsTime->intValue();//Gets three stars time
+			
+			if (allowAchievements) this->allowAchievements = allowAchievements->intValue();//Gets achievements flag
 			
 			return true;//Returns true
 		}
@@ -777,6 +781,9 @@ double *getVar(string id){
 
 	else if (id == "completedLevels")//If requested the completed levels
 		return new double(progress.completed());//Returns result
+		
+	else if (id == "level")//If requested current level
+		return new double(current.levelIndex);//Returns result
 	
 	else if (id == "totalLevels")//If requested the total levels
 		return new double(current.levels.size());//Returns result
@@ -923,7 +930,7 @@ void gameInit(int argc, char* argv[]){
 	
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
 	
-	SDL_WM_SetCaption("Physica", "PHY");//Sets window caption
+	SDL_WM_SetCaption("Physica", NULL);//Sets window caption
 	
 	current.loadLevelSet(levelsFile);//Loads core level set
 	current.success = showSuccess;//Sets success function
@@ -933,7 +940,7 @@ void gameInit(int argc, char* argv[]){
 	
 	level* first = loadLevel(current.levels[0]);//First level
 	if (first && !progress.canPlay(first->id)) progress.unlock(first->id);//Unlocks first level
-	if (first) delete first;//Deletes loaded level
+	//if (first) delete first;//Deletes loaded level
 	
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics

@@ -143,7 +143,7 @@ void redrawLevelSelect(){
 		
 		for (n = 0; n < rowSize; n++){//For each element of the row
 			level *toLoad = loadLevel (current.levels[i * levelSelect_w + n]);//Loaded level
-			bool play = true;//toLoad && progress.canPlay(toLoad->id);
+			bool play = toLoad && progress.canPlay(toLoad->id);
 			
 			if (play){
 				panel* p = levelButton.copy();//New panel

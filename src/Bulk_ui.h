@@ -405,6 +405,8 @@ class controlContent: public objectBased {
 	
 	int margin;//Alignment margin
 	
+	bool multiline;//Multiline flag
+	
 	//Constructor
 	controlContent() {
 		id = "";
@@ -417,6 +419,7 @@ class controlContent: public objectBased {
 		t = "";
 		
 		margin = 0;
+		multiline = false;
 	}
 	
 	//Function to load from script object

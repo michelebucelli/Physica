@@ -19,6 +19,7 @@ double doubleDivide(double a, double b) { return a / b; }
 double doubleGreater (double a, double b) { return a > b; }
 double doubleLess (double a, double b) { return a < b; }
 double doubleEqual (double a, double b) { return a == b; }
+double doubleDiff (double a, double b) { return a != b; }
 double doubleAnd (double a, double b) { return a && b; }
 double doubleOr (double a, double b) { return a || b; }
 
@@ -26,7 +27,7 @@ list< op<double> > doubleOps;//Double operators list
 
 //Initialization function
 void Bulk_doubleExpr_init(){
-	op <double> sum, subt, mult, div, greater, less, equal, andOp, orOp;
+	op <double> sum, subt, mult, div, greater, less, equal, diff, andOp, orOp;
 	
 	sum.sign = "+";
 	sum.operate = doubleSum;
@@ -42,6 +43,8 @@ void Bulk_doubleExpr_init(){
 	less.operate = doubleLess;
 	equal.sign = "=";
 	equal.operate = doubleEqual;
+	diff.sign = "!=";
+	diff.operate = doubleDiff;
 	andOp.sign = "&";
 	andOp.operate = doubleAnd;
 	orOp.sign = "|";
@@ -54,6 +57,7 @@ void Bulk_doubleExpr_init(){
 	doubleOps.push_back(greater);
 	doubleOps.push_back(less);
 	doubleOps.push_back(equal);
+	doubleOps.push_back(diff);
 	doubleOps.push_back(andOp);
 	doubleOps.push_back(orOp);
 }
