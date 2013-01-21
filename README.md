@@ -29,8 +29,8 @@
 				
 <h2> 2. PLAY IT </h2>
 
-Click the big play button to start playing and pick your level (currently just two, but I'm working on the core level set).
-WASD to move the green cube, reach the yellow cube to complete the level. Oh, and did I tell you to avoid red blocks?
+Click the big play button to start playing and pick your level.
+Use the arrow keys to move the green cube, reach the yellow cube to complete the level. Oh, and did I tell you to avoid red? It hurts.
 
 <h2> 3. ADD NEW LEVELS </h2>
 

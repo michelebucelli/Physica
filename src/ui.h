@@ -36,7 +36,7 @@ window levelSelect;//Level select window
 panel levelButton;//Level button panel
 control lockedButton;//Locked level button
 int levelSelect_spacing = 16;//Level selection spacing
-int levelSelect_w = 4;//Level selection grid width
+int levelSelect_w = 6;//Level selection grid width
 
 window pauseWindow;//Pause window
 panel* pauseFrame;//Pause frame
@@ -160,7 +160,7 @@ void redrawLevelSelect(){
 	
 	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
 	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
-	int offsetY = (video_h - lsH) / 2;//Y offset
+	int offsetY = (video_h - lsH) / 2 - levelButton.area.h / 2;//Y offset
 	
 	int i;//Counter
 	for (i = 0; i <= rows; i++){//For each row
@@ -218,7 +218,7 @@ void redrawAchievements(){
 	
 	int rows = ceil (progress.unlockedAch.size() / achs_w);//Rows needed
 	int lsH = rows * defaultAch.area.h + (rows - 1) * achs_spacing;//Selector height
-	int offsetY = (video_h - lsH) / 2;//Y offset
+	int offsetY = (video_h - lsH) / 2 - defaultAch.area.h / 2;//Y offset
 	
 	int i;//Counter
 	for (i = 0; i <= rows; i++){//For each row
@@ -452,9 +452,14 @@ void resize(int newW, int newH, bool fs, bool redraw){
 			creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers settings on y
 		}
 		
-		if (inputField){//If input field is available
-			inputField->area.x = (video_w - inputField->area.w) / 2;//Centers input on x
-			inputField->area.y = (video_h - inputField->area.h) / 2;//Centers input on y
+		if (inputFrame){//If input field is available
+			inputFrame->area.x = (video_w - inputFrame->area.w) / 2;//Centers input on x
+			inputFrame->area.y = (video_h - inputFrame->area.h) / 2;//Centers input on y
+		}
+		
+		if (msgFrame){//If message frame is available
+			msgFrame->area.x = (video_w - msgFrame->area.w) / 2;//Centers msg on x
+			msgFrame->area.y = (video_h - msgFrame->area.h) / 2;//Centers msg on y
 		}
 		
 		if (fpsLabel){//If fps label is available

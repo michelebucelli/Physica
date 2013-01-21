@@ -321,6 +321,8 @@ class achievement: public objectBased {
 	image icon;//Achievement icon
 	string name, info;//Achievement name and information
 	
+	bool checkOnce;//If false, checks for this achievement every time
+	
 	//Constructor
 	achievement(){
 		id = "";
@@ -328,6 +330,8 @@ class achievement: public objectBased {
 		
 		name = "";
 		info = "";
+		
+		checkOnce = true;
 	}
 	
 	//Function to load from script object
@@ -336,11 +340,13 @@ class achievement: public objectBased {
 			var* verifyExpr = get <var> (&o.v, "verify");
 			var* name = get <var> (&o.v, "name");
 			var* info = get <var> (&o.v, "info");
+			var* checkOnce = get <var> (&o.v, "checkOnce");
 			object* icon = get <object> (&o.o, "icon");
 			
 			if (verifyExpr) this->verifyExpr.fromString(verifyExpr->value, &doubleOps);
 			if (name) this->name = name->value;
 			if (info) this->info = info->value;
+			if (checkOnce) this->checkOnce = checkOnce->intValue();
 			if (icon) this->icon.fromScriptObj(*icon);
 			
 			return true;//Returns true
@@ -528,6 +534,17 @@ class globalProgress: public objectBased, public list<levelProgress> {
 				unlockedAchievement(&*i);//Calls unlock function
 			}
 		}
+		
+		deque<string>::iterator s;//Iterator
+		
+		for (s = unlockedAch.begin(); s != unlockedAch.end(); s++){//For each unlocked achievement
+			achievement* a = get <achievement> (&achs, *s);//Achievement
+			
+			if (!a || (!a->checkOnce && !a->verify())){//If achievement doesn't exist or is not verified anymore
+				s = unlockedAch.erase(s);//Erases element
+				s--;//Goes back
+			}
+		}
 	}
 	
 	//Function to get completed levels
@@ -697,9 +714,9 @@ class game {
 		releasedJump = true;
 		playerJumps = 0;
 		
-		if (currentLevel->message != "") message(currentLevel->message);//Shows level message
-		
 		if (!death){//If not setting up cause death
+			if (currentLevel->message != "") message(currentLevel->message);//Shows level message
+		
 			time = 0;//Resets timer
 			deaths = 0;//Resets death counter
 			lastFrameTime = SDL_GetTicks();//Resets frame time
