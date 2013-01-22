@@ -938,7 +938,7 @@ double *getVar(string id){
 		}
 		
 		if (n > 0) return new double (result / n);//Returns result
-		else return 0;//Returns 0 if no level was found
+		else return new double (0);//Returns 0 if no level was found
 	}
 	
 	else if (id == "achs")//If requested unlocked achievements
