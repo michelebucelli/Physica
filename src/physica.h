@@ -15,6 +15,7 @@
 #define OBJTYPE_ACHIEVEMENT		"achievement"//Achievement objects
 #define OBJTYPE_RULES			"rules"//Rules objects
 #define OBJTYPE_CONTROLS		"controls"//Controls objects
+#define OBJTYPE_LEVELSET		"levelSet"//Level set objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
@@ -55,7 +56,7 @@ Uint8 *keys;//Keys array
 //Files
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
-string levelsFile = "data/cfg/levels/levelSet_core.cfg";//Level set file
+string levelsFile = "data/cfg/levels/levelSets.cfg";//Level set file
 string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
@@ -228,7 +229,7 @@ class level: public scene {
 	
 	int twoStarsTime, threeStarsTime;//Time required for two and three stars rating (in seconds)
 
-	string message;//Level message
+	deque<string> message;//Level messages
 	
 	//Constructor
 	level(){
@@ -246,8 +247,6 @@ class level: public scene {
 				
 		twoStarsTime = 0;
 		threeStarsTime = 0;
-		
-		message = "";
 	}
 	
 	//Destructor
@@ -281,7 +280,7 @@ class level: public scene {
 			if (twoStarsTime) this->twoStarsTime = twoStarsTime->intValue();//Gets two stars time
 			if (threeStarsTime) this->threeStarsTime = threeStarsTime->intValue();//Gets three stars time
 			
-			if (message) this->message = message->value;//Gets message
+			if (message) this->message = tokenize <deque<string> > (message->value, "_");//Gets messages
 			
 			return true;//Returns true
 		}
@@ -412,9 +411,70 @@ class levelProgress: public objectBased {
 		
 		return result;
 	}
+	
+	//Function to get level set
+	string set(){
+		int dot = id.find(".");//Dot position
+		
+		if (dot != id.npos) return id.substr(0, dot);//Returns result
+		else return "";//Returns empty string if no set was specified
+	}
 };
 
 void unlockedAchievement(achievement*);//Function to show the unlocked achievement on screen
+
+//Level set class
+class levelSet: public deque<string>, public objectBased {
+	public:
+	string path;//Level set path (set only when loaded using levelSetFromFile)
+	string name;//Level set name (shown on level set selection)
+	
+	//Constructor
+	levelSet(){
+		id = "";
+		type = OBJTYPE_LEVELSET;
+		
+		path = "";
+		name = "";
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
+			var* id = get <var> (&o.v, "id");//Id variable
+			var* name = get <var> (&o.v, "name");//Name variable
+			
+			if (id) this->id = id->value;//Gets id
+			if (name) this->name = name->value;//Gets name
+		
+			int i = 1;//Counter
+			while (true){//Endless loop
+				var* levelFile = get <var> (&o.v, "level" + toString(i));//Gets variable
+				
+				if (levelFile) push_back(levelFile->value);//Adds level to game if found the variable
+				else break;//Else exits loop
+				
+				i++;//Next level
+			}
+		}
+	}
+};
+
+deque<levelSet*> levelSets;//Level sets
+
+//Function to load a level set from a file
+levelSet *levelSetFromFile(string path){
+	levelSet *levels = new levelSet;//Level set
+	
+	fileData f (path);//Source file
+	object o = f.objGen("");//Generates object
+	
+	o.type = OBJTYPE_LEVELSET;//Sets type
+	levels->fromScriptObj(o);//Loads levels
+	levels->path = path;//Sets path
+		
+	return levels;//Returns result
+}
 
 //Global progress class
 class globalProgress: public objectBased, public list<levelProgress> {
@@ -557,6 +617,32 @@ class globalProgress: public objectBased, public list<levelProgress> {
 
 		return result;//Returns result
 	}
+	
+	//Function to get completed levels of specific set
+	int completed(string set){
+		iterator i;//Iterator
+		int result = 0;//Result
+		
+		for (i = begin(); i != end(); i++)//For each element
+			if (i->set() == set && i->time > 0) result++;//Adds to result
+
+		return result;//Returns result
+	}
+	
+	//Function to get completion percent of given set
+	int percent(string set){
+		iterator i;//Iterator
+		double result = 0;//Result
+		
+		for (i = begin(); i != end(); i++)//For each element
+			if (i->time > 0 && i->set() == set) result += i->rating;//Adds rating to result
+			
+		levelSet* s = get_ptr <levelSet> (&levelSets, set);//Requested set
+		
+		if (s && s->size()) return result / (s->size() * 3) * 100;//Returns result
+		else if (s && !s->size()) return 100;//Returns 100 if no levels in set
+		else return 0;//Returns 0 if failed
+	}
 } progress;
 
 //Function to load a level from file
@@ -575,7 +661,7 @@ level* loadLevel(string path){
 //Game class
 class game {
 	public:
-	deque<string> levels;//Game level files
+	levelSet levels;//Game level files
 	level* currentLevel;//Current level
 	int levelIndex;//Current level index
 	
@@ -682,22 +768,6 @@ class game {
 		}
 	}
 	
-	//Function to load level set
-	void loadLevelSet(string path){
-		fileData f (path);//Source file
-		object o = f.objGen("");//Generates object
-		
-		int i = 1;//Counter
-		while (true){//Endless loop
-			var* levelFile = get <var> (&o.v, "level" + toString(i));//Gets variable
-			
-			if (levelFile) levels.push_back(levelFile->value);//Adds level to game if found the variable
-			else break;//Else exits loop
-			
-			i++;//Next level
-		}
-	}
-	
 	//Function to setup a level
 	void setup(int levelIndex, bool death = false){
 		if (currentLevel) delete currentLevel;//Deletes level if existing
@@ -715,7 +785,9 @@ class game {
 		playerJumps = 0;
 		
 		if (!death){//If not setting up cause death
-			if (currentLevel->message != "") message(currentLevel->message);//Shows level message
+			deque<string>::iterator i;//String iterator
+			for (i = currentLevel->message.begin(); i != currentLevel->message.end(); i++)//For each message
+				message(*i);//Sends message
 		
 			time = 0;//Resets timer
 			deaths = 0;//Resets death counter
@@ -791,6 +863,14 @@ class game {
 		else if (time / 1000 + deaths < currentLevel->twoStarsTime) return 2;
 		else return 1;
 	}
+	
+	//Function to load a level set
+	void loadLevelSet(int n){
+		levels = *levelSets[n];//Sets levels
+		
+		level* first = loadLevel(levels[0]);//First level
+		if (first && !progress.canPlay(levels.id + "." + first->id)) progress.unlock(levels.id + "." + first->id);//Unlocks first level
+	}
 } current;
 
 //Function to get variable
@@ -808,11 +888,22 @@ double *getVar(string id){
 	else if (id == "completedLevels")//If requested the completed levels
 		return new double(progress.completed());//Returns result
 		
+	else if (id.substr(0,16) == "completedLevels[" && id[id.size() - 1] == ']')//If requested specific set completed levels
+		return new double(progress.completed(id.substr(16, id.size() - 17)));//Returns result
+		
 	else if (id == "level")//If requested current level
 		return new double(current.levelIndex);//Returns result
 	
 	else if (id == "totalLevels")//If requested the total levels
 		return new double(current.levels.size());//Returns result
+		
+	else if (id.substr(0,12) == "totalLevels[" && id[id.size() - 1] == ']'){//If requested specific level set total levels
+		string lSetId = id.substr(12, id.size() - 13);//Level set id
+		levelSet* s = get_ptr <levelSet> (&levelSets, lSetId);//Requested set
+		
+		if (s) return new double (s->size());//Returns result if set was found
+		else return new double (0);//Returns null
+	}
 	
 	else if (id == "deaths")//If requested the deaths
 		return new double(current.deaths);//Returns result
@@ -832,11 +923,31 @@ double *getVar(string id){
 		return new double (result / progress.size());//Returns result
 	}
 	
+	else if (id.substr(0, 10) == "aveRating[" && id[id.size() - 1] == ']'){//If requested the average rating of a specific set
+		globalProgress::iterator i;//Iterator
+		int result = 0;//Result
+		int n = 0;//Counter
+		
+		string set = id.substr(10, id.size() - 11);//Set id
+		
+		for (i = progress.begin(); i != progress.end(); i++){//For each progress info
+			if (i->set() == set){//If level belongs to requested set
+				result += i->rating;//Adds to total
+				n++;//Increments counter
+			}
+		}
+		
+		if (n > 0) return new double (result / n);//Returns result
+		else return 0;//Returns 0 if no level was found
+	}
+	
 	else if (id == "achs")//If requested unlocked achievements
 		return new double(progress.unlockedAch.size());
 		
 	else if (id == "totalAchs")//If requested total achievements
 		return new double(achs.size());//Returns result
+		
+	else { cout << "Failed: " << id << endl; return new double(0); }//Returns 0 if failed
 }
 
 #include "editor.h"//Includes editor
@@ -883,6 +994,22 @@ void loadSettings(){
 	playerControls.id = "controls";
 	
 	resize(videoWin_w, videoWin_h, fullscreen, false);//Resizes window
+}
+
+//Function to load all level sets (according to levelsFile definitions)
+void loadSets(){
+	fileData f (levelsFile);//Loads level sets file
+	object o = f.objGen("sets");//Object
+	
+	var* ls = get <var> (&o.v, "levelSets");//Gets level sets list
+	
+	if (ls){//If variable was found
+		deque<string> t = tokenize <deque<string> > (ls->value, ",");//Splits into tokens
+		deque<string>::iterator i;//Iterator
+		
+		for (i = t.begin(); i != t.end(); i++)//For each set
+			levelSets.push_back(levelSetFromFile(*i));//Loads all level sets
+	}
 }
 
 //Function to load progress
@@ -957,16 +1084,12 @@ void gameInit(int argc, char* argv[]){
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
 	
 	SDL_WM_SetCaption("Physica", NULL);//Sets window caption
-	
-	current.loadLevelSet(levelsFile);//Loads core level set
+
 	current.success = showSuccess;//Sets success function
 	
+	loadSets();//Loads level sets
 	loadRules();//Loads rules
 	loadProgress();//Loads game progress
-	
-	level* first = loadLevel(current.levels[0]);//First level
-	if (first && !progress.canPlay(first->id)) progress.unlock(first->id);//Unlocks first level
-	//if (first) delete first;//Deletes loaded level
 	
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics

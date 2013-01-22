@@ -34,5 +34,5 @@ Use the arrow keys to move the green cube, reach the yellow cube to complete the
 
 <h2> 3. ADD NEW LEVELS </h2>
 
-Just use the editor bundled with the game to make new awesome levels! You can then find the levels you made inside the data/cfg/levels folder, along with core levels. They're automatically queued to the core level set. Switch on debug mode (in the options menu) to have them unlocked immediately for testing.
+Just use the editor bundled with the game to make new awesome levels! You can then find the levels you made inside the data/cfg/levels folder, along with core levels. They're automatically queued to the Editor level set. Switch on debug mode (in the options menu) to have them unlocked immediately for testing.
 Take a look at the <a href="https://github.com/buch415/Physica/wiki">Wiki</a> for some instructions on how to use the editor.

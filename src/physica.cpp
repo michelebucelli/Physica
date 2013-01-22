@@ -18,13 +18,27 @@ int main(int argc, char* argv[]){
 			if (running) menu.print(video);//Prints menu
 		}
 		
-		if (curUiMode == ui_levels){//If in level selection
+		if (curUiMode == ui_levelSets){//If in level set selection
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
 				EVENTS_COMMON(ev);//Common events
 					
 				if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE) curUiMode = ui_mainMenu;//Back to menu on esc
+					
+				levelSetSel.checkEvents(ev);//Checks level set selector events
+			}
+			
+			levelSetSel.print(video);//Prints level set selector
+		}
+		
+		if (curUiMode == ui_levels){//If in level selection
+			BKG;//Prints background
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				EVENTS_COMMON(ev);//Common events
+					
+				if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE){ curUiMode = ui_levelSets; redrawLevelSetSel(); }//Back to level sets on esc
 					
 				levelSelect.checkEvents(ev);//Checks level selector events
 			}

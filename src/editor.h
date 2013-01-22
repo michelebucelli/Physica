@@ -5,6 +5,7 @@ Uint32 editorSel = 0xFFFFFF30;//Editor selected overlay
 image handle;//Transformation handles
 
 string templateFile = "data/cfg/levels/levelPresets.cfg";//Level preset file
+string outputSetFile = "data/cfg/levels/levels_editor.cfg";//Editor set file
 string entitiesFile = "data/cfg/editor/entities.cfg";//Entities file
 deque<entity*> entities;//Loaded entities
 
@@ -78,31 +79,39 @@ void editorSaveClick(clickEventData data){
 	bool existing = false;//If true, level is already in level set
 	deque<string>::iterator i;//String iterator
 	
+	ofstream o (lFile.c_str());//Output level file
+	o << edited.toScriptObj().toString();//Saves level
+	o.close();//Closes file
+	
+	levelSet *editorSet = get_ptr <levelSet> (&levelSets, "levels_editor");//Editor level seti
+	
+	if (!editorSet) return;//Fails if editor set doesn't exist
+	
 	if (lastSaveId != edited.id){//If id was changed
 		remove(("data/cfg/levels/" + lastSaveId + ".cfg").c_str());//Deletes old file
 		
-		for (i = current.levels.begin(); i != current.levels.end(); i++){//For each level
+		for (i = editorSet->begin(); i != editorSet->end(); i++){//For each level
 			if (*i == "data/cfg/levels/" + lastSaveId + ".cfg"){//If level was this (with old id)
-				i = current.levels.erase(i);//Erases
+				i = editorSet->erase(i);//Erases
 				i--;//Back
 			}
 		}
 	}
 	
-	for (i = current.levels.begin(); i != current.levels.end(); i++)//For each level
+	for (i = editorSet->begin(); i != editorSet->end(); i++)//For each level
 		if (*i == lFile) existing = true;//Sets existing flag
 	
-	ofstream o (lFile.c_str());//Output level file
-	o << edited.toScriptObj().toString();//Saves level
-	o.close();//Closes file
-	
 	if (!existing){//If level doesn't exist
-		current.levels.push_back(lFile);
+		editorSet->push_back(lFile);
 		
-		ofstream levels(levelsFile.c_str());//Levels file
+		ofstream levels(outputSetFile.c_str());//Levels file
 		int n;//Counter
-		for (n = 0; n < current.levels.size(); n++)//For each level
-			levels << "level" << n + 1 << " = " << current.levels[n] << ";" << endl;//Adds level file
+		for (n = 0; n < editorSet->size(); n++)//For each level
+			levels << "level" << n + 1 << " = " << (*editorSet)[n] << ";" << endl;//Adds level file
+			
+		levels << "id = levels_editor;" << endl;//Outputs id string
+		levels << "name = Editor;" << endl;//Outputs name
+			
 		levels.close();//Closes file
 	}
 	

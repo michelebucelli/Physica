@@ -8,7 +8,8 @@ string commonFile = "data/cfg/ui/common.cfg";//Common ui file path
 
 string hudFile = "data/cfg/ui/hud.cfg";//Hud file path
 string menuFile = "data/cfg/ui/menu.cfg";//Main menu file path
-string levelSelectFile = "data/cfg/ui/levels.cfg";//Level selection filepath
+string levelSetSelFile = "data/cfg/ui/levelSets.cfg";//Level set selection file path
+string levelSelectFile = "data/cfg/ui/levels.cfg";//Level selection file path
 string pauseFile = "data/cfg/ui/pause.cfg";//Pause filepath
 string successFile = "data/cfg/ui/success.cfg";//Success file path
 string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
@@ -31,6 +32,11 @@ control *labDeaths, *labTime;//Hud labels
 window menu;//Menu window
 panel *menuFrame;//Menu frame
 control *btnPlay, *btnEditor, *btnSettings, *btnAchs, *btnCredits, *btnQuit;//Menu buttons
+
+window levelSetSel;//Level set selection window
+panel levelSetButton;//Level set button panel
+int levelSetSel_spacing = 16;//Level set selection spacing
+int levelSetSel_w = 2;//Level set selection grid width
 
 window levelSelect;//Level select window
 panel levelButton;//Level button panel
@@ -133,7 +139,9 @@ void message(string text){
 enum uiMode {
 	ui_mainMenu,//Main menu
 	
+	ui_levelSets,//Level set selection
 	ui_levels,//Level selection
+	
 	ui_game,//Game view
 	ui_paused,//Paused game
 	ui_success,//Level completion
@@ -154,6 +162,38 @@ string timeToString(int t){
 	return (t_min < 10 ? "0" : "") + toString(t_min) + ":" + (t_sec < 10 ? "0" : "") + toString(t_sec) + ":" + (t_hun < 10 ? "0" : "") + toString(t_hun);//Sets timer
 }
 
+//Function to redraw level set selection window
+void redrawLevelSetSel(){
+	levelSetSel.clearControls();//Clears window
+	
+	int rows = ceil (levelSets.size() / levelSetSel_w);//Rows needed
+	int lsH = rows * levelSetButton.area.h + (rows - 1) * levelSetSel_spacing;//Selector height
+	int offsetY = (video_h - lsH) / 2 - levelSetButton.area.h / 2;//Y offset
+	
+	int i;//Counter
+	for (i = 0; i <= rows; i++){//For each row
+		int n;//Counter
+		int rowSize = levelSets.size() - i * achs_w > achs_w ? achs_w : levelSets.size() - i * achs_w;//Elements in row
+		int rowW = rowSize * levelSetButton.area.w + (rowSize - 1) * levelSetSel_spacing;//Row width
+		int rowOffsetX = (video_w - rowW) / 2;//Row x offset
+		
+		for (n = 0; n < rowSize; n++){//For each element of the row
+			panel* p = levelSetButton.copy();//New panel
+				
+			p->id = toString(i * levelSetSel_w + n);//Sets id
+			
+			levelSet* a = levelSets[i * i * levelSetSel_w + n];//Level set to show
+			
+			p->content.t = a->name + " (" + toString(progress.percent(a->id)) + "%)";//Sets text
+			
+			p->area.x = rowOffsetX + n * (p->area.w + levelSetSel_spacing);//Sets x
+			p->area.y = offsetY + i * (p->area.h + levelSetSel_spacing);//Sets y
+			
+			levelSetSel.push_back(p);//Adds to controls
+		}
+	}
+}
+
 //Function to redraw level selection window
 void redrawLevelSelect(){
 	levelSelect.clearControls();//Clears level selection window
@@ -171,7 +211,7 @@ void redrawLevelSelect(){
 		
 		for (n = 0; n < rowSize; n++){//For each element of the row
 			level *toLoad = loadLevel (current.levels[i * levelSelect_w + n]);//Loaded level
-			bool play = toLoad && progress.canPlay(toLoad->id);
+			bool play = toLoad && progress.canPlay(current.levels.id + "." + toLoad->id);
 			
 			if (play){
 				panel* p = levelButton.copy();//New panel
@@ -179,7 +219,7 @@ void redrawLevelSelect(){
 				control *star1, *star2, *star3;//Star controls
 				star1 = p->getControl("rating1"); star2 = p->getControl("rating2"); star3 = p->getControl("rating3");//Gets stars
 				
-				int rating = progress.getRating(toLoad->id);//Level rating
+				int rating = progress.getRating(current.levels.id + "." + toLoad->id);//Level rating
 				
 				//Sets stars
 				if (star1) star1->content.i = rating >= 1 ? starOn_sm : starOff_sm;
@@ -271,10 +311,10 @@ void updateHud(){
 
 //Function to handle play click
 void playClick(clickEventData data){
-	curUiMode = ui_levels;//Goes to level selector
+	curUiMode = ui_levelSets;//Goes to level set selector
 	PLAYSOUND(clickSfx);//Plays sound
 	
-	redrawLevelSelect();//Draws level selection window
+	redrawLevelSetSel();//Draws level set selection window
 }
 
 //Function to handle editor click
@@ -296,6 +336,15 @@ void achsClick(clickEventData data){
 void quitClick(clickEventData data){
 	running = false;
 	PLAYSOUND(clickSfx);//Plays sound
+}
+
+//Function to handle level set click
+void levelSetClick(clickEventData data){
+	curUiMode = ui_levels;//Goes to level selector
+	PLAYSOUND(clickSfx);//Plays sound
+
+	current.loadLevelSet(atoi(data.caller->id.c_str()));//Loads level set
+	redrawLevelSelect();//Draws level select window
 }
 
 //Function to handle level click
@@ -339,11 +388,11 @@ void showSuccess(){
 	
 	PLAYSOUND(successSfx);//Plays sound
 	
-	if (!debugMode) progress.fillProgress(current.currentLevel->id, current.time, current.deaths, current.rating());//Fills progress data (if not in debug mode)
+	if (!debugMode) progress.fillProgress(current.levels.id + "." + current.currentLevel->id, current.time, current.deaths, current.rating());//Fills progress data (if not in debug mode)
 	
-	if (current.levelIndex < current.levels.size() - 1){//If level is not the last
+	if (current.levelIndex < current.levels.size() - 1 && !debugMode){//If level is not the last
 		level* l = loadLevel(current.levels[current.levelIndex + 1]);//Loads level
-		if (l) progress.unlock(l->id);//Unlocks it
+		if (l) progress.unlock(current.levels.id + "." + l->id);//Unlocks it
 	}
 	
 	updateSuccess();//Updates success window
@@ -528,6 +577,10 @@ void loadUI(){
 	btnSettings->release.handlers.push_back(showSettings);//Adds click handler to settings
 	btnCredits->release.handlers.push_back(creditsClick);//Adds click handler to credits
 	btnQuit->release.handlers.push_back(quitClick);//Adds click handler to quit
+	
+	levelSetSel = loadWindow(levelSetSelFile, "levelSets");//Loads level set selection window
+	levelSetButton = * (panel*) levelSetSel.getControl("setButton");//Sets default button
+	levelSetButton.release.handlers.push_back(levelSetClick);//Adds click handler
 	
 	levelSelect = loadWindow(levelSelectFile, "levels");//Loads level selection window
 	levelButton = * (panel*) levelSelect.getControl("levelButton");//Sets default level button
