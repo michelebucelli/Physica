@@ -52,11 +52,7 @@ SDL_Color stringToColor(string s){
 //Function that converts a SDL color to a string
 //	string format is RRRGGGBBB
 string colorToString(SDL_Color c){
-	string r = toString(floor((c.r % 1000) / 100)) + toString(floor((c.r % 100) / 10)) + toString(floor(c.r % 10));//Red channel
-	string g = toString(floor((c.g % 1000) / 100)) + toString(floor((c.g % 100) / 10)) + toString(floor(c.g % 10));//Green channel
-	string b = toString(floor((c.b % 1000) / 100)) + toString(floor((c.b % 100) / 10)) + toString(floor(c.b % 10));//Blue channel
-	
-	return r + g + b;//Returns complete string
+	return toString(c.r) + toString(c.g) + toString(c.b);//Returns complete string
 }
 
 //Font handling class

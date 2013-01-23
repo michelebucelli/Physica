@@ -429,6 +429,8 @@ class levelSet: public deque<string>, public objectBased {
 	string path;//Level set path (set only when loaded using levelSetFromFile)
 	string name;//Level set name (shown on level set selection)
 	
+	image icon;//Level set icon
+	
 	//Constructor
 	levelSet(){
 		id = "";
@@ -443,9 +445,11 @@ class levelSet: public deque<string>, public objectBased {
 		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
 			var* id = get <var> (&o.v, "id");//Id variable
 			var* name = get <var> (&o.v, "name");//Name variable
+			object* icon = get <object> (&o.o, "icon");//Icon object
 			
 			if (id) this->id = id->value;//Gets id
 			if (name) this->name = name->value;//Gets name
+			if (icon) this->icon.fromScriptObj(*icon);//Loads icon
 		
 			int i = 1;//Counter
 			while (true){//Endless loop
@@ -1087,12 +1091,13 @@ void gameInit(int argc, char* argv[]){
 
 	current.success = showSuccess;//Sets success function
 	
+	loadSettings();//Loads settings
+	loadGraphics();//Loads graphics
+	
 	loadSets();//Loads level sets
 	loadRules();//Loads rules
 	loadProgress();//Loads game progress
 	
-	loadSettings();//Loads settings
-	loadGraphics();//Loads graphics
 	loadAchievements();//Loads achievements
 	loadSound();//Loads sound
 	loadUI();//Loads ui

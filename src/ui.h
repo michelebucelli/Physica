@@ -42,7 +42,7 @@ window levelSelect;//Level select window
 panel levelButton;//Level button panel
 control lockedButton;//Locked level button
 int levelSelect_spacing = 16;//Level selection spacing
-int levelSelect_w = 6;//Level selection grid width
+int levelSelect_w = 4;//Level selection grid width
 
 window pauseWindow;//Pause window
 panel* pauseFrame;//Pause frame
@@ -168,7 +168,9 @@ void redrawLevelSetSel(){
 	
 	int rows = ceil (levelSets.size() / levelSetSel_w);//Rows needed
 	int lsH = rows * levelSetButton.area.h + (rows - 1) * levelSetSel_spacing;//Selector height
-	int offsetY = (video_h - lsH) / 2 - levelSetButton.area.h / 2;//Y offset
+	int offsetY = (video_h - lsH) / 2;//Y offset
+	
+	if (rows % 2 != 0) offsetY -= levelSetButton.area.h / 2;//Adjusts y
 	
 	int i;//Counter
 	for (i = 0; i <= rows; i++){//For each row
@@ -184,7 +186,19 @@ void redrawLevelSetSel(){
 			
 			levelSet* a = levelSets[i * i * levelSetSel_w + n];//Level set to show
 			
-			p->content.t = a->name + " (" + toString(progress.percent(a->id)) + "%)";//Sets text
+			control* t = p->getControl("name");//Name control
+			control* u = p->getControl("icon");//Icon control
+			
+			if (u && a->icon.valid()){//If icon was found
+				if (t) t->content.t = a->name + " (" + toString(progress.percent(a->id)) + "%)";//Sets text
+				u->content.i = a->icon;//Sets icon
+				u->content.contentType = CONTENT_IMAGE;//Sets content type
+			}
+			
+			else {
+				if (t) t->content.t = "";//Empty name label
+				p->content.t = a->name + " (" + toString(progress.percent(a->id)) + "%)";//Sets text
+			}
 			
 			p->area.x = rowOffsetX + n * (p->area.w + levelSetSel_spacing);//Sets x
 			p->area.y = offsetY + i * (p->area.h + levelSetSel_spacing);//Sets y
@@ -200,7 +214,9 @@ void redrawLevelSelect(){
 	
 	int rows = ceil (current.levels.size() / levelSelect_w);//Rows needed
 	int lsH = rows * levelButton.area.h + (rows - 1) * levelSelect_spacing;//Selector height
-	int offsetY = (video_h - lsH) / 2 - levelButton.area.h / 2;//Y offset
+	int offsetY = (video_h - lsH) / 2;//Y offset
+	
+	if (rows % 2 != 0) offsetY -= levelButton.area.h / 2;//Adjusts y
 	
 	int i;//Counter
 	for (i = 0; i <= rows; i++){//For each row
