@@ -360,7 +360,7 @@ class achievement: public objectBased {
 	}
 };
 
-deque<achievement> achs;//Achievements
+deque<achievement> achs;//Global achievements
 
 //Level progress class
 //best times, least deaths, best ratings
@@ -431,6 +431,8 @@ class levelSet: public deque<string>, public objectBased {
 	
 	image icon;//Level set icon
 	
+	deque<achievement> lsAchs;//Level set achievements
+	
 	//Constructor
 	levelSet(){
 		id = "";
@@ -459,6 +461,15 @@ class levelSet: public deque<string>, public objectBased {
 				else break;//Else exits loop
 				
 				i++;//Next level
+			}
+			
+			deque<object>::iterator ob;//Object iterator
+			for (ob = o.o.begin(); ob != o.o.end(); ob++){//For each object
+				if (ob->type == OBJTYPE_ACHIEVEMENT){//If object is an achievement
+					achievement a;//New achievement
+					a.fromScriptObj(*ob);//Loads
+					lsAchs.push_back(a);//Adds to achievements
+				}
 			}
 		}
 	}
@@ -591,6 +602,7 @@ class globalProgress: public objectBased, public list<levelProgress> {
 	//Function to verify achievements
 	void verifyAchs(){
 		deque<achievement>::iterator i;//Iterator
+		deque<levelSet*>::iterator l;//Level set iterator
 		
 		for (i = achs.begin(); i != achs.end(); i++){//For each achievement
 			if (!find(&unlockedAch, i->id) && i->verify()){//If verified and not unlocked
@@ -599,10 +611,26 @@ class globalProgress: public objectBased, public list<levelProgress> {
 			}
 		}
 		
+		for (l = levelSets.begin(); l != levelSets.end(); l++){//For each level set
+			for (i = (*l)->lsAchs.begin(); i != (*l)->lsAchs.end(); i++){//For each achievement
+				if (!find(&unlockedAch, (*l)->id + "." + i->id) && i->verify()){//If verified and not unlocked
+					unlockedAch.push_back((*l)->id + "." + i->id);//Adds to unlocked
+					unlockedAchievement(&*i);//Calls unlock function
+				}
+			}
+		}
+		
 		deque<string>::iterator s;//Iterator
 		
 		for (s = unlockedAch.begin(); s != unlockedAch.end(); s++){//For each unlocked achievement
-			achievement* a = get <achievement> (&achs, *s);//Achievement
+			achievement* a;//Achievement
+			
+			if (s->find(".") != s->npos){//If related to a level set
+				levelSet* l = get_ptr <levelSet> (&levelSets, s->substr(0, s->find(".")));//Level set
+				a = get <achievement> (&l->lsAchs, s->substr(s->find(".") + 1));//Gets achievement
+			}
+			
+			else a = get <achievement> (&achs, *s);//Else gets from global achievements
 			
 			if (!a || (!a->checkOnce && !a->verify())){//If achievement doesn't exist or is not verified anymore
 				s = unlockedAch.erase(s);//Erases element

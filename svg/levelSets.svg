@@ -14,7 +14,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="levelSets.svg">
+   sodipodi:docname="levelSets.svg"
+   inkscape:export-filename="F:\Documents\Programming\WIP\Physica\bin\data\graphics\levelSets.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90">
   <defs
      id="defs4" />
   <sodipodi:namedview
@@ -26,9 +29,9 @@
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568543"
      inkscape:cx="259.86997"
-     inkscape:cy="648.02758"
+     inkscape:cy="669.24078"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="g3025"
      showgrid="false"
      inkscape:window-width="1680"
      inkscape:window-height="994"
@@ -43,7 +46,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -53,20 +56,11 @@
      id="layer1">
     <g
        id="g3798">
-      <rect
-         ry="4"
-         rx="3.9999998"
-         y="369.48718"
-         x="186.625"
-         height="52"
-         width="52"
-         id="rect2985"
-         style="fill:#ffcc00;fill-opacity:1;stroke:#cba300;stroke-width:4;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none" />
       <path
          inkscape:connector-curvature="0"
          id="rect3755"
          d="m 207.98191,378.65107 c -1.28613,0 -2.32154,1.03541 -2.32154,2.32154 l 0,9.28617 c 0,1.28614 1.03541,2.32155 2.32154,2.32155 l 9.28618,0 c 1.28613,0 2.32154,-1.03541 2.32154,-2.32155 l 0,-9.28617 c 0,-1.28613 -1.03541,-2.32154 -2.32154,-2.32154 l -9.28618,0 z m 4.64309,2.32154 c 0.34832,0 3.65648,4.40971 3.48232,4.64309 -0.0657,0.088 -1.11504,0.15978 -2.32155,0.18137 l 0,3.55486 c 0,0.49143 -0.52555,0.90685 -1.16077,0.90685 -0.63522,0 -1.16077,-0.41542 -1.16077,-0.90685 l 0,-3.55486 c -1.20651,-0.0216 -2.25585,-0.0933 -2.32155,-0.18137 -0.17416,-0.23338 3.134,-4.64309 3.48232,-4.64309 z m -20.24096,13.42142 c -1.28613,0 -2.32154,1.03541 -2.32154,2.32155 l 0,9.28617 c 0,1.28613 1.03541,2.32154 2.32154,2.32154 l 9.28618,0 c 1.28613,0 2.32154,-1.03541 2.32154,-2.32154 l 0,-9.28617 c 0,-1.28614 -1.03541,-2.32155 -2.32154,-2.32155 l -9.28618,0 z m 15.59787,0 c -1.28613,0 -2.32154,1.03541 -2.32154,2.32155 l 0,9.28617 c 0,1.28613 1.03541,2.32154 2.32154,2.32154 l 9.28618,0 c 1.28613,0 2.32154,-1.03541 2.32154,-2.32154 l 0,-9.28617 c 0,-1.28614 -1.03541,-2.32155 -2.32154,-2.32155 l -9.28618,0 z m 15.59787,0 c -1.28613,0 -2.32154,1.03541 -2.32154,2.32155 l 0,9.28617 c 0,1.28613 1.03541,2.32154 2.32154,2.32154 l 9.28618,0 c 1.28613,0 2.32154,-1.03541 2.32154,-2.32154 l 0,-9.28617 c 0,-1.28614 -1.03541,-2.32155 -2.32154,-2.32155 l -9.28618,0 z m -10.95478,2.32155 c 0.63522,0 1.16077,0.41542 1.16077,0.90685 l 0,3.55486 c 1.20651,0.0216 2.25585,0.0933 2.32155,0.18137 0.17416,0.23338 -3.134,4.64309 -3.48232,4.64309 -0.34832,0 -3.65648,-4.40971 -3.48232,-4.64309 0.0657,-0.088 1.11504,-0.15978 2.32155,-0.18137 l 0,-3.55486 c 0,-0.49143 0.52555,-0.90685 1.16077,-0.90685 z m -15.59787,1.16077 c 0.088,0.0657 0.15978,1.11504 0.18137,2.32154 l 3.55486,0 c 0.49143,0 0.90686,0.52555 0.90686,1.16077 0,0.63522 -0.41543,1.16077 -0.90686,1.16077 l -3.55486,0 c -0.0216,1.20651 -0.0933,2.25585 -0.18137,2.32155 -0.23337,0.17416 -4.64309,-3.13399 -4.64309,-3.48232 0,-0.34832 4.40972,-3.65647 4.64309,-3.48231 z m 31.19574,0 c 0.23337,-0.17416 4.64309,3.13399 4.64309,3.48231 0,0.34833 -4.40972,3.65648 -4.64309,3.48232 -0.088,-0.0656 -0.15978,-1.11504 -0.18137,-2.32155 l -3.55486,0 c -0.49143,0 -0.90686,-0.52555 -0.90686,-1.16077 0,-0.63522 0.41543,-1.16077 0.90686,-1.16077 l 3.55486,0 c 0.0216,-1.2065 0.0933,-2.25584 0.18137,-2.32154 z"
-         style="fill:#4d4d4d;fill-opacity:1;stroke:none" />
+         style="fill:#ffffff;fill-opacity:1;stroke:none" />
     </g>
     <flowRoot
        xml:space="preserve"
@@ -81,36 +75,23 @@
          id="flowPara3876" /></flowRoot>    <g
        id="g3025"
        transform="translate(-3.964664,-3.9407685)">
-      <g
-         id="g3798-0"
-         transform="translate(59.964664,3.9407685)">
-        <rect
-           style="fill:#ffcc00;fill-opacity:1;stroke:#cba300;stroke-width:4;stroke-linecap:square;stroke-linejoin:round;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
-           id="rect2985-9"
-           width="52"
-           height="52"
-           x="186.625"
-           y="369.48718"
-           rx="3.9999998"
-           ry="4" />
-      </g>
       <flowRoot
          transform="translate(70.832828,17.220996)"
-         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#4d4d4d;fill-opacity:1;stroke:none;font-family:Sans"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
          id="flowRoot3007"
          xml:space="preserve"><flowRegion
            id="flowRegion3009"><rect
-             style="fill:#4d4d4d"
+             style="fill:#ffffff"
              y="342.11218"
              x="189.125"
              height="72.75"
              width="72.875"
              id="rect3011" /></flowRegion><flowPara
-           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#4d4d4d;font-family:La chata;-inkscape-font-specification:La chata"
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;text-anchor:start;fill:#ffffff;font-family:La chata;-inkscape-font-specification:La chata"
            id="flowPara3013"><flowSpan
              id="flowSpan3017"
-             style="font-size:64px">1</flowSpan><flowSpan
+             style="font-size:64px;fill:#ffffff">1</flowSpan><flowSpan
              id="flowSpan3023"
-             style="font-size:65.00091553%;baseline-shift:super" /></flowPara></flowRoot>    </g>
+             style="font-size:65.00091553000000000%;baseline-shift:super;fill:#ffffff" /></flowPara></flowRoot>    </g>
   </g>
 </svg>

@@ -292,7 +292,15 @@ void redrawAchievements(){
 			control* name = p->getControl("name");//Name
 			control* info = p->getControl("info");//Info
 			
-			achievement* a = get <achievement> (&achs, progress.unlockedAch[i * achs_w + n]);//Achievement to show
+			string achId = progress.unlockedAch[i * achs_w + n];//Achievement id
+			achievement* a;//Achievement to show
+			
+			if (achId.find(".") != achId.npos){//If part of a level set
+				levelSet* l = get_ptr <levelSet> (&levelSets, achId.substr(0, achId.find(".")));//Level set
+				a = get <achievement> (&l->lsAchs, achId.substr(achId.find(".") + 1));//Gets achievement from level set
+			}
+			
+			else a = get <achievement> (&achs, achId);//Else gets from global achievements
 			
 			if (icon){ icon->content.contentType = CONTENT_IMAGE; icon->content.i = a->icon; }//Sets icon
 			if (name) name->content.t = a->name;//Sets name
