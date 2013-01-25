@@ -7,7 +7,11 @@
 
 #include "Bulk_expr_double.h"//Includes double expressions (for achievements)
 
+#include "dialogs.h"//Includes dialogs
+
 #include "SDL/SDL_mixer.h"//Includes SDL sound effects library
+
+#include <curl/curl.h>
 
 #define OBJTYPE_LEVEL			"level"//Level objects
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
@@ -56,10 +60,13 @@ Uint8 *keys;//Keys array
 //Files
 string settingsFile = "data/cfg/settings.cfg";//Global settings file
 string sfxFile = "data/cfg/sfx.cfg";//Sound effects file
-string levelsFile = "data/cfg/levels/levelSets.cfg";//Level set file
+string levelsFile = "data/cfg/levels/levelPacks.cfg";//Level set file
 string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
+
+string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
+string inputFile = "data/cfg/ui/input.cfg";//Input window file path
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -68,18 +75,6 @@ Mix_Chunk *clickSfx;//Click sound
 Mix_Chunk *successSfx;//Success sound
 Mix_Chunk *deathSfx;//Death sound
 
-//Global user interface (needed in editor, can't be declared in ui.h)
-string inputFile = "data/cfg/ui/input.cfg";//Input window file path
-window input;//Input window
-panel* inputFrame;//Input frame
-control* inputPrompt;//Input prompt
-inputBox* inputField;//Input field
-
-string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
-window msg;//Message window
-panel* msgFrame;//Message frame
-control* msgText;//Message text
-
 //Misc
 bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 bool camFollow = false;//If true, camera will follow player
@@ -87,7 +82,25 @@ bool camFollow = false;//If true, camera will follow player
 //Prototypes
 void resize(int,int,bool,bool = true);//Resizing function
 string getInput(string);//Function to get input
-void message(string);//Function to send message
+
+//Common funcs
+void frame_begin(){ frameBegin = SDL_GetTicks(); }//Frame beginning
+
+//Frame end
+void frame_end(){
+	if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin);
+	else actualFps = 1000;
+	
+	if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin);
+	
+	frames++;
+}
+
+//Common events
+void events_common(SDL_Event e){
+	if (e.type == SDL_QUIT) running = false;
+	if (e.type == SDL_VIDEORESIZE) resize(e.resize.w, e.resize.h, fullscreen);
+}
 
 //Function to convert text into keysym
 SDLKey strToKey(string s){
@@ -818,8 +831,10 @@ class game {
 		
 		if (!death){//If not setting up cause death
 			deque<string>::iterator i;//String iterator
+			string ans[] = { "Continue"};//Answer
+			
 			for (i = currentLevel->message.begin(); i != currentLevel->message.end(); i++)//For each message
-				message(*i);//Sends message
+				msgBox.show(video, *i, 1, ans, true);//Shows message
 		
 			time = 0;//Resets timer
 			deaths = 0;//Resets death counter
@@ -976,8 +991,15 @@ double *getVar(string id){
 	else if (id == "achs")//If requested unlocked achievements
 		return new double(progress.unlockedAch.size());
 		
-	else if (id == "totalAchs")//If requested total achievements
-		return new double(achs.size());//Returns result
+	else if (id == "totalAchs"){//If requested total achievements
+		int result = 0;//Result
+		deque<levelSet*>::iterator i;//Level set iterator
+		
+		for (i = levelSets.begin(); i != levelSets.end(); i++)//For each set
+			result += (*i)->lsAchs.size();//Adds to result
+		
+		return new double(result + achs.size());//Returns result
+	}
 		
 	else { cout << "Failed: " << id << endl; return new double(0); }//Returns 0 if failed
 }
@@ -1033,7 +1055,7 @@ void loadSets(){
 	fileData f (levelsFile);//Loads level sets file
 	object o = f.objGen("sets");//Object
 	
-	var* ls = get <var> (&o.v, "levelSets");//Gets level sets list
+	var* ls = get <var> (&o.v, "levelPacks");//Gets level sets list
 	
 	if (ls){//If variable was found
 		deque<string> t = tokenize <deque<string> > (ls->value, ",");//Splits into tokens
@@ -1105,6 +1127,50 @@ void saveProgress(){
 	of.close();//Closes file
 }
 
+//Curl write funtion
+size_t libCurlWrite(char* data, size_t size, size_t nmemb, FILE* out){
+	return fwrite(data, size, nmemb, out);//Writes data
+}
+
+//Function to download a file to a specific location
+CURLcode downloadFile(string source, string dest){
+	CURLcode result;//Result code
+	CURL* curlHandle;//Curl handle
+	
+	FILE* fp = fopen(dest.c_str(), "wb");//Opens file
+	
+	curlHandle = curl_easy_init();//Initializes handle
+	
+	curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);//Disables certificate checking
+	curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, libCurlWrite);//Sets write function
+	curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, fp);//Sets write buffer
+	curl_easy_setopt(curlHandle, CURLOPT_URL, source.c_str());//Sets URL
+	
+	result = curl_easy_perform(curlHandle);//Performs curl operation
+	
+	curl_easy_cleanup(curlHandle);//Cleans
+	
+	fclose(fp);//Closes file
+	
+	return result;//Returns result
+}
+
+//Function to process an update script
+void processUpdateScript(script u){
+	script::iterator i;//Iterator for script lines
+	
+	for (i = u.begin(); i != u.end(); i++){//For each line
+		deque<string> t = tokenize <deque<string> > (*i, " ");//Splits into tokens
+		
+		if (t[0] == "download" && t.size() >= 3)//Download command
+			downloadFile(t[1], t[2]);//Downloads file
+		
+		else if (t[0] == "kill" && t.size() >= 2)//Kill command
+			remove(t[1].c_str());//Kills file
+			
+	}
+}
+
 //Game initialization function
 void gameInit(int argc, char* argv[]){
 	Bulk_image_init();//Initializes Bulk image
@@ -1112,6 +1178,8 @@ void gameInit(int argc, char* argv[]){
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
 
 	Bulk_doubleExpr_init();//Initializes for double expressions
+	
+	curl_global_init(CURL_GLOBAL_ALL);//Initializes CURL
 	
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
 	

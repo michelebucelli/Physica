@@ -12,5 +12,6 @@
 
 #include "Bulk_image.h"
 #include "Bulk_ui.h"
+#include "Bulk_uiDialog.h"
 
 #endif

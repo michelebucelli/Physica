@@ -249,14 +249,14 @@ class fileData{
 	}
 	
 	//Constructor
-	fileData(string path){
-		read(path);//Reads file
+	fileData(string path, bool comments = true){
+		read(path, comments);//Reads file
 		proc();//Processes the content
 	}
 	
 	//File reading function
 	//Reads the content of the file and stores it on a single line in readContent
-	void read(string path){
+	void read(string path, bool comments = true){
 		ifstream file(path.c_str());//Opens file for reading
 		string tmpString;//Temporary string
 		
@@ -270,7 +270,7 @@ class fileData{
 		
 		while (file.good()){//While the file is good for reading
 			getline(file, tmpString);//Reads line from file
-			tmpString = tmpString.substr(0, tmpString.find("//"));//Removes comments
+			if (comments) tmpString = tmpString.substr(0, tmpString.find("//"));//Removes comments
 			readContent += " " + tmpString;//Adds the line to the content
 		}
 		
@@ -280,12 +280,7 @@ class fileData{
 	//File processing function
 	//Generates procContent
 	void proc(){
-		char* tok = strtok((char*) readContent.c_str(), ";");//First token
-			
-		while (tok){//While there are still tokens left
-			procContent.push_back(string(tok));//Adds the token to the content
-			tok = strtok(NULL, ";");//Next token
-		}
+		procContent = tokenize < deque<string> > (readContent, ";");//Splits content
 	}
 	
 	//Function to generate file object; the parent object contains the child objects declared in the file
@@ -419,6 +414,15 @@ class script: public deque<string> {
 	//Function to save to a string
 	string toString(){
 		return join <script> (*this, ",");//Joins all lines into an only string and returns it
+	}
+	
+	//Function to load a script from file
+	//Each line is a script command
+	void fromFile(string source){
+		fileData f (source, false);//Processes file (used to remove indent and split according to semicolons)
+		
+		deque<string>::iterator s;//Iterator
+		for (s = f.procContent.begin(); s != f.procContent.end(); s++) push_back(*s);//Adds processed content
 	}
 };
 

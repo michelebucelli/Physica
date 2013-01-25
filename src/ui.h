@@ -77,64 +77,6 @@ int achBegin = -1;//Achieved window time counter
 int achDuration = 5000;//Achieved window duration
 int achSpeed = 1;//Pixels per frame of achievement window movement
 
-//Function to get input
-string getInput(string prompt){
-	inputPrompt->content.t = prompt;//Sets prompt
-	
-	SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);//Surface to store video
-	SDL_BlitSurface(video, NULL, old, NULL);//Blits video on surface
-	
-	while (running){//While inputting
-		FRAME_BEGIN;//Begins the frame
-		
-		while (SDL_PollEvent(&ev)){//While there are events on stack
-			EVENTS_COMMON(ev);//Common events
-			input.checkEvents(ev);//Checks input events
-			
-			if (ev.type == SDL_KEYDOWN){//If pressed a key
-				if (ev.key.keysym.sym == SDLK_RETURN) return inputField->content.t;//Returns result on enter
-				else if (ev.key.keysym.sym == SDLK_ESCAPE) return "";//Returns empty line else
-			}
-		}
-		
-		BKG;//Prints background
-		
-		SDL_BlitSurface(old, NULL, video, NULL);//Blits old video
-		input.print(video);//Prints input
-		
-		UPDATE;//Updates
-		FRAME_END;//End frame
-	}
-}
-
-//Function to show message
-void message(string text){
-	msgText->content.t = text;//Sets text
-	
-	SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);//Surface to store video
-	SDL_BlitSurface(video, NULL, old, NULL);//Blits video on surface
-	
-	while (running){//While inputting
-		FRAME_BEGIN;//Begins the frame
-		
-		while (SDL_PollEvent(&ev)){//While there are events on stack
-			EVENTS_COMMON(ev);//Common events
-			
-			if (ev.type == SDL_KEYDOWN){//If pressed a key
-				return;//Returns
-			}
-		}
-		
-		BKG;//Prints background
-		
-		SDL_BlitSurface(old, NULL, video, NULL);//Blits old video
-		msg.print(video);//Prints input
-		
-		UPDATE;//Updates
-		FRAME_END;//End frame
-	}
-}
-
 //UI mode enumeration
 enum uiMode {
 	ui_mainMenu,//Main menu
@@ -525,16 +467,6 @@ void resize(int newW, int newH, bool fs, bool redraw){
 			creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers settings on y
 		}
 		
-		if (inputFrame){//If input field is available
-			inputFrame->area.x = (video_w - inputFrame->area.w) / 2;//Centers input on x
-			inputFrame->area.y = (video_h - inputFrame->area.h) / 2;//Centers input on y
-		}
-		
-		if (msgFrame){//If message frame is available
-			msgFrame->area.x = (video_w - msgFrame->area.w) / 2;//Centers msg on x
-			msgFrame->area.y = (video_h - msgFrame->area.h) / 2;//Centers msg on y
-		}
-		
 		if (fpsLabel){//If fps label is available
 			fpsLabel->area.x = video_w - fpsLabel->area.w;//Positions
 		}
@@ -546,6 +478,9 @@ void resize(int newW, int newH, bool fs, bool redraw){
 		if (curUiMode == ui_levels) redrawLevelSelect();//Redraws level selection window
 		if (curUiMode == ui_achievements) redrawAchievements();//Redraws achievements
 	}
+	
+	msgBox.centre(video_w, video_h);//Centers message box
+	inputBox.centre(video_w, video_h);//Centers input box
 }
 
 //Function to apply settings
@@ -661,21 +596,6 @@ void loadUI(){
 	creditsLabel->area.x = (video_w - creditsLabel->area.w) / 2;//Centers credits on x
 	creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers credits on y
 	
-	input = loadWindow(inputFile, "input");//Loads input window
-	inputFrame = (panel*) input.getControl("frame");//Gets frame
-	inputPrompt = input.getControl("frame.prompt");//Gets prompt
-	inputField = (inputBox*) input.getControl("frame.field");//Gets field
-	
-	inputFrame->area.x = (video_w - inputFrame->area.w) / 2;//Centers input on x
-	inputFrame->area.y = (video_h - inputFrame->area.h) / 2;//Centers input on y
-	
-	msg = loadWindow(msgFile, "msg");//Loads message window
-	msgFrame = (panel*) msg.getControl("frame");//Gets message
-	msgText = msg.getControl("frame.text");//Gets message text
-	
-	msgFrame->area.x = (video_w - msgFrame->area.w) / 2;//Centers msg on x
-	msgFrame->area.y = (video_h - msgFrame->area.h) / 2;//Centers msg on y
-	
 	achieved = loadWindow(achievedFile, "achieved");//Loads achieved window
 	achFrame = (panel*) achieved.getControl("frame");//Gets frame
 	achIcon = achieved.getControl("frame.icon");//Gets icon
@@ -688,6 +608,20 @@ void loadUI(){
 	
 	achievements = loadWindow(achievementsUiFile, "achievements");//Loads achievements window
 	defaultAch = * (panel*) achievements.getControl("defaultAchievement");//Gets achievement info
+	
+	msgBox.loadDialog(msgFile);//Loads message dialog
+	inputBox.loadDialog(inputFile);//Loads input dialog
+	
+	//Sets dialog members
+	msgBox.frameBegin = &frame_begin;
+	msgBox.frameEnd = &frame_end;
+	msgBox.events = &events_common;
+	msgBox.quitFlag = &running;
+	
+	inputBox.frameBegin = &frame_begin;
+	inputBox.frameEnd = &frame_end;
+	inputBox.events = &events_common;
+	inputBox.quitFlag = &running;
 }
 
 //Graphics info file loading function
