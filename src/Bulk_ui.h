@@ -17,6 +17,7 @@
 #define OBJTYPE_LISTBOX		"listBox"//List box objects
 #define OBJTYPE_CHECKBOX	"checkBox"//Check box objects
 #define OBJTYPE_KEYBOX		"keyBox"//Key box objects
+#define OBJTYPE_SCROLLBAR	"scrollBar"//Scollbar objects
 
 //Control content types
 #define CONTENT_TEXT		0//Text content
@@ -30,6 +31,7 @@
 #define CTYPE_LISTBOX		4//List box
 #define CTYPE_CHECKBOX		5//Check box
 #define CTYPE_KEYBOX		6//Key box
+#define CTYPE_SCROLLBAR		7//Scrollbar
 
 //Macros
 #define RENDERTEXT(FONT,TEXT)	TTF_RenderText_Blended(FONT.f, TEXT, FONT.color)//Macro to render text using font class instead of TTF_Font
@@ -40,6 +42,7 @@ class control;//Control class
 class inputBox;//Input box
 class fillbar;//Fillbar
 class panel;//Panel class
+class scrollBar;//Scrollbar
 class window;//Window class
 
 //Function that converts a string to a SDL color
@@ -1158,7 +1161,7 @@ class panel: public control {
 	//Function to check panel events
 	//	checks main panel events and children events
 	//	allows drag, too
-	void checkEvents(SDL_Event e, int x = 0, int y = 0){
+	virtual void checkEvents(SDL_Event e, int x = 0, int y = 0){
 		//Applies offset
 		area.x += x;
 		area.y += y;
@@ -1203,36 +1206,7 @@ class panel: public control {
 	}
 	
 	//Function to load from script object
-	bool fromScriptObj(object o){
-		if (control::fromScriptObj(o)){//If succedeed loading base data
-			var* allowDrag = get <var> (&o.v, "allowDrag");//Allow drag variable
-			
-			if (allowDrag) this->allowDrag = allowDrag->intValue();//Sets allow drag variable
-			
-			deque<object>::iterator i;//Iterator for child objects
-			for (i = o.o.begin(); i != o.o.end(); i++){//For each child object
-				control* newControl = NULL;//New control
-				
-				if (i->type == OBJTYPE_CONTROL) newControl = new control;//Creates control
-				else if (i->type == OBJTYPE_FILLBAR) newControl = new fillbar;//Creates fillbar
-				else if (i->type == OBJTYPE_INPUTBOX) newControl = new inputBox;//Creates input box
-				else if (i->type == OBJTYPE_LISTBOX) newControl = new listBox;//Creates list box
-				else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
-				else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
-				else if (i->type == OBJTYPE_KEYBOX) newControl = new keyBox;//Creates keybox
-				
-				if (newControl){//If control was successfully created
-					newControl->fromScriptObj(*i);//Loads control
-					newControl->parent = this;//Sets parent
-					children.push_back(newControl);//Adds control
-				}
-			}
-			
-			return true;//Returns true
-		}
-		
-		return false;//Returns false
-	}
+	virtual bool fromScriptObj(object);
 	
 	//Function to save to script object
 	//	all child controls are stored as sub-objects
@@ -1324,6 +1298,146 @@ class panel: public control {
 	}
 };
 
+void scrollBar_up(clickEventData); void scrollBar_down(clickEventData);//Scroll bar event functions
+
+//Scrollbar class
+class scrollBar: public panel {
+	public:
+	control *up, *down;//Up and down controls
+	int step, steps;//Current position and total steps
+	
+	bool horizontal;//Horizontal or vertical flag
+	rectangle bar;//Bar area
+	
+	theme *cursorTheme;//Cursor theme
+	
+	//Constructor
+	scrollBar(){
+		id = "";
+		type = OBJTYPE_SCROLLBAR;
+		controlType = CTYPE_SCROLLBAR;
+		
+		parent = NULL;
+		
+		status = normal;
+		
+		allowDrag = false;
+		
+		pressX = -1;
+		pressY = -1;
+		initialX = -1;
+		initialY = -1;
+		
+		int i;//Counter
+		for (i = 0; i < pressed; i++)//For each status
+			themes[i] = NULL;//Sets null theme for that status
+			
+		clickThrough = false;
+		
+		up = NULL;
+		down = NULL;
+		
+		step = 0;
+		steps = 0;
+		
+		horizontal = false;
+		
+		cursorTheme = NULL;
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (panel::fromScriptObj(o)){//If loads panel successfully
+			up = getControl("up");//Gets up control
+			down = getControl("down");//Gets down control
+			
+			if (up) up->release.handlers.push_back(scrollBar_up);
+			if (down) down->release.handlers.push_back(scrollBar_down);
+			
+			var* step = get<var> (&o.v, "step");
+			var* steps = get<var> (&o.v, "maxSteps");
+			var* cursorTheme = get<var> (&o.v, "cursorTheme");
+			var* horizontal = get<var> (&o.v, "horizontal");
+			object* bar = get <object> (&o.o, "bar");
+			
+			if (step) this->step = step->intValue();
+			if (steps) this->steps = steps->intValue();
+			if (cursorTheme) this->cursorTheme = get<theme> (&themesDB, cursorTheme->value);
+			if (horizontal) this->horizontal = horizontal->intValue();
+			if (bar) this->bar.fromScriptObj(*bar);
+		}
+	}
+	
+	//Print function
+	void print(SDL_Surface* target, int x = 0, int y = 0, bool printTheme = true){
+		panel::print(target, x, y, printTheme);//Prints panel
+		
+		rectangle cursor;//Cursor rectangle
+		if (horizontal){//If bar is horizontal
+			//Sets cursor rectangle
+			cursor.x = area.x + bar.x + step * (bar.w / steps) + x;
+			cursor.y = area.y + bar.y + y;
+			cursor.h = bar.h;
+			cursor.w = bar.w / steps;
+		}
+		
+		else {//If bar is vertical
+			//Sets cursor rectangle
+			cursor.x = area.x + bar.x + x;
+			cursor.y = area.y + bar.y + step * (bar.h / steps) + y;
+			cursor.h = bar.h / steps;
+			cursor.w = bar.w;
+		}
+		
+		if (cursorTheme) cursorTheme->printRect(target, cursor);//Prints cursor
+	}
+};
+
+//Scroll bar up
+void scrollBar_up(clickEventData data){
+	scrollBar* s = (scrollBar*) data.caller->parent;
+	if (s->step > 0) s->step--;
+}
+
+//Scroll bar down
+void scrollBar_down(clickEventData data){
+	scrollBar* s = (scrollBar*) data.caller->parent;
+	if (s->step < s->steps - 1) s->step++;
+}
+
+//Function to load panel from script object
+bool panel::fromScriptObj(object o){
+	if (control::fromScriptObj(o)){//If succedeed loading base data
+		var* allowDrag = get <var> (&o.v, "allowDrag");//Allow drag variable
+		
+		if (allowDrag) this->allowDrag = allowDrag->intValue();//Sets allow drag variable
+		
+		deque<object>::iterator i;//Iterator for child objects
+		for (i = o.o.begin(); i != o.o.end(); i++){//For each child object
+			control* newControl = NULL;//New control
+			
+			if (i->type == OBJTYPE_CONTROL) newControl = new control;//Creates control
+			else if (i->type == OBJTYPE_FILLBAR) newControl = new fillbar;//Creates fillbar
+			else if (i->type == OBJTYPE_INPUTBOX) newControl = new inputBox;//Creates input box
+			else if (i->type == OBJTYPE_LISTBOX) newControl = new listBox;//Creates list box
+			else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
+			else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
+			else if (i->type == OBJTYPE_KEYBOX) newControl = new keyBox;//Creates keybox
+			else if (i->type == OBJTYPE_SCROLLBAR) newControl = new scrollBar;//Creates scrollbar
+			
+			if (newControl){//If control was successfully created
+				newControl->fromScriptObj(*i);//Loads control
+				newControl->parent = this;//Sets parent
+				children.push_back(newControl);//Adds control
+			}
+		}
+		
+		return true;//Returns true
+	}
+	
+	return false;//Returns false
+}
+
 //Window class
 //	derived from list of control pointers, includes functions to handle all their events,
 //	print them all, load the whole window from a script object and save it
@@ -1385,6 +1499,7 @@ class window: public objectBased, public list<control*> {
 				else if (i->type == OBJTYPE_PANEL) newControl = new panel;//Creates panel
 				else if (i->type == OBJTYPE_CHECKBOX) newControl = new checkBox;//Creates checkbox
 				else if (i->type == OBJTYPE_KEYBOX) newControl = new keyBox;//Creates keybox
+				else if (i->type == OBJTYPE_SCROLLBAR) newControl = new scrollBar;//Creates scrollbar
 				
 				if (newControl){
 					newControl->fromScriptObj(*i);//Loads control

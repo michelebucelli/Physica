@@ -130,6 +130,7 @@ class inputbox: public dialog {
 		quitFlag = NULL;
 		
 		text = NULL;
+		field = NULL;
 	}
 	
 	//Load function
@@ -172,4 +173,159 @@ class inputbox: public dialog {
 		
 		return "";//Returns "" if didn't return any answer
 	}
-} inputBox;
+} inputBoxDialog;
+
+//Image dialog
+class imgpreview: public dialog {
+	public:
+	int margin;//Margin
+	
+	//Constructor
+	imgpreview(){
+		dialogFrame = NULL;
+		
+		frameBegin = NULL;
+		frameEnd = NULL;
+		events = NULL;
+		quitFlag = NULL;
+		
+		margin = 16;
+	}
+	
+	//Load function
+	void loadDialog(string path){
+		dialog::loadDialog(path);//Loads normally
+		dialogFrame->content.contentType = CONTENT_IMAGE;//Sets content type
+	}
+	
+	//Show function
+	void show(SDL_Surface* target, image i){
+		if (!i.valid()) return;//Returns if image isn't valid
+		
+		dialogFrame->content.i = i;//Sets image
+		dialogFrame->area.w = i.w() + 2 * margin;//Sets width
+		dialogFrame->area.h = i.h() + 2 * margin;//Sets height
+		
+		centre(target->w, target->h);//Centers
+		
+		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
+		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
+		
+		SDL_Event e;//Event
+		
+		while (!quitFlag || *quitFlag){//While running
+			if (frameBegin) frameBegin();//Frame beginnig
+			
+			while (SDL_PollEvent(&e)){//While there are events on stack
+				if (events) events(e);//Checks events
+				
+				dialogWindow.checkEvents(e);//Checks dialog events
+				
+				if (e.type == SDL_KEYDOWN) return;//Returns on key press
+			}
+			
+			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
+			dialogWindow.print(target);//Prints dialog
+			SDL_Flip(target);//Updates target
+			
+			if (frameEnd) frameEnd();//Frame ending
+		}
+	}
+} imgPreview;
+
+//Image input
+class imginput: public dialog {
+	public:
+	inputBox *idField, *pathField, *rectX, *rectY, *rectW, *rectH;//Input boxes
+	control *ok, *preview, *cancel;//Buttons
+	
+	//Constructor
+	imginput(){
+		dialogFrame = NULL;
+		
+		frameBegin = NULL;
+		frameEnd = NULL;
+		events = NULL;
+		quitFlag = NULL;
+		
+		idField = NULL;
+		pathField = NULL;
+		rectX = NULL;
+		rectY = NULL;
+		rectW = NULL;
+		
+		ok = NULL;
+		preview = NULL;
+		cancel = NULL;
+	}
+	
+	//Load function
+	void loadDialog(string path){
+		dialog::loadDialog(path);//Loads dialog
+		
+		//Gets controls
+		idField = (inputBox*) dialogWindow.getControl("frame.idField");
+		pathField = (inputBox*) dialogWindow.getControl("frame.pathField");
+		rectX = (inputBox*) dialogWindow.getControl("frame.rectX");
+		rectY = (inputBox*) dialogWindow.getControl("frame.rectY");
+		rectW = (inputBox*) dialogWindow.getControl("frame.rectW");
+		rectH = (inputBox*) dialogWindow.getControl("frame.rectH");
+		
+		ok = dialogWindow.getControl("frame.ok");
+		preview = dialogWindow.getControl("frame.preview");
+		cancel = dialogWindow.getControl("frame.cancel");
+	}
+	
+	//Show function
+	image *show(SDL_Surface* target, image i){
+		if (i.valid()){//If image's valid
+			pathField->content.t = i.imageFilePath;
+		}
+		
+		centre(target->w, target->h);//Centers
+		
+		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
+		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
+		
+		SDL_Event e;//Event
+		
+		while (!quitFlag || *quitFlag){//While running
+			if (frameBegin) frameBegin();//Frame beginnig
+			
+			while (SDL_PollEvent(&e)){//While there are events on stack
+				if (events) events(e);//Checks events
+				
+				dialogWindow.checkEvents(e);//Checks dialog events
+				
+				if (ok->status == control::pressed)//If pressed ok
+					return new image(
+									idField->content.t,
+									pathField->content.t,
+									atoi(rectX->content.t.c_str()),
+									atoi(rectY->content.t.c_str()),
+									atoi(rectW->content.t.c_str()),
+									atoi(rectH->content.t.c_str()));//Result
+										
+				if (preview->status == control::pressed){//If pressed preview
+					image i (idField->content.t,
+							pathField->content.t,
+							atoi(rectX->content.t.c_str()),
+							atoi(rectY->content.t.c_str()),
+							atoi(rectW->content.t.c_str()),
+							atoi(rectH->content.t.c_str()));//Image
+							
+					imgPreview.show(target, i);//Shows image
+				}
+										
+				if (cancel->status == control::pressed)//If pressed cancel
+					return NULL;//Returns null
+			}
+			
+			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
+			dialogWindow.print(target);//Prints dialog
+			SDL_Flip(target);//Updates target
+			
+			if (frameEnd) frameEnd();//Frame ending
+		}
+	}
+} imgInput;

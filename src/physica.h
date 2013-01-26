@@ -65,9 +65,6 @@ string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
 
-string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
-string inputFile = "data/cfg/ui/input.cfg";//Input window file path
-
 //Sound
 bool enableSfx = true;//Enables sound
 

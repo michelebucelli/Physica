@@ -122,7 +122,7 @@ void editorSaveClick(clickEventData data){
 void editorOpenClick(clickEventData data){
 	PLAYSOUND(clickSfx);
 	
-	string lFile = inputBox.show(video, "Insert level file name (data/cfg/levels/)");//Level file path
+	string lFile = inputBoxDialog.show(video, "Insert level file name (data/cfg/levels/)");//Level file path
 	if (lFile != "") edited = *loadLevel("data/cfg/levels/" + lFile);//Loads level
 	
 	lastSaveId = edited.id;

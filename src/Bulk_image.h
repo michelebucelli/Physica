@@ -111,13 +111,13 @@ class rectangle: public SDL_Rect, public objectBased {
 //		colorKey [color]: sets image's color key to given color
 class image: public objectBased, public scriptable{
 	private:
-	string imageFilePath;//Image file path (used when saving to script object)
 	bool cached;//Flag indicating if the image was taken from cache with no changes (used when painting, to avoid painting on cached surfaces)
 	
 	script paint;//Paint script
 	
 	public:
 	SDL_Surface* surface;//The surface in which the image is contained
+	string imageFilePath;//Image file path (used when saving to script object)
 	
 	rectangle rect;//Rectangle taken from the surface
 	bool useRect;//Flag indicating if rectangle should be used
@@ -138,6 +138,28 @@ class image: public objectBased, public scriptable{
 		
 		offsetX = 0;
 		offsetY = 0;
+	}
+	
+	//Creates the image from data
+	image(string id, string path, int x, int y, int w, int h){
+		this->id = id;
+		type = OBJTYPE_IMAGE;
+		
+		imageFilePath = path;
+		cached = true;
+		
+		surface = loadImg(path.c_str());
+		
+		useRect = true;
+		
+		offsetX = 0;
+		offsetY = 0;
+		
+		rect.id = "rect";
+		rect.x = x;
+		rect.y = y;
+		rect.w = w;
+		rect.h = h;
 	}
 	
 	//Function to copy the current surface to a new one

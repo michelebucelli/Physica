@@ -17,6 +17,11 @@ string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
 string achievedFile = "data/cfg/ui/achievement.cfg";//Achievement window file path
 string achievementsUiFile = "data/cfg/ui/achievements.cfg";//Achievements window file path
 
+string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
+string inputFile = "data/cfg/ui/input.cfg";//Input window file path
+string imgPreviewFile = "data/cfg/ui/imagePreview.cfg";//Image preview file path
+string imgInputFile = "data/cfg/ui/imageInput.cfg";//Image input file path
+
 //Global graphics
 image starOn, starOff;//Star images
 image starOn_sm, starOff_sm;//Small star images
@@ -480,7 +485,7 @@ void resize(int newW, int newH, bool fs, bool redraw){
 	}
 	
 	msgBox.centre(video_w, video_h);//Centers message box
-	inputBox.centre(video_w, video_h);//Centers input box
+	inputBoxDialog.centre(video_w, video_h);//Centers input box
 }
 
 //Function to apply settings
@@ -610,7 +615,9 @@ void loadUI(){
 	defaultAch = * (panel*) achievements.getControl("defaultAchievement");//Gets achievement info
 	
 	msgBox.loadDialog(msgFile);//Loads message dialog
-	inputBox.loadDialog(inputFile);//Loads input dialog
+	inputBoxDialog.loadDialog(inputFile);//Loads input dialog
+	imgPreview.loadDialog(imgPreviewFile);//Loads image preview
+	imgInput.loadDialog(imgInputFile);//Loads image input
 	
 	//Sets dialog members
 	msgBox.frameBegin = &frame_begin;
@@ -618,10 +625,20 @@ void loadUI(){
 	msgBox.events = &events_common;
 	msgBox.quitFlag = &running;
 	
-	inputBox.frameBegin = &frame_begin;
-	inputBox.frameEnd = &frame_end;
-	inputBox.events = &events_common;
-	inputBox.quitFlag = &running;
+	inputBoxDialog.frameBegin = &frame_begin;
+	inputBoxDialog.frameEnd = &frame_end;
+	inputBoxDialog.events = &events_common;
+	inputBoxDialog.quitFlag = &running;
+	
+	imgPreview.frameBegin = &frame_begin;
+	imgPreview.frameEnd = &frame_end;
+	imgPreview.events = &events_common;
+	imgPreview.quitFlag = &running;
+	
+	imgInput.frameBegin = &frame_begin;
+	imgInput.frameEnd = &frame_end;
+	imgInput.events = &events_common;
+	imgInput.quitFlag = &running;
 }
 
 //Graphics info file loading function

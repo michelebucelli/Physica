@@ -12,7 +12,7 @@ int main(int argc, char* argv[]){
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
 				EVENTS_COMMON(ev);//Common events					
-				menuFrame->checkEvents(ev);//Checks menu events
+				menu.checkEvents(ev);//Checks menu events
 			}
 		
 			if (running) menu.print(video);//Prints menu
