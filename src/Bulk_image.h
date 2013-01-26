@@ -16,7 +16,7 @@
 //Function for optimized surface loading
 SDL_Surface* loadImg (const char* source){
 	SDL_Surface* s = IMG_Load(source);//Loads surface
-	s = SDL_DisplayFormatAlpha(s);//Converts surface to display format
+	if (s) s = SDL_DisplayFormatAlpha(s);//Converts surface to display format
 	
 	return s;//Returns surface
 }
@@ -160,6 +160,8 @@ class image: public objectBased, public scriptable{
 		rect.y = y;
 		rect.w = w;
 		rect.h = h;
+		
+		cout << "Done" << endl;
 	}
 	
 	//Function to copy the current surface to a new one

@@ -21,6 +21,7 @@ string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
 string inputFile = "data/cfg/ui/input.cfg";//Input window file path
 string imgPreviewFile = "data/cfg/ui/imagePreview.cfg";//Image preview file path
 string imgInputFile = "data/cfg/ui/imageInput.cfg";//Image input file path
+string achDialogFile = "data/cfg/ui/achDialog.cfg";//Achievement dialog file path
 
 //Global graphics
 image starOn, starOff;//Star images
@@ -618,6 +619,7 @@ void loadUI(){
 	inputBoxDialog.loadDialog(inputFile);//Loads input dialog
 	imgPreview.loadDialog(imgPreviewFile);//Loads image preview
 	imgInput.loadDialog(imgInputFile);//Loads image input
+	achDialog.loadDialog(achDialogFile);//Loads ach dialog
 	
 	//Sets dialog members
 	msgBox.frameBegin = &frame_begin;
@@ -639,6 +641,11 @@ void loadUI(){
 	imgInput.frameEnd = &frame_end;
 	imgInput.events = &events_common;
 	imgInput.quitFlag = &running;
+	
+	achDialog.frameBegin = &frame_begin;
+	achDialog.frameEnd = &frame_end;
+	achDialog.events = &events_common;
+	achDialog.quitFlag = &running;
 }
 
 //Graphics info file loading function

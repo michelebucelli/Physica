@@ -43,8 +43,6 @@ vector dragInitial;//Dragging intial position
 vector dragDist;//Distance between dragging point and position of dragged entity
 vector dragVector;//Dragging vector
 
-string lastSaveId = "";//Last ID when saved
-
 //Function to update properties content
 void updateProperties(){
 	idField->content.t = edited.id;
@@ -68,54 +66,17 @@ void editorNewClick(clickEventData data){
 	PLAYSOUND(clickSfx);
 	
 	edited = *loadLevel(templateFile);//Loads template
-	lastSaveId = "";
 	
 	updateProperties();//Updates properties panel
 }
 
 //Save button click
 void editorSaveClick(clickEventData data){
-	string lFile = "data/cfg/levels/" + edited.id + ".cfg";//Level file path
-	bool existing = false;//If true, level is already in level set
-	deque<string>::iterator i;//String iterator
+	string lFile = "data/cfg/levels/" + inputBoxDialog.show(video, "Insert level file name (data/cfg/levels/)");//Level file path
 	
 	ofstream o (lFile.c_str());//Output level file
 	o << edited.toScriptObj().toString();//Saves level
 	o.close();//Closes file
-	
-	levelSet *editorSet = get_ptr <levelSet> (&levelSets, "levels_editor");//Editor level seti
-	
-	if (!editorSet) return;//Fails if editor set doesn't exist
-	
-	if (lastSaveId != edited.id){//If id was changed
-		remove(("data/cfg/levels/" + lastSaveId + ".cfg").c_str());//Deletes old file
-		
-		for (i = editorSet->begin(); i != editorSet->end(); i++){//For each level
-			if (*i == "data/cfg/levels/" + lastSaveId + ".cfg"){//If level was this (with old id)
-				i = editorSet->erase(i);//Erases
-				i--;//Back
-			}
-		}
-	}
-	
-	for (i = editorSet->begin(); i != editorSet->end(); i++)//For each level
-		if (*i == lFile) existing = true;//Sets existing flag
-	
-	if (!existing){//If level doesn't exist
-		editorSet->push_back(lFile);
-		
-		ofstream levels(outputSetFile.c_str());//Levels file
-		int n;//Counter
-		for (n = 0; n < editorSet->size(); n++)//For each level
-			levels << "level" << n + 1 << " = " << (*editorSet)[n] << ";" << endl;//Adds level file
-			
-		levels << "id = levels_editor;" << endl;//Outputs id string
-		levels << "name = Editor;" << endl;//Outputs name
-			
-		levels.close();//Closes file
-	}
-	
-	lastSaveId = edited.id;//Saves ID
 }
 
 //Open button click
@@ -125,7 +86,6 @@ void editorOpenClick(clickEventData data){
 	string lFile = inputBoxDialog.show(video, "Insert level file name (data/cfg/levels/)");//Level file path
 	if (lFile != "") edited = *loadLevel("data/cfg/levels/" + lFile);//Loads level
 	
-	lastSaveId = edited.id;
 	updateProperties();
 }
 

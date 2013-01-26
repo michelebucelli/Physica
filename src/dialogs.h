@@ -277,9 +277,13 @@ class imginput: public dialog {
 	}
 	
 	//Show function
-	image *show(SDL_Surface* target, image i){
-		if (i.valid()){//If image's valid
-			pathField->content.t = i.imageFilePath;
+	image *show(SDL_Surface* target, image *i){
+		if (i && i->valid()){//If image's valid
+			pathField->content.t = i->imageFilePath;
+			rectX->content.t = toString(i->rect.x);
+			rectY->content.t = toString(i->rect.y);
+			rectW->content.t = toString(i->rect.w);
+			rectH->content.t = toString(i->rect.h);
 		}
 		
 		centre(target->w, target->h);//Centers
@@ -329,3 +333,106 @@ class imginput: public dialog {
 		}
 	}
 } imgInput;
+
+//Achievement dialog
+class achdialog: public dialog {
+	public:
+	control *icon;//Achievement icon
+	control *iconEdit;//Edit icon
+	
+	inputBox *idField, *nameField, *infoField, *verifyField;//Fields
+	checkBox *checkOnce;//Check once flag
+	
+	control *ok, *cancel;//Ok and cancel buttons
+	
+	//Constructor
+	achdialog(){
+		dialogFrame = NULL;
+		
+		frameBegin = NULL;
+		frameEnd = NULL;
+		events = NULL;
+		quitFlag = NULL;
+		
+		icon = NULL;
+		iconEdit = NULL;
+		idField = NULL;
+		nameField = NULL;
+		infoField = NULL;
+		verifyField = NULL;
+		checkOnce = NULL;
+		
+		ok = NULL;
+		cancel = NULL;
+	}
+	
+	//Load function
+	void loadDialog(string path){
+		dialog::loadDialog(path);//Loads normally
+		
+		//Gets controls
+		icon = dialogWindow.getControl("frame.icon");
+		iconEdit = dialogWindow.getControl("frame.iconEdit");
+		idField = (inputBox*) dialogWindow.getControl("frame.idField");
+		nameField = (inputBox*) dialogWindow.getControl("frame.nameField");
+		infoField = (inputBox*) dialogWindow.getControl("frame.infoField");
+		verifyField = (inputBox*) dialogWindow.getControl("frame.verifyField");
+		checkOnce = (checkBox*) dialogWindow.getControl("frame.checkOnce");
+		ok = dialogWindow.getControl("frame.ok");
+		cancel = dialogWindow.getControl("frame.cancel");
+		
+		icon->content.contentType = CONTENT_IMAGE;//Sets image content type for icon
+	}
+	
+	//Show function
+	achievement* show(SDL_Surface* target, achievement *a = NULL){
+		if (a){
+			icon->content.i = a->icon;//Sets icon
+			idField->content.t = a->id;//Sets id
+			nameField->content.t = a->name;//Sets name
+			infoField->content.t = a->info;//Sets info
+			verifyField->content.t = a->verifyExpr.exprToString();//Sets expression
+		}
+		
+		centre(target->w, target->h);//Centers on screen
+		
+		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
+		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
+		
+		SDL_Event e;//Event
+		
+		while (!quitFlag || *quitFlag){//While running
+			if (frameBegin) frameBegin();//Frame beginnig
+			
+			while (SDL_PollEvent(&e)){//While there are events on stack
+				if (events) events(e);//Checks events
+				
+				dialogWindow.checkEvents(e);//Checks dialog events
+				
+				if (ok->status == control::pressed)//If pressed ok
+					return new achievement(
+									idField->content.t,
+									nameField->content.t,
+									infoField->content.t,
+									verifyField->content.t,
+									icon->content.i,
+									checkOnce->checked);//Result
+										
+				if (iconEdit->status == control::pressed || icon->status == control::pressed){//If pressed icon
+					image* i = imgInput.show(target, &icon->content.i);//Edits image
+					
+					if (i) icon->content.i = *i;//Sets icon
+				}
+										
+				if (cancel->status == control::pressed)//If pressed cancel
+					return NULL;//Returns null
+			}
+			
+			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
+			dialogWindow.print(target);//Prints dialog
+			SDL_Flip(target);//Updates target
+			
+			if (frameEnd) frameEnd();//Frame ending
+		}
+	}
+} achDialog;

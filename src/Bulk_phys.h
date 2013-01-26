@@ -902,6 +902,7 @@ class scene: public objectBased {
 	int w, h;//Scene size
 	
 	list <entity*> cells [DIVISIONS * DIVISIONS];//Cells
+	list <entity*> unassigned;//Unassigned cells
 	
 	//Constructor
 	scene(){
@@ -953,6 +954,7 @@ class scene: public objectBased {
 		
 		int n;//Counter
 		for (n = 0; n < DIVISIONS * DIVISIONS; n++) cells[n].clear();//Clears all cells
+		unassigned.clear();//Clears unassigned
 		
 		for (i = entities.begin(); i != entities.end(); i++){//For each entity
 			double minX, maxX, minY, maxY;//Projections on coordinated axes
@@ -966,13 +968,17 @@ class scene: public objectBased {
 			int maxTileY = floor(maxY / (h / DIVISIONS));//Bottom tile y
 			
 			int x, y;//Counters
+			bool assigned = false;//Assigned flag
 			for (y = minTileY; y <= maxTileY; y++){//For each tile row
 				for (x = minTileX; x <= maxTileX; x++){//For each tile column
 					if (y * DIVISIONS + x >= 0 && y * DIVISIONS + x < DIVISIONS * DIVISIONS){//If coords are valid
 						cells[y * DIVISIONS + x].push_back(*i);//Adds entity to cell
+						assigned = true;//Sets assigned
 					}
 				}
 			}
+			
+			if (!assigned) unassigned.push_back(*i);//Adds to unassigned
 		}
 	}
 	
@@ -1016,6 +1022,38 @@ class scene: public objectBased {
 						free(c);//Frees collision
 					}
 				}			
+			}
+		}
+		
+		for (i = unassigned.begin(); i != unassigned.end(); i++){//For each unassigned cell
+			for (j = i, j++; j != unassigned.end(); j++){//For each other entity
+				collision* c = collide(*i, *j);//Checks collision between entities
+				
+				if (c){//If collision happened
+					list<collision>::iterator n;//Iterator for collisions
+					for (n = result.begin(); n != result.end(); n++){//For each collision found up to now
+						if ((n->a == *i && n->b == *j) || (n->a == *j && n->b == *i)){//If colliding entities are the same
+							c = NULL;//Deletes collision
+						}
+					}
+				}
+				
+				if (c){//If collision is still valid						
+					result.push_back(*c);//Adds collision to result
+					handleCollision(*i, *j, *c);//Handles collision
+					
+					if (!(*i)->lockTranslation && !(*j)->lockTranslation){//If no entity is locked
+						(*i)->translate(c->mtv * (*j)->mass / ((*i)->mass + (*j)->mass));//Translates first
+						(*j)->translate(-c->mtv * (*i)->mass / ((*i)->mass + (*j)->mass));//Translates second
+					}
+					
+					else {
+						if (!(*i)->lockTranslation) (*i)->translate(c->mtv);//Translates first if not locked
+						if (!(*j)->lockTranslation) (*j)->translate(-c->mtv);//Translates second if not locked
+					}
+					
+					free(c);//Frees collision
+				}
 			}
 		}
 		

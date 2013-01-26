@@ -7,8 +7,6 @@
 
 #include "Bulk_expr_double.h"//Includes double expressions (for achievements)
 
-#include "dialogs.h"//Includes dialogs
-
 #include "SDL/SDL_mixer.h"//Includes SDL sound effects library
 
 #include <curl/curl.h>
@@ -341,6 +339,21 @@ class achievement: public objectBased {
 		info = "";
 		
 		checkOnce = true;
+	}
+	
+	//Constructor
+	achievement (string id, string name, string info, string verify, image icon, bool checkOnce){
+		this->id = id;
+		type = OBJTYPE_ACHIEVEMENT;
+		
+		this->name = name;
+		this->info = info;
+		
+		this->verifyExpr.fromString(verify, &doubleOps);
+		
+		this->icon = icon;
+		
+		this->checkOnce = checkOnce;
 	}
 	
 	//Function to load from script object
@@ -699,6 +712,8 @@ level* loadLevel(string path){
 	
 	return result;//Returns level
 }
+
+#include "dialogs.h"//Includes dialogs
 
 //Game class
 class game {

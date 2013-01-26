@@ -70,6 +70,9 @@ template <class operandType> class operand {
 	
 	//Function to get the value
 	operandType getValue(operandType* (*)(string) = NULL);
+	
+	//Function to convert the operand to string
+	string opToString();
 };
 
 //Function to load an operand value from a string
@@ -196,6 +199,19 @@ template <class operandType> class expr {
 		
 		return true;//Returns true
 	}
+	
+	//Function to convert the expression to string
+	string exprToString(){
+		int i;//Iterator
+		string result = "";//Result
+		
+		for (i = 0; i < operands.size() - 1; i++)//For each operand
+			result += operands[i].opToString() + " " + operators[i].sign + " ";//Adds to string
+			
+		result += operands.back().opToString();//Adds last operand
+		
+		return result;//Returns result
+	}
 };
 
 //Function to get the value of an operand
@@ -213,6 +229,13 @@ template <class operandType> operandType op<operandType>::operator () (operandTy
 		return operate(a, b);//Returns calculated value
 	
 	else return *new operandType;//Else returns the default operand
+}
+
+//Function to convert the operand to string
+template <class operandType> string operand<operandType>::opToString(){
+	if (opType == operand_value) return toString(value);
+	else if (opType == operand_runtimeRef) return "$" + runtimeRef;
+	else if (opType == operand_expr) return "( " + expression->exprToString() + " )";
 }
 
 #endif
