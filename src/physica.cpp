@@ -4,8 +4,6 @@
 int main(int argc, char* argv[]){
 	gameInit(argc, argv);//Initializes the game
 	
-	achDialog.show(video, NULL);
-	
 	while (running){//While game is running
 		FRAME_BEGIN;//Frame beginning
 		
