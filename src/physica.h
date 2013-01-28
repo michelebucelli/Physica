@@ -834,6 +834,8 @@ class game {
 		
 	void (*success)();//Success function
 	
+	list <collision> c;//Frame collision list
+	
 	//Constructor
 	game(){
 		player = NULL;
@@ -874,6 +876,11 @@ class game {
 				if (player->sensors[i]->y > player->sensors[lowestSensor]->y) lowestSensor = i;//Sets lowest sensor
 			
 			bool ground = player->checkSensor(lowestSensor);//True if touching the ground
+			
+			list<collision>::iterator c;//Collision iterator
+			for (c = this->c.begin(); c != this->c.end(); c++){//For each collision
+				if ((c->a == player || c->b == player) && c->p.y > player->position.y && abs(c->p.x - player->position.x) < ((box*) player)->w / 3) ground = true;//Sets ground flag if touching lower entity
+			}
 			
 			if (!up || ground) releasedJump = true;//Resets released jump flag if jump is not pressed
 			if (ground) playerJumps = 0;//Resets jump count
@@ -968,7 +975,7 @@ class game {
 	}
 	
 	//Function to check relevant collisions
-	void checkRelevant(list<collision> c){
+	void checkRelevant(){
 		list<collision>::iterator i;//Iterator
 		
 		for (i = c.begin(); i != c.end(); i++){//For each collision
@@ -986,7 +993,8 @@ class game {
 	void step(double t){
 		if (currentLevel){//If level exists
 			currentLevel->applyGravity(gameRules.gravity);//Applies gravity
-			checkRelevant(currentLevel->step(t));//Steps level
+			c = currentLevel->step(t);//Steps
+			checkRelevant();//Steps level
 		}
 	}
 	
