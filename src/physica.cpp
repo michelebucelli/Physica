@@ -4,6 +4,8 @@
 int main(int argc, char* argv[]){
 	gameInit(argc, argv);//Initializes the game
 	
+	cout << "Ready in " << SDL_GetTicks() << "msec" << endl;
+	
 	while (running){//While game is running
 		FRAME_BEGIN;//Frame beginning
 		

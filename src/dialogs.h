@@ -53,6 +53,7 @@ class msgbox: public dialog {
 	int show(SDL_Surface* target, string prompt, int ansc, string ansv[], bool kp = false){
 		text->content.t = prompt;//Sets text
 		
+		DARK;
 		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
 		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
 		
@@ -145,12 +146,16 @@ class inputbox: public dialog {
 	string show(SDL_Surface* target, string prompt){
 		text->content.t = prompt;//Sets text
 		
+		DARK;
 		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
 		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
 		
 		SDL_Event e;//Event
 		
 		centre(target->w, target->h);//Centres
+		
+		field->content.t = "";//Deletes text, if any
+		field->edit = true;//Focuses field
 		
 		while (!quitFlag || *quitFlag){//While running
 			if (frameBegin) frameBegin();//Frame beginnig
@@ -208,6 +213,7 @@ class imgpreview: public dialog {
 		
 		centre(target->w, target->h);//Centers
 		
+		DARK;
 		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
 		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
 		
@@ -288,6 +294,7 @@ class imginput: public dialog {
 		
 		centre(target->w, target->h);//Centers
 		
+		DARK;
 		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
 		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
 		
@@ -394,8 +401,17 @@ class achdialog: public dialog {
 			verifyField->content.t = a->verifyExpr.exprToString();//Sets expression
 		}
 		
+		else {
+			icon->content.i = *new image;
+			idField->content.t = "";
+			nameField->content.t = "";
+			infoField->content.t = "";
+			verifyField->content.t = "";
+		}
+		
 		centre(target->w, target->h);//Centers on screen
 		
+		DARK;
 		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
 		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
 		
@@ -409,14 +425,20 @@ class achdialog: public dialog {
 				
 				dialogWindow.checkEvents(e);//Checks dialog events
 				
-				if (ok->status == control::pressed)//If pressed ok
-					return new achievement(
+				if (ok->status == control::pressed){//If pressed ok
+					if (idField->content.t == ""){//If id is invalid
+						msgBox.show(target, "Missing ID field", 1, msgBox_ans_ok);//Message box
+						continue;//Next loop
+					}
+					
+					else return new achievement(
 									idField->content.t,
 									nameField->content.t,
 									infoField->content.t,
 									verifyField->content.t,
 									icon->content.i,
 									checkOnce->checked);//Result
+				}
 										
 				if (iconEdit->status == control::pressed || icon->status == control::pressed){//If pressed icon
 					image* i = imgInput.show(target, &icon->content.i);//Edits image
@@ -436,3 +458,29 @@ class achdialog: public dialog {
 		}
 	}
 } achDialog;
+
+//Rules dialog
+class rulesdialog: public dialog {
+	public:
+	inputBox *jumpImpulse, *groundSpeed, *groundForce, *groundDamping, *airSpeed, *airForce, *gravity, *jumpCount;//Fields
+	control *ok, *cancel;//Ok and cancel buttons
+	
+	//Constructor
+	rulesdialog(){
+		dialogFrame = NULL;
+		
+		frameBegin = NULL;
+		frameEnd = NULL;
+		events = NULL;
+		quitFlag = NULL;
+		
+		jumpImpulse = NULL;
+		groundSpeed = NULL;
+		groundForce = NULL;
+		groundDamping = NULL;
+		airSpeed = NULL;
+		airForce = NULL;
+		gravity = NULL;
+		jumpCount = NULL;
+	}
+};

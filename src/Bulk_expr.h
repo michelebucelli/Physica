@@ -205,6 +205,8 @@ template <class operandType> class expr {
 		int i;//Iterator
 		string result = "";//Result
 		
+		if (operands.size() == 0) return "";
+		
 		for (i = 0; i < operands.size() - 1; i++)//For each operand
 			result += operands[i].opToString() + " " + operators[i].sign + " ";//Adds to string
 			

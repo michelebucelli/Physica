@@ -220,6 +220,12 @@ void checkLinks(){
 	}
 }
 
+//Function to load a level into the editor
+void openLevel(level *l){
+	edited = *l;//Loads template
+	updateProperties();//Updates properties panel
+}
+
 //Function to load the editor
 void loadEditor(){
 	fileData f (entitiesFile);//Entities file
@@ -298,8 +304,7 @@ void loadEditor(){
 	selLockRot = (checkBox*) selProp.getControl("frame.lockRotCheck");
 	selPrint = (checkBox*) selProp.getControl("frame.printCheck");
 	
-	edited = *loadLevel(templateFile);//Loads template
-	updateProperties();//Updates properties panel
+	openLevel(loadLevel(templateFile));//Loads template
 }
 
 //Editor loop function
@@ -412,6 +417,7 @@ void editorLoop(){
 					
 					else if (springMode){//Else if in spring mode
 						springMode = false;
+						edSpring->checked = false;
 					}
 				}
 			}

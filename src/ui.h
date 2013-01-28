@@ -291,11 +291,8 @@ void playClick(clickEventData data){
 
 //Function to handle editor click
 void editorClick(clickEventData data){
-	editing = true;//Sets editing flag
-	editorLoop();//Starts editor loop
-	
-	springMode = false;
-	edSpring->checked = false;
+	lpEditing = true;//Sets editing flag
+	lpEditorLoop();//Starts editor loop
 }
 
 //Function to handle achievements click
@@ -483,10 +480,10 @@ void resize(int newW, int newH, bool fs, bool redraw){
 		
 		if (curUiMode == ui_levels) redrawLevelSelect();//Redraws level selection window
 		if (curUiMode == ui_achievements) redrawAchievements();//Redraws achievements
+		
+		msgBox.centre(video_w, video_h);//Centers message box
+		inputBoxDialog.centre(video_w, video_h);//Centers input box
 	}
-	
-	msgBox.centre(video_w, video_h);//Centers message box
-	inputBoxDialog.centre(video_w, video_h);//Centers input box
 }
 
 //Function to apply settings

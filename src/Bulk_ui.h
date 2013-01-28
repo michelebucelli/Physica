@@ -480,6 +480,12 @@ struct clickEventData {
 	int button;//Pressed button
 };
 
+//Edit event structure
+struct editEventData {
+	string text;//New text
+	control* caller;//Caller
+};
+
 //Function to give focus to control (prototype)
 void getFocus(clickEventData);
 
@@ -699,7 +705,8 @@ class control: public objectBased {
 class inputBox: public control {
 	public:
 	bool edit;//Flag indicating if reading input from keyboard
-		
+	event<editEventData> editEvent;//Edit events
+	
 	//Constructor
 	inputBox(){
 		id = "";
@@ -739,8 +746,19 @@ class inputBox: public control {
 			if (e.type == SDL_KEYDOWN){//If a key was released
 				char c = e.key.keysym.unicode;//Gets character
 				
-				if (isprint(c)) content.t.push_back(c);//If character is printable adds it to text
-				else if (c == '\b' && content.t.size() > 0) content.t.erase(content.t.size() - 1);//Erases last character if pressed backspace
+				if (isprint(c)){//If char is printable
+					content.t.push_back(c);//If character is printable adds it to text
+					
+					editEventData d = { content.t, this };//Event data
+					editEvent(d);//Throws event
+				}
+				
+				else if (c == '\b' && content.t.size() > 0){//If erase
+					content.t.erase(content.t.size() - 1);//Erases last character if pressed backspace
+					
+					editEventData d = { content.t, this };//Event data
+					editEvent(d);//Throws event
+				}
 			}
 		}
 	}
@@ -1269,16 +1287,12 @@ class panel: public control {
 			control *c;//New control
 			
 			switch ((*i)->controlType){//According to the type of the control being copied
-				case CTYPE_CONTROL: c = new control; break;//Declares new control as generic control
-				case CTYPE_INPUTBOX: c = new inputBox; break;//Declares new control as input box
-				case CTYPE_PANEL: c = new panel; break;//Declares new control as panel
-				case CTYPE_FILLBAR: c = new fillbar; break;//Declares new control as fillbar
-				case CTYPE_LISTBOX: c = new listBox; break;//Declares new control as listbox
+				case CTYPE_CONTROL: c = new control (**i); break;//Declares new control as generic control
+				case CTYPE_INPUTBOX: c = new inputBox (* (inputBox*) (*i)); break;//Declares new control as input box
+				case CTYPE_PANEL: c = ((panel*)(*i))->copy(); break;//Declares new control as panel
+				case CTYPE_FILLBAR: c = new fillbar (* (fillbar*) (*i)); break;//Declares new control as fillbar
+				case CTYPE_LISTBOX: c = new listBox (* (listBox*) (*i)); break;//Declares new control as listbox
 			}
-			
-			if (c->controlType != CTYPE_PANEL)//If control is not a panel
-				*c = **i;//Directly assigns value
-			else c = ((panel*)(*i))->copy();//Else copies the panel
 			
 			c->parent = result;//Sets control parent
 			
@@ -1338,7 +1352,7 @@ class scrollBar: public panel {
 		down = NULL;
 		
 		step = 0;
-		steps = 0;
+		steps = 1;
 		
 		horizontal = false;
 		

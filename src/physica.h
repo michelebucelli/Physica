@@ -179,6 +179,8 @@ class rules: public objectBased {
 	
 	int jumpCount;//Jumps counter
 	
+	int setMask;//Mask for set values
+	
 	//Constructor
 	rules(){
 		id = "";
@@ -196,6 +198,8 @@ class rules: public objectBased {
 		gravity = {0,10};
 		
 		jumpCount = 2;
+		
+		setMask = 0;//All values set
 	}
 	
 	//Function to load from script object
@@ -210,22 +214,65 @@ class rules: public objectBased {
 			var* gravity = get <var> (&o.v, "gravity");
 			var* jumpCount = get <var> (&o.v, "jumpCount");
 			
-			if (jumpImpulse) this->jumpImpulse = jumpImpulse->doubleValue();
-			if (groundSpeed) this->groundSpeed = groundSpeed->doubleValue();
-			if (groundForce) this->groundForce = groundForce->doubleValue();
-			if (groundDamping) this->groundDamping = groundDamping->doubleValue();
-			if (airSpeed) this->airSpeed = airSpeed->doubleValue();
-			if (airForce) this->airForce = airForce->doubleValue();
-			if (jumpCount) this->jumpCount = jumpCount->intValue();
+			setMask = 0;
 			
-			if (gravity) this->gravity.fromString(gravity->value);
+			if (jumpImpulse){ this->jumpImpulse = jumpImpulse->doubleValue(); setMask |= 0b10000000; }
+			if (groundSpeed){ this->groundSpeed = groundSpeed->doubleValue(); setMask |= 0b01000000; }
+			if (groundForce){ this->groundForce = groundForce->doubleValue(); setMask |= 0b00100000; }
+			if (groundDamping){ this->groundDamping = groundDamping->doubleValue(); setMask |= 0b00010000; }
+			if (airSpeed){ this->airSpeed = airSpeed->doubleValue(); setMask |= 0b00001000; }
+			if (airForce){ this->airForce = airForce->doubleValue(); setMask |= 0b00000100; }
+			if (jumpCount){ this->jumpCount = jumpCount->intValue(); setMask |= 0b00000010; }
+			
+			if (gravity){ this->gravity.fromString(gravity->value); setMask |= 0b00000001; }
 			
 			return true;//Returns true
 		}
 		
 		return false;//Returns false
 	}
+	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = objectBased::toScriptObj();
+		
+		if (setMask & 0b10000000) result.set("jumpImpulse", jumpImpulse);
+		if (setMask & 0b01000000) result.set("groundSpeed", groundSpeed);
+		if (setMask & 0b00100000) result.set("groundForce", groundForce);
+		if (setMask & 0b00010000) result.set("groundDamping", groundDamping);
+		if (setMask & 0b00001000) result.set("airSpeed", airSpeed);
+		if (setMask & 0b00000100) result.set("airForce", airForce);
+		if (setMask & 0b00000010) result.set("gravity", gravity);
+		if (setMask & 0b00000001) result.set("jumpCount", jumpCount);
+		
+		return result;
+	}
+	
+	//Function to stack rules
+	rules operator + (rules r){
+		rules result = *this;
+		
+		if (r.setMask & 0b10000000) result.jumpImpulse = r.jumpImpulse;
+		if (r.setMask & 0b01000000) result.groundSpeed = r.groundSpeed;
+		if (r.setMask & 0b00100000) result.groundForce = r.groundForce;
+		if (r.setMask & 0b00010000) result.groundDamping = r.groundDamping;
+		if (r.setMask & 0b00001000) result.airSpeed = r.airSpeed;
+		if (r.setMask & 0b00000100) result.airForce = r.airForce;
+		if (r.setMask & 0b00000010) result.gravity = r.gravity;
+		if (r.setMask & 0b00000001) result.jumpCount = r.jumpCount;
+		
+		result.setMask = result.setMask | r.setMask;
+		
+		return result;//Returns result
+	}
+	
+	//Stack operator
+	void operator += (rules r){
+		*this = *this + r;
+	}
 };
+
+rules defaultRules;//Default rules (same as constructor values)
 
 //Level class
 //	adds a few stuff to the base scene class
@@ -352,6 +399,7 @@ class achievement: public objectBased {
 		this->verifyExpr.fromString(verify, &doubleOps);
 		
 		this->icon = icon;
+		this->icon.id = "icon";
 		
 		this->checkOnce = checkOnce;
 	}
@@ -375,6 +423,20 @@ class achievement: public objectBased {
 		}
 		
 		return false;//Else returns false
+	}
+	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = objectBased::toScriptObj();
+		
+		result.set("name", name);
+		result.set("info", info);
+		result.set("verify", verifyExpr.exprToString());
+		result.set("checkOnce", checkOnce);
+		
+		result.o.push_back(icon.toScriptObj());
+		
+		return result;
 	}
 	
 	//Function to verify if achievement was unlocked
@@ -456,6 +518,8 @@ class levelSet: public deque<string>, public objectBased {
 	
 	deque<achievement> lsAchs;//Level set achievements
 	
+	rules lsRules;//Level set custom rules (overrides normal rules)
+	
 	//Constructor
 	levelSet(){
 		id = "";
@@ -463,6 +527,8 @@ class levelSet: public deque<string>, public objectBased {
 		
 		path = "";
 		name = "";
+		
+		lsRules.setMask = 0;
 	}
 	
 	//Function to load from script object
@@ -471,10 +537,12 @@ class levelSet: public deque<string>, public objectBased {
 			var* id = get <var> (&o.v, "id");//Id variable
 			var* name = get <var> (&o.v, "name");//Name variable
 			object* icon = get <object> (&o.o, "icon");//Icon object
+			object* rules = get <object> (&o.o, "rules");//Rules object
 			
 			if (id) this->id = id->value;//Gets id
 			if (name) this->name = name->value;//Gets name
 			if (icon) this->icon.fromScriptObj(*icon);//Loads icon
+			if (rules) lsRules.fromScriptObj(*rules);//Loads rules
 		
 			int i = 1;//Counter
 			while (true){//Endless loop
@@ -495,6 +563,21 @@ class levelSet: public deque<string>, public objectBased {
 				}
 			}
 		}
+	}
+	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = objectBased::toScriptObj();
+		
+		result.set("id", id);
+		result.set("name", name);
+		result.o.push_back(icon.toScriptObj());
+		
+		int n;
+		for (n = 0; n < size(); n++) result.set("level" + toString(n + 1), (*this)[n]);
+		for (n = 0; n < lsAchs.size(); n++) result.o.push_back(lsAchs[n].toScriptObj());
+		
+		return result;
 	}
 };
 
@@ -764,10 +847,14 @@ class game {
 		success = NULL;
 		
 		completed = false;
+		
+		gameRules.setMask = 0b11111111;
 	}
 	
 	//Function for controls handling
 	void handleControls(Uint8* keys){
+		rules resultRules = gameRules + levels.lsRules;//Applies level set custom rules
+		
 		if (keys && player){//If keys array is valid and there's a player
 			int lowestSensor = 0;//Lowest player sensor
 			int i;//Counter
@@ -785,31 +872,31 @@ class game {
 			if (ground) playerJumps = 0;//Resets jump count
 			if (!ground && playerJumps == 0) playerJumps = 1;//If on air, at least one jump
 			
-			if (keys[playerControls.up] && releasedJump && playerJumps < gameRules.jumpCount){//If pressed up and can jump
+			if (keys[playerControls.up] && releasedJump && playerJumps < resultRules.jumpCount){//If pressed up and can jump
 				player->speed.y = 0;//Stops on y
-				player->applyImpulse(player->position, {0, -gameRules.jumpImpulse});//Applies impulse
+				player->applyImpulse(player->position, {0, -resultRules.jumpImpulse});//Applies impulse
 				
 				playerJumps++;//Increases jump count
 				releasedJump = false;//Not released jump
 			}
 			
 			if (right){//If pressing right
-				if (ground && player->speed.x < gameRules.groundSpeed)//If on ground and moving slower
-					player->applyForce(player->position, {gameRules.groundForce, 0});//Applies force
+				if (ground && player->speed.x < resultRules.groundSpeed)//If on ground and moving slower
+					player->applyForce(player->position, {resultRules.groundForce, 0});//Applies force
 					
-				else if (!ground && player->speed.x < gameRules.airSpeed)//If on air and moving slower
-					player->applyForce(player->position, {gameRules.airForce, 0});//Applies force
+				else if (!ground && player->speed.x < resultRules.airSpeed)//If on air and moving slower
+					player->applyForce(player->position, {resultRules.airForce, 0});//Applies force
 			}
 			
 			else if (left){//If pressing left
-				if (ground && player->speed.x > -gameRules.groundSpeed)//If on ground and moving slower
-					player->applyForce(player->position, {-gameRules.groundForce, 0});//Applies force
+				if (ground && player->speed.x > -resultRules.groundSpeed)//If on ground and moving slower
+					player->applyForce(player->position, {-resultRules.groundForce, 0});//Applies force
 					
-				else if (!ground && player->speed.x > -gameRules.airSpeed)//If on air and moving slower
-					player->applyForce(player->position, {-gameRules.airForce, 0});//Applies force
+				else if (!ground && player->speed.x > -resultRules.airSpeed)//If on air and moving slower
+					player->applyForce(player->position, {-resultRules.airForce, 0});//Applies force
 			}
 			
-			else if (ground) player->applyForce(player->position, {-player->speed.x * gameRules.groundDamping, 0});//Applies damping on ground
+			else if (ground) player->applyForce(player->position, {-player->speed.x * resultRules.groundDamping, 0});//Applies damping on ground
 		}
 	}
 	
@@ -1017,6 +1104,7 @@ double *getVar(string id){
 }
 
 #include "editor.h"//Includes editor
+#include "lpEditor.h"//Includes level set editor
 #include "ui.h"//Includes user interface header
 
 //Sound file loading function
@@ -1076,6 +1164,8 @@ void loadSets(){
 		for (i = t.begin(); i != t.end(); i++)//For each set
 			levelSets.push_back(levelSetFromFile(*i));//Loads all level sets
 	}
+	
+	cout << "Loaded " << levelSets.size() << " level packs" << endl;
 }
 
 //Function to load progress
@@ -1101,6 +1191,8 @@ void loadAchievements(){
 			achs.push_back(a);//Adds to database
 		}
 	}
+	
+	cout << "Loaded " << achs.size() << " global achievements" << endl;
 }
 
 //Function to load rules
@@ -1109,7 +1201,9 @@ void loadRules(){
 	object o = f.objGen("rules");//Generated object
 	
 	o.type = OBJTYPE_RULES;//Sets rules
-	current.gameRules.fromScriptObj(o);//Loads rules
+	rules r;//New rules
+	r.fromScriptObj(o);//Loads rules
+	current.gameRules += r;//Stacks rules
 }
 
 //Function to save settings
@@ -1153,7 +1247,7 @@ CURLcode downloadFile(string source, string dest){
 	
 	curlHandle = curl_easy_init();//Initializes handle
 	
-	curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, FALSE);//Disables certificate checking
+	curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, false);//Disables certificate checking
 	curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, libCurlWrite);//Sets write function
 	curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, fp);//Sets write buffer
 	curl_easy_setopt(curlHandle, CURLOPT_URL, source.c_str());//Sets URL
@@ -1211,6 +1305,7 @@ void gameInit(int argc, char* argv[]){
 	loadUI();//Loads ui
 	
 	loadEditor();//Loads editor
+	loadLpEditor();//Loads level pack editor
 
 	keys = SDL_GetKeyState(NULL);//Gets keys
 }
