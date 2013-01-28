@@ -11,14 +11,15 @@
 				<li>libsdl-image1.2-dev</li>
 				<li>libsdl-ttf2.0-dev</li>
 				<li>libsdl-mixer1.2-dev</li>
-				<li>libsdl-gfx1.2-def</li>
+				<li>libsdl-gfx1.2-dev</li>
+				<li>libcurl-dev</li>
 			</ul>
 	</li>
 	<li>download and extract the repository content (button above)</li>
 
 	<li>
 	    from inside the downloaded folder, run the command<br>
-	    <code>g++ -enable-auto-import -w -obin/physica src/physica.cpp -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lSDL_gfx</code>
+	    <code>g++ -enable-auto-import -w -obin/physica src/physica.cpp -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lSDL_gfx -lcurl -fpermissive</code>
 	</li>
 
 	<li>
