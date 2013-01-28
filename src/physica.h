@@ -242,7 +242,7 @@ class rules: public objectBased {
 		if (setMask & 0b00010000) result.set("groundDamping", groundDamping);
 		if (setMask & 0b00001000) result.set("airSpeed", airSpeed);
 		if (setMask & 0b00000100) result.set("airForce", airForce);
-		if (setMask & 0b00000010) result.set("gravity", gravity);
+		if (setMask & 0b00000010) result.set("gravity", toString(gravity.x) + " " + toString(gravity.y));
 		if (setMask & 0b00000001) result.set("jumpCount", jumpCount);
 		
 		return result;
@@ -434,6 +434,7 @@ class achievement: public objectBased {
 		result.set("verify", verifyExpr.exprToString());
 		result.set("checkOnce", checkOnce);
 		
+		icon.id = "icon";
 		result.o.push_back(icon.toScriptObj());
 		
 		return result;
@@ -571,7 +572,12 @@ class levelSet: public deque<string>, public objectBased {
 		
 		result.set("id", id);
 		result.set("name", name);
+		
+		icon.id = "icon";
 		result.o.push_back(icon.toScriptObj());
+		
+		lsRules.id = "rules";
+		result.o.push_back(lsRules.toScriptObj());
 		
 		int n;
 		for (n = 0; n < size(); n++) result.set("level" + toString(n + 1), (*this)[n]);
@@ -581,6 +587,7 @@ class levelSet: public deque<string>, public objectBased {
 	}
 };
 
+string levelSetsFiles = "";//Level sets files string
 deque<levelSet*> levelSets;//Level sets
 
 //Function to load a level set from a file
@@ -1103,6 +1110,12 @@ double *getVar(string id){
 	else { cout << "Failed: " << id << endl; return new double(0); }//Returns 0 if failed
 }
 
+//Load sets prototype
+void loadSets();
+
+//Install set prototype
+void installSet(string);
+
 #include "editor.h"//Includes editor
 #include "lpEditor.h"//Includes level set editor
 #include "ui.h"//Includes user interface header
@@ -1158,6 +1171,8 @@ void loadSets(){
 	var* ls = get <var> (&o.v, "levelPacks");//Gets level sets list
 	
 	if (ls){//If variable was found
+		levelSetsFiles = ls->value;//Gets files
+		
 		deque<string> t = tokenize <deque<string> > (ls->value, ",");//Splits into tokens
 		deque<string>::iterator i;//Iterator
 		
@@ -1166,6 +1181,21 @@ void loadSets(){
 	}
 	
 	cout << "Loaded " << levelSets.size() << " level packs" << endl;
+}
+
+//Function to save level sets
+void saveSets(){
+	ofstream o (levelsFile.c_str());//Output
+	o << "levelPacks = " << levelSetsFiles << ";";
+	o.close();
+}
+
+//Function to install a set
+void installSet(string setFile){
+	if (levelSetsFiles != "") levelSetsFiles += ",";//Adds the comma
+	levelSetsFiles += setFile;//Adds path
+	
+	saveSets();//Saves sets
 }
 
 //Function to load progress
@@ -1273,7 +1303,9 @@ void processUpdateScript(script u){
 		
 		else if (t[0] == "kill" && t.size() >= 2)//Kill command
 			remove(t[1].c_str());//Kills file
-			
+		
+		else if (t[0] == "install" && t.size() >= 2)//Install command
+			installSet(t[1]);//Installs set
 	}
 }
 

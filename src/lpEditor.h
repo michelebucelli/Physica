@@ -8,6 +8,7 @@ window lpEditor;//Level pack editor window
 panel* lpProperties;//Properties panel
 inputBox *lpIdField, *lpNameField;//Fields
 control *lpIcon, *lpIconEdit;//Icon and edit icon controls
+control *lpRulesEdit;//Rules editor
 
 panel *lpLevPanel;//Levels panel
 panel lpLevItem;//Level item panel
@@ -145,6 +146,8 @@ void lpLevEditClick(clickEventData data){
 	level *l = loadLevel(fileField->content.t);//Loads level
 	
 	if (!ifstream(fileField->content.t.c_str())){//If file doesn't exist
+		if (msgBox.show(video, "Level doesn't exist. Create it?", 2, msgBox_ans_yn) == 1) return;//Exits if msgbox ans is no
+		
 		ofstream o (fileField->content.t.c_str());//Creates new file
 		o << flush;//Flushes
 		o.close();//Closes file
@@ -208,9 +211,20 @@ void lpOpenClick(clickEventData data){
 
 //Function to handle the save click
 void lpSaveClick(clickEventData data){
+	if (lpIdField->content.t == ""){//If empty id field
+		msgBox.show(video, "Id field required", 1, msgBox_ans_ok);//Message function
+		return;//Returns
+	}
+	
 	string lpFile = inputBoxDialog.show(video, "Enter level pack file (data/cfg/levels/):");//Gets file
 	
+	//Sets metadata
+	lpEdited.id = lpIdField->content.t;
+	lpEdited.name = lpNameField->content.t;
+	
 	if (lpFile != ""){//If path is valid
+		if (levelSetsFiles.find(lpFile) == levelSetsFiles.npos) installSet("data/cfg/levels/" + lpFile);//Installs set if not installed
+		
 		ofstream o (("data/cfg/levels/" + lpFile).c_str());//Opens file
 		o << lpEdited.toScriptObj().toString();//Outputs data
 		o.close();//Closes
@@ -236,6 +250,15 @@ void lpIconEditClick(clickEventData data){
 	}
 }
 
+//Function to handle rules edit button click
+void lpRulesEditClick(clickEventData data){
+	rules *r = rulesDialog.show(video, &lpEdited.lsRules);//Edits rules
+	
+	if (r){//If rules were valid
+		lpEdited.lsRules = *r;//Sets rules
+	}
+}
+
 //Function to load level pack editor
 void loadLpEditor(){
 	lpEditor = loadWindow(lpEditorFile, "lpEditor");//Loads window
@@ -246,6 +269,7 @@ void loadLpEditor(){
 	lpNameField = (inputBox*) lpEditor.getControl("properties.nameField");
 	lpIcon = lpEditor.getControl("properties.icon");
 	lpIconEdit = lpEditor.getControl("properties.iconEdit");
+	lpRulesEdit = lpEditor.getControl("properties.rulesEdit");
 	
 	lpLevPanel = (panel*) lpEditor.getControl("levels");
 	
@@ -278,6 +302,7 @@ void loadLpEditor(){
 	lpLevAdd->release.handlers.push_back(lpAddLevClick);
 	lpAchAdd->release.handlers.push_back(lpAddAchClick);
 	lpIconEdit->release.handlers.push_back(lpIconEditClick);
+	lpRulesEdit->release.handlers.push_back(lpRulesEditClick);
 	
 	lpIcon->content.contentType = CONTENT_IMAGE;//Sets content type for icon
 	
@@ -330,4 +355,7 @@ void lpEditorLoop(){
 		
 		FRAME_END;
 	}
+	
+	levelSets.clear();//Clears loaded sets
+	loadSets();//Reloads s
 }

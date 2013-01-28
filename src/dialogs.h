@@ -482,5 +482,112 @@ class rulesdialog: public dialog {
 		airForce = NULL;
 		gravity = NULL;
 		jumpCount = NULL;
+		
+		ok = NULL;
+		cancel = NULL;
 	}
-};
+	
+	//Load function
+	void loadDialog(string path){
+		dialog::loadDialog(path);//Loads base data
+		
+		jumpImpulse = (inputBox*) dialogWindow.getControl("frame.jumpImpulse");
+		groundSpeed = (inputBox*) dialogWindow.getControl("frame.groundSpeed");
+		groundForce = (inputBox*) dialogWindow.getControl("frame.groundForce");
+		groundDamping =  (inputBox*) dialogWindow.getControl("frame.groundDamping");
+		airSpeed = (inputBox*) dialogWindow.getControl("frame.airSpeed");
+		airForce = (inputBox*) dialogWindow.getControl("frame.airForce");
+		gravity = (inputBox*) dialogWindow.getControl("frame.gravity");
+		jumpCount = (inputBox*) dialogWindow.getControl("frame.jumpCount");
+		
+		ok = dialogWindow.getControl("frame.ok");
+		cancel = dialogWindow.getControl("frame.cancel");
+	}
+	
+	//Show function
+	rules* show(SDL_Surface* target, rules* r = NULL){
+		if (r){//If rules were specified
+			//Sets fields according to rules mask
+			if (r->setMask & 0b10000000) jumpImpulse->content.t = toString(r->jumpImpulse);
+			else jumpImpulse->content.t = "";
+			
+			if (r->setMask & 0b01000000) groundSpeed->content.t = toString(r->groundSpeed);
+			else groundSpeed->content.t = "";
+			
+			if (r->setMask & 0b00100000) groundForce->content.t = toString(r->groundForce);
+			else groundForce->content.t = "";
+			
+			if (r->setMask & 0b00010000) groundDamping->content.t = toString(r->groundDamping);
+			else groundDamping->content.t = "";
+			
+			if (r->setMask & 0b00001000) airSpeed->content.t = toString(r->airSpeed);
+			else airSpeed->content.t = "";
+			
+			if (r->setMask & 0b00000100) airForce->content.t = toString(r->airForce);
+			else airForce->content.t = "";
+			
+			if (r->setMask & 0b00000010) gravity->content.t = toString(r->gravity.x) + " " + toString(r->gravity.y);
+			else gravity->content.t = "";
+			
+			if (r->setMask & 0b00000001) jumpCount->content.t = toString(r->jumpCount);
+			else jumpCount->content.t = "";
+		}
+		
+		else {//Else
+			//Leaves blank
+			jumpImpulse->content.t = "";
+			groundSpeed->content.t = "";
+			groundForce->content.t = "";
+			groundDamping->content.t = "";
+			airSpeed->content.t = "";
+			airForce->content.t = "";
+			gravity->content.t = "";
+			jumpCount->content.t = "";
+		}
+		
+		centre(target->w, target->h);//Centers on screen
+		
+		DARK;
+		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
+		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
+		
+		SDL_Event e;//Event
+		
+		while (!quitFlag || *quitFlag){//While running
+			if (frameBegin) frameBegin();//Frame beginnig
+			
+			while (SDL_PollEvent(&e)){//While there are events on stack
+				if (events) events(e);//Checks events
+				
+				dialogWindow.checkEvents(e);//Checks dialog events
+				
+				if (ok->status == control::pressed){//If pressed ok
+					rules *result = new rules;//Result rules
+					
+					result->setMask = 0;//Resets mask
+					
+					//Sets members
+					if (jumpImpulse->content.t != ""){ result->setMask |= 0b10000000; result->jumpImpulse = atof(jumpImpulse->content.t.c_str()); }
+					if (groundSpeed->content.t != ""){ result->setMask |= 0b01000000; result->groundSpeed = atof(groundSpeed->content.t.c_str()); }
+					if (groundForce->content.t != ""){ result->setMask |= 0b00100000; result->groundForce = atof(groundForce->content.t.c_str()); }
+					if (groundDamping->content.t != ""){ result->setMask |= 0b00010000; result->groundDamping = atof(groundDamping->content.t.c_str()); }
+					if (airSpeed->content.t != ""){ result->setMask |= 0b00001000; result->airSpeed = atof(airSpeed->content.t.c_str()); }
+					if (airForce->content.t != ""){ result->setMask |= 0b00000100; result->airForce = atof(airForce->content.t.c_str()); }
+					if (gravity->content.t != ""){ result->setMask |= 0b00000010; result->gravity.fromString(jumpImpulse->content.t.c_str()); }
+					if (jumpCount->content.t != ""){ result->setMask |= 0b00000001; result->jumpCount = atoi(jumpCount->content.t.c_str()); }
+					
+					return result;//Returns result
+				}
+										
+				if (cancel->status == control::pressed)//If pressed cancel
+					return NULL;//Returns null
+			}
+			
+			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
+			dialogWindow.print(target);//Prints dialog
+			SDL_Flip(target);//Updates target
+			
+			if (frameEnd) frameEnd();//Frame ending
+		}
+	}
+} rulesDialog;
