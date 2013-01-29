@@ -246,7 +246,7 @@ void lpIconEditClick(clickEventData data){
 	
 	if (i){//If image was valid
 		lpEdited.icon = *i;//Sets icon
-		lpUpdateProp();//Updates properties
+		lpIcon->content.i = lpEdited.icon;//Sets icon
 	}
 }
 

@@ -63,6 +63,9 @@ string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
 
+string updatesFile = "https://raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
+int updatesCount = 0;//Installed updates count
+
 //Sound
 bool enableSfx = true;//Enables sound
 
@@ -882,7 +885,7 @@ class game {
 				if ((c->a == player || c->b == player) && c->p.y > player->position.y && abs(c->p.x - player->position.x) < ((box*) player)->w / 3) ground = true;//Sets ground flag if touching lower entity
 			}
 			
-			if (!up || ground) releasedJump = true;//Resets released jump flag if jump is not pressed
+			if (!up) releasedJump = true;//Resets released jump flag if jump is not pressed
 			if (ground) playerJumps = 0;//Resets jump count
 			if (!ground && playerJumps == 0) playerJumps = 1;//If on air, at least one jump
 			
@@ -946,8 +949,10 @@ class game {
 			deque<string>::iterator i;//String iterator
 			string ans[] = { "Continue"};//Answer
 			
-			for (i = currentLevel->message.begin(); i != currentLevel->message.end(); i++)//For each message
+			for (i = currentLevel->message.begin(); i != currentLevel->message.end(); i++){//For each message
+				BKG;
 				msgBox.show(video, *i, 1, ans, true);//Shows message
+			}
 		
 			time = 0;//Resets timer
 			deaths = 0;//Resets death counter
@@ -1158,6 +1163,9 @@ void loadSettings(){
 	
 	object* c = get <object> (&g.o, "controls");
 	
+	var* v_updatesFile = get <var> (&g.v, "updatesFile");
+	var* v_updatesCount = get <var> (&g.v, "updatesCount");
+	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
 	if (v_camFollow) camFollow = v_camFollow->intValue();
 	if (v_videoW) videoWin_w = v_videoW->intValue();
@@ -1167,6 +1175,9 @@ void loadSettings(){
 	
 	if (c) playerControls.fromScriptObj(*c);
 	playerControls.id = "controls";
+	
+	if (v_updatesFile) updatesFile = v_updatesFile->value;
+	if (v_updatesCount) updatesCount = v_updatesCount->intValue();
 	
 	resize(videoWin_w, videoWin_h, fullscreen, false);//Resizes window
 }
@@ -1187,8 +1198,6 @@ void loadSets(){
 		for (i = t.begin(); i != t.end(); i++)//For each set
 			levelSets.push_back(levelSetFromFile(*i));//Loads all level sets
 	}
-	
-	cout << "Loaded " << levelSets.size() << " level packs" << endl;
 }
 
 //Function to save level sets
@@ -1229,8 +1238,6 @@ void loadAchievements(){
 			achs.push_back(a);//Adds to database
 		}
 	}
-	
-	cout << "Loaded " << achs.size() << " global achievements" << endl;
 }
 
 //Function to load rules
@@ -1256,6 +1263,8 @@ void saveSettings(){
 	ob.set("camFollow", camFollow);
 	ob.set("enableSfx", enableSfx);
 	ob.set("debugMode", debugMode);
+	ob.set("updatesFile", updatesFile);
+	ob.set("updatesCount", updatesCount);
 	
 	ob.o.push_back(playerControls.toScriptObj());
 	
@@ -1285,6 +1294,7 @@ CURLcode downloadFile(string source, string dest){
 	
 	curlHandle = curl_easy_init();//Initializes handle
 	
+	curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT, 2);//Sets timeout
 	curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, false);//Disables certificate checking
 	curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, libCurlWrite);//Sets write function
 	curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, fp);//Sets write buffer
@@ -1314,7 +1324,54 @@ void processUpdateScript(script u){
 		
 		else if (t[0] == "install" && t.size() >= 2)//Install command
 			installSet(t[1]);//Installs set
+			
+		else if (t[0] == "message" && t.size() >= 2)//Message command
+			{BKG; msgBox.show(video, t[1], 1, msgBox_ans_ok); }//Shows message box
 	}
+}
+
+//Function to provess an update script from file path
+void processUpdateScript(string path){
+	script s;//New script
+	s.fromFile(path);//Opens
+	processUpdateScript(s);//Processes script
+}
+
+//Function to check for updates
+void checkUpdates(){
+	if (downloadFile (updatesFile, "tmp_updates") == 0) {//If downloaded successfully
+		fileData up ("tmp_updates.cfg");//Opens updates file
+		object u = up.objGen("updates");//Generated object
+		
+		deque<string> toDownload;//Updates to download
+		
+		int n;//Counter
+		for (n = updatesCount + 1; ; n++){//Starting from next update
+			var* v = get <var> (&u.v, "update" + toString(n));//Update file variable
+			
+			if (!v) break;//Exits if didn't find variable
+			else toDownload.push_back(v->value);//Else adds to download
+		}
+		
+		int s = toDownload.size();//Download size
+		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn) == 0){//If user decides to download
+			deque<string>::iterator i;//Iterator
+			
+			for (i = toDownload.begin(); i != toDownload.end(); i++){//For each file
+				if (downloadFile(*i, "tmp_update_file") == 0)//If downloaded successfully
+					processUpdateScript("tmp_update_file");//Processes script
+			}
+			
+			remove("tmp_update_file");//Removes temporary file
+			
+			levelSets.clear();//Clears sets
+			loadSets();//Reloads sets
+		}
+	}
+	
+	else { BKG; msgBox.show(video, "Couldn't get updates list.", 1, msgBox_ans_ok); }//Error message if failed
+	
+	remove("tmp_updates");//Removes updates file
 }
 
 //Game initialization function
@@ -1335,6 +1392,7 @@ void gameInit(int argc, char* argv[]){
 	
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics
+	loadUI();//Loads ui
 	
 	loadSets();//Loads level sets
 	loadRules();//Loads rules
@@ -1342,10 +1400,11 @@ void gameInit(int argc, char* argv[]){
 	
 	loadAchievements();//Loads achievements
 	loadSound();//Loads sound
-	loadUI();//Loads ui
 	
 	loadEditor();//Loads editor
 	loadLpEditor();//Loads level pack editor
+	
+	checkUpdates();//Checks for updates
 
 	keys = SDL_GetKeyState(NULL);//Gets keys
 }
