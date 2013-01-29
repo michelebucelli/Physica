@@ -1361,8 +1361,10 @@ void checkUpdates(){
 			deque<string>::iterator i;//Iterator
 			
 			for (i = toDownload.begin(); i != toDownload.end(); i++){//For each file
-				if (downloadFile(*i, "tmp_update_file") == 0)//If downloaded successfully
+				if (downloadFile(*i, "tmp_update_file") == 0){//If downloaded successfully
 					processUpdateScript("tmp_update_file");//Processes script
+					updatesCount++;//Increases updates count
+				}
 			}
 			
 			remove("tmp_update_file");//Removes temporary file
