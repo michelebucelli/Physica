@@ -63,7 +63,7 @@ string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
 
-string updatesFile = "raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
+string updatesFile = "https://raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
 int updatesCount = 0;//Installed updates count
 
 //Sound
@@ -1150,7 +1150,7 @@ void loadSound(){
 
 //Global settings file loading function
 void loadSettings(){
-	fileData f (settingsFile);//Source file
+	fileData f (settingsFile, false);//Source file
 	object g = f.objGen("settings");//Generates object
 	
 	//Gets data
@@ -1294,7 +1294,6 @@ CURLcode downloadFile(string source, string dest){
 	
 	curlHandle = curl_easy_init();//Initializes handle
 	
-	curl_easy_setopt(curlHandle, CURLOPT_TIMEOUT, 2);//Sets timeout
 	curl_easy_setopt(curlHandle, CURLOPT_SSL_VERIFYPEER, false);//Disables certificate checking
 	curl_easy_setopt(curlHandle, CURLOPT_WRITEFUNCTION, libCurlWrite);//Sets write function
 	curl_easy_setopt(curlHandle, CURLOPT_WRITEDATA, fp);//Sets write buffer
@@ -1376,7 +1375,7 @@ void checkUpdates(){
 	
 	else { BKG; msgBox.show(video, "Couldn't get updates list.", 1, msgBox_ans_ok); }//Error message if failed
 	
-	//remove("tmp_updates");//Removes updates file
+	remove("tmp_updates");//Removes updates file
 }
 
 //Game initialization function
