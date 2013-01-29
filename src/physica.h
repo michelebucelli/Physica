@@ -63,7 +63,7 @@ string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
 
-string updatesFile = "https://raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
+string updatesFile = "raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
 int updatesCount = 0;//Installed updates count
 
 //Sound
@@ -1340,10 +1340,12 @@ void processUpdateScript(string path){
 //Function to check for updates
 void checkUpdates(){
 	if (downloadFile (updatesFile, "tmp_updates") == 0) {//If downloaded successfully
-		fileData up ("tmp_updates.cfg");//Opens updates file
+		fileData up ("tmp_updates");//Opens updates file
 		object u = up.objGen("updates");//Generated object
 		
 		deque<string> toDownload;//Updates to download
+		
+		cout << "Found updates list." << endl;
 		
 		int n;//Counter
 		for (n = updatesCount + 1; ; n++){//Starting from next update
@@ -1354,6 +1356,9 @@ void checkUpdates(){
 		}
 		
 		int s = toDownload.size();//Download size
+		
+		cout << "Found " << s << " updates" << endl;
+		
 		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn) == 0){//If user decides to download
 			deque<string>::iterator i;//Iterator
 			
@@ -1371,7 +1376,7 @@ void checkUpdates(){
 	
 	else { BKG; msgBox.show(video, "Couldn't get updates list.", 1, msgBox_ans_ok); }//Error message if failed
 	
-	remove("tmp_updates");//Removes updates file
+	//remove("tmp_updates");//Removes updates file
 }
 
 //Game initialization function
