@@ -1314,7 +1314,7 @@ void processUpdateScript(script u){
 	
 	for (i = u.begin(); i != u.end(); i++){//For each line
 		deque<string> t = tokenize <deque<string> > (*i, " ");//Splits into tokens
-		
+				
 		if (t[0] == "download" && t.size() >= 3)//Download command
 			downloadFile(t[1], t[2]);//Downloads file
 		
@@ -1324,8 +1324,9 @@ void processUpdateScript(script u){
 		else if (t[0] == "install" && t.size() >= 2)//Install command
 			installSet(t[1]);//Installs set
 			
-		else if (t[0] == "message" && t.size() >= 2)//Message command
-			{BKG; msgBox.show(video, t[1], 1, msgBox_ans_ok); }//Shows message box
+		else if (t[0] == "message" && t.size() >= 2){//Message command
+			{BKG; msgBox.show(video, i->substr(8), 1, msgBox_ans_ok); }//Shows message box
+		}
 	}
 }
 
@@ -1339,12 +1340,10 @@ void processUpdateScript(string path){
 //Function to check for updates
 void checkUpdates(){
 	if (downloadFile (updatesFile, "tmp_updates") == 0) {//If downloaded successfully
-		fileData up ("tmp_updates");//Opens updates file
+		fileData up ("tmp_updates", false);//Opens updates file
 		object u = up.objGen("updates");//Generated object
 		
 		deque<string> toDownload;//Updates to download
-		
-		cout << "Found updates list." << endl;
 		
 		int n;//Counter
 		for (n = updatesCount + 1; ; n++){//Starting from next update
@@ -1355,8 +1354,6 @@ void checkUpdates(){
 		}
 		
 		int s = toDownload.size();//Download size
-		
-		cout << "Found " << s << " updates" << endl;
 		
 		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn) == 0){//If user decides to download
 			deque<string>::iterator i;//Iterator
