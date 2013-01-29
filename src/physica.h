@@ -951,7 +951,7 @@ class game {
 			
 			for (i = currentLevel->message.begin(); i != currentLevel->message.end(); i++){//For each message
 				BKG;
-				msgBox.show(video, *i, 1, ans, true);//Shows message
+				msgBox.show(video, *i, 1, ans, true, false);//Shows message
 			}
 		
 			time = 0;//Resets timer
@@ -1339,7 +1339,9 @@ void processUpdateScript(string path){
 
 //Function to check for updates
 void checkUpdates(){
-	if (downloadFile (updatesFile, "tmp_updates") == 0) {//If downloaded successfully
+	CURLcode result = downloadFile (updatesFile, "tmp_updates");//Result of download
+	
+	if (result == 0) {//If downloaded successfully
 		fileData up ("tmp_updates", false);//Opens updates file
 		object u = up.objGen("updates");//Generated object
 		
@@ -1355,7 +1357,7 @@ void checkUpdates(){
 		
 		int s = toDownload.size();//Download size
 		
-		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn) == 0){//If user decides to download
+		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn, false, false) == 0){//If user decides to download
 			deque<string>::iterator i;//Iterator
 			
 			for (i = toDownload.begin(); i != toDownload.end(); i++){//For each file
@@ -1370,7 +1372,13 @@ void checkUpdates(){
 		}
 	}
 	
-	else { BKG; msgBox.show(video, "Couldn't get updates list.", 1, msgBox_ans_ok); }//Error message if failed
+	else switch (result){
+		case CURLE_COULDNT_CONNECT: break;//Connection error: breaks
+		case CURLE_COULDNT_RESOLVE_HOST: BKG; msgBox.show(video, "Couldn't get updates list.", 1, msgBox_ans_ok); break; //Error message if couldn't find file
+		default: cerr << "UPDATES ERROR: " << curl_easy_strerror(result); break;//Unexpected error
+	}
+
+	
 	
 	remove("tmp_updates");//Removes updates file
 }

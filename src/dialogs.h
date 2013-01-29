@@ -50,10 +50,10 @@ class msgbox: public dialog {
 	}
 	
 	//Show function
-	int show(SDL_Surface* target, string prompt, int ansc, string ansv[], bool kp = false){
+	int show(SDL_Surface* target, string prompt, int ansc, string ansv[], bool kp = false, bool dark = true){
 		text->content.t = prompt;//Sets text
 		
-		DARK;
+		if (dark) DARK;
 		SDL_Surface* old = SDL_CreateRGBSurface(SDL_SWSURFACE, target->w, target->h, 32, 0, 0, 0, 0);//Surface to store target
 		SDL_BlitSurface(target, NULL, old, NULL);//Blits target on surface
 		
