@@ -12,13 +12,11 @@ control *lpRulesEdit;//Rules editor
 
 panel *lpLevPanel;//Levels panel
 panel lpLevItem;//Level item panel
-scrollBar *lpLevScroll;//Levels scrollbar
 control *lpLevAdd;//Add level button
 int lpLevSpacing = 3;//Levels spacing
 
 panel *lpAchPanel;//Achievements panel
 panel lpAchItem;//Achievement item
-scrollBar *lpAchScroll;//Achievements scrollbar
 control *lpAchAdd;//Add achievement button
 int lpAchSpacing = 3;//Achievements spacing
 
@@ -149,10 +147,18 @@ void lpLevEditClick(clickEventData data){
 		if (msgBox.show(video, "Level doesn't exist. Create it?", 2, msgBox_ans_yn) == 1) return;//Exits if msgbox ans is no
 		
 		ofstream o (fileField->content.t.c_str());//Creates new file
-		o << flush;//Flushes
-		o.close();//Closes file
+		if (!o.good()){//If file couldn't be opened
+			msgBox.show(video, "Failed creating level: invalid path (probably unexisting directory)", 1, msgBox_ans_ok);//Message
+			return;//Quits
+		}
 		
-		l = loadLevel(templateFile);//Loads template
+		else {//Else
+			l = loadLevel(templateFile);//Loads template
+			
+			o << edited.toScriptObj().toString();//Saves level
+			o.close();//Closes file
+		}
+		
 	}
 	
 	openLevel(l);
@@ -198,8 +204,8 @@ void lpLevDownClick(clickEventData data){
 
 //Function to handle the open click
 void lpOpenClick(clickEventData data){
-	string lpFile = inputBoxDialog.show(video, "Enter level pack file (data/cfg/levels/):");//Gets file
-	levelSet* l = levelSetFromFile("data/cfg/levels/" + lpFile);//Opens level pack
+	string lpFile = inputBoxDialog.show(video, "Enter level pack file:");//Gets file
+	levelSet* l = levelSetFromFile(lpFile);//Opens level pack
 	
 	if (l){//If level was found
 		lpEdited = *l;//Opens pack
@@ -216,16 +222,16 @@ void lpSaveClick(clickEventData data){
 		return;//Returns
 	}
 	
-	string lpFile = inputBoxDialog.show(video, "Enter level pack file (data/cfg/levels/):");//Gets file
+	string lpFile = inputBoxDialog.show(video, "Enter level pack file", lpEdited.path);//Gets file
 	
 	//Sets metadata
 	lpEdited.id = lpIdField->content.t;
 	lpEdited.name = lpNameField->content.t;
 	
 	if (lpFile != ""){//If path is valid
-		if (levelSetsFiles.find(lpFile) == levelSetsFiles.npos) installSet("data/cfg/levels/" + lpFile);//Installs set if not installed
+		if (levelSetsFiles.find(lpFile) == levelSetsFiles.npos) installSet(lpFile);//Installs set if not installed
 		
-		ofstream o (("data/cfg/levels/" + lpFile).c_str());//Opens file
+		ofstream o (lpFile.c_str());//Opens file
 		o << lpEdited.toScriptObj().toString();//Outputs data
 		o.close();//Closes
 	}
@@ -277,7 +283,6 @@ void loadLpEditor(){
 	lpLevItem = *p;
 	lpLevPanel->children.remove(p);
 	
-	lpLevScroll = (scrollBar*) lpEditor.getControl("levels.scroll");
 	lpLevAdd = lpEditor.getControl("levels.add");
 	
 	lpAchPanel = (panel*) lpEditor.getControl("achievements");
@@ -286,7 +291,6 @@ void loadLpEditor(){
 	lpAchItem = *p;
 	lpAchPanel->children.remove(p);
 	
-	lpAchScroll = (scrollBar*) lpEditor.getControl("achievements.scroll");
 	lpAchAdd = lpEditor.getControl("achievements.add");
 	
 	lpBtnBack = lpEditor.getControl("back");

@@ -65,8 +65,7 @@ int main(int argc, char* argv[]){
 			
 			current.print(video, printOX, printOY);//Prints game scene
 			
-			if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
-			else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level				
+			hud.print(video, 2, 2);//Prints hud on upper-left level
 			
 			pauseWindow.print(video);//Prints pause screen
 		}
@@ -89,10 +88,7 @@ int main(int argc, char* argv[]){
 			}
 			
 			current.print(video, printOX, printOY);//Prints game scene
-			
-			if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
-			else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level
-			
+			hud.print(video, 2, 2);//Prints hud on upper-left level
 			success.print(video);//Prints success screen
 		}
 
@@ -112,16 +108,13 @@ int main(int argc, char* argv[]){
 					
 				//Checks hud events
 				if (!camFollow) hud.checkEvents(ev, printOX + 2, printOY + 2);
-				else hud.checkEvents(ev, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);
+				else hud.checkEvents(ev, 2, 2);
 			}
 			
 			current.print(video, printOX, printOY);//Prints game scene
 				
 			updateHud();//Updates hud
-			
-			if (!camFollow) hud.print(video, printOX + 2, printOY + 2);//Prints hud on level corner if not following player
-			else hud.print(video, (video->w - current.currentLevel->w) / 2 + 2, (video->h - current.currentLevel->h) / 2 + 2);//Else prints hud on upper-left level
-			
+			hud.print(video, 2, 2);//Prints hud on upper-left level
 			current.frame(0.2, keys);//Game frame
 		}
 		
@@ -185,6 +178,8 @@ int main(int argc, char* argv[]){
 			
 			progress.verifyAchs();//Verifies achievements
 		}
+		
+		progress.check();//Checks broken progress info
 		
 		updateCommon();//Updates common UI
 		common.print(video);//Prints common UI

@@ -18,6 +18,7 @@
 #define OBJTYPE_RULES			"rules"//Rules objects
 #define OBJTYPE_CONTROLS		"controls"//Controls objects
 #define OBJTYPE_LEVELSET		"levelSet"//Level set objects
+#define OBJTYPE_AREA			"area"//Area objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
@@ -78,6 +79,8 @@ bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 bool camFollow = false;//If true, camera will follow player
 
 //Prototypes
+class area;//Area class prototype
+
 void resize(int,int,bool,bool = true);//Resizing function
 string getInput(string);//Function to get input
 
@@ -202,7 +205,7 @@ class rules: public objectBased {
 		
 		jumpCount = 2;
 		
-		setMask = 0;//All values set
+		setMask = 0;
 	}
 	
 	//Function to load from script object
@@ -225,9 +228,9 @@ class rules: public objectBased {
 			if (groundDamping){ this->groundDamping = groundDamping->doubleValue(); setMask |= 0b00010000; }
 			if (airSpeed){ this->airSpeed = airSpeed->doubleValue(); setMask |= 0b00001000; }
 			if (airForce){ this->airForce = airForce->doubleValue(); setMask |= 0b00000100; }
-			if (jumpCount){ this->jumpCount = jumpCount->intValue(); setMask |= 0b00000010; }
+			if (gravity){ this->gravity.fromString(gravity->value); setMask |= 0b00000010; }
 			
-			if (gravity){ this->gravity.fromString(gravity->value); setMask |= 0b00000001; }
+			if (jumpCount){ this->jumpCount = jumpCount->intValue(); setMask |= 0b00000001; }
 			
 			return true;//Returns true
 		}
@@ -252,7 +255,7 @@ class rules: public objectBased {
 	}
 	
 	//Function to stack rules
-	rules operator + (rules r){
+	template <class t> rules operator + (t r){
 		rules result = *this;
 		
 		if (r.setMask & 0b10000000) result.jumpImpulse = r.jumpImpulse;
@@ -270,12 +273,72 @@ class rules: public objectBased {
 	}
 	
 	//Stack operator
-	void operator += (rules r){
+	template <class t> void operator += (t r){
 		*this = *this + r;
 	}
 };
 
 rules defaultRules;//Default rules (same as constructor values)
+rules loadedRules;//Loaded rules
+
+//Area class - a rectangle plus rules definitions
+class area: public rectangle, public rules {
+	public:
+	string id, type;
+	Uint32 color;//Area color
+	
+	//Constructor
+	area(){
+		id = "";
+		type = OBJTYPE_AREA;
+		rules::type = OBJTYPE_AREA;
+		rectangle::type = OBJTYPE_AREA;
+		
+		x = 0;
+		y = 0;
+		w = 0;
+		h = 0;
+		
+		jumpImpulse = 30;
+		
+		groundSpeed = 30;
+		groundForce = 15;
+		groundDamping = 0.8;
+		
+		airSpeed = 15;
+		airForce = 7;
+		
+		gravity = {0,10};
+		
+		jumpCount = 2;
+		
+		setMask = 0;
+		
+		color = 0;
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (rectangle::fromScriptObj(o) && rules::fromScriptObj(o)){//If succeeded loading base data	
+			var* color = get <var> (&o.v, "color");//Area color
+			if (color) this->color = strtol(color->value.c_str(), NULL, 0);//Gets color
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}
+	
+	//Function to save to script object
+	object toScriptObj(){
+		object result = rules::toScriptObj();//Rules data
+		result += rectangle::toScriptObj();//Adds rectangle
+		
+		result.set("color", color);
+		
+		return result;//Returns result
+	}
+};
 
 //Level class
 //	adds a few stuff to the base scene class
@@ -287,7 +350,12 @@ class level: public scene {
 	
 	int twoStarsTime, threeStarsTime;//Time required for two and three stars rating (in seconds)
 
-	deque<string> message;//Level messages
+	deque<string> message;//Level startup messages
+	
+	rules lvlRules;//Level specific rules
+	deque<area> areas;//Areas
+	
+	string path;//Level path
 	
 	//Constructor
 	level(){
@@ -305,6 +373,8 @@ class level: public scene {
 				
 		twoStarsTime = 0;
 		threeStarsTime = 0;
+		
+		path = "";
 	}
 	
 	//Destructor
@@ -330,6 +400,8 @@ class level: public scene {
 			
 			var* message = get <var> (&o.v, "message");//Gets message
 			
+			object* lvlRules = get <object> (&o.o, "rules");//Gets rules
+			
 			if (id) this->id = id->value;//Gets id
 			
 			if (backgroundImage){ this->bkg = backgroundImage->value; this->backgroundImage = CACHEDSURFACE(bkg); }//Gets background image
@@ -339,6 +411,17 @@ class level: public scene {
 			if (threeStarsTime) this->threeStarsTime = threeStarsTime->intValue();//Gets three stars time
 			
 			if (message) this->message = tokenize <deque<string> > (message->value, "_");//Gets messages
+			
+			if (lvlRules) this->lvlRules.fromScriptObj(*lvlRules);//Loads rules
+			
+			deque<object>::iterator i;//Iterator
+			for (i = o.o.begin(); i != o.o.end(); i++){//For each object
+				if (i->type == OBJTYPE_AREA){//If object's an area
+					area a;//New area
+					a.fromScriptObj(*i);//Loads
+					areas.push_back(a);//Adds to areas
+				}
+			}
 			
 			return true;//Returns true
 		}
@@ -357,6 +440,12 @@ class level: public scene {
 		result.set("twoStarsTime", twoStarsTime);
 		result.set("threeStarsTime", threeStarsTime);
 		
+		result.o.push_back(lvlRules.toScriptObj());//Adds rules
+		
+		deque<area>::iterator a;//Area iterator
+		for (a = areas.begin(); a != areas.end(); a++)//For each area
+			result.o.push_back(a->toScriptObj());//Adds areas
+		
 		return result;//Returns result
 	}
 	
@@ -364,6 +453,15 @@ class level: public scene {
 	void print(SDL_Surface* target, int x, int y, bool hidden = false){
 		SDL_Rect offset {x, y};//Offset rect
 		SDL_BlitSurface(backgroundImage, NULL, target, &offset);//Prints background
+		
+		deque<area>::iterator a;//Area iterator
+		for (a = areas.begin(); a != areas.end(); a++){//For each area
+			SDL_Rect r = *a;//Rectangle
+			r.x += x;//Offset x
+			r.y += y;//Offset y
+			
+			SDL_FillRect(target, &r, a->color);//Fills area
+		}
 		
 		if (printLevelScene) printScene(this, target, x, y, hidden);//Prints scene elements
 	}
@@ -523,7 +621,7 @@ class levelSet: public deque<string>, public objectBased {
 	deque<achievement> lsAchs;//Level set achievements
 	
 	rules lsRules;//Level set custom rules (overrides normal rules)
-	
+		
 	//Constructor
 	levelSet(){
 		id = "";
@@ -595,16 +693,20 @@ deque<levelSet*> levelSets;//Level sets
 
 //Function to load a level set from a file
 levelSet *levelSetFromFile(string path){
-	levelSet *levels = new levelSet;//Level set
-	
 	fileData f (path);//Source file
-	object o = f.objGen("");//Generates object
 	
-	o.type = OBJTYPE_LEVELSET;//Sets type
-	levels->fromScriptObj(o);//Loads levels
-	levels->path = path;//Sets path
+	if (f.valid){//If file is valid
+		levelSet *levels = new levelSet;//Level set
+		object o = f.objGen("");//Generates object
 		
-	return levels;//Returns result
+		o.type = OBJTYPE_LEVELSET;//Sets type
+		levels->fromScriptObj(o);//Loads levels
+		levels->path = path;//Sets path
+		
+		return levels;//Returns result
+	}
+	
+	else return NULL;//Else returns null
 }
 
 //Global progress class
@@ -791,19 +893,42 @@ class globalProgress: public objectBased, public list<levelProgress> {
 		else if (s && !s->size()) return 100;//Returns 100 if no levels in set
 		else return 0;//Returns 0 if failed
 	}
+	
+	//Function to check progress and erase invalid levels
+	void check(){
+		iterator i;//Iterator
+		
+		for (i = begin(); i != end(); i++){//For each element
+			string setId = "";//Set and level id
+			
+			setId = i->id.substr(0, i->id.find("."));//Set id
+			
+			levelSet* s = get_ptr <levelSet> (&levelSets, setId);//Gets set
+			
+			if (!s){//If set is invalid
+				i = erase(i);//Erases element
+				i--;//Goes back
+			}
+		}
+	}
 } progress;
 
 //Function to load a level from file
 level* loadLevel(string path){
 	fileData source (path);//Loads and processes file
 	
-	object s = source.objGen(path);//level object
-	s.type = OBJTYPE_LEVEL;//Sets object typ
+	if (source.valid){//If file is valid
+		object s = source.objGen(path);//level object
+		s.type = OBJTYPE_LEVEL;//Sets object typ
+		
+		level *result = new level;//Result level
+		result->path = path;//Sets path
+		result->fromScriptObj(s);//Loads result
+		
+		return result;//Returns level
+	}
 	
-	level *result = new level;//Result level
-	result->fromScriptObj(s);//Loads result
-	
-	return result;//Returns level
+	else return NULL;//Else returns NULL
 }
 
 #include "dialogs.h"//Includes dialogs
@@ -839,6 +964,8 @@ class game {
 	
 	list <collision> c;//Frame collision list
 	
+	rules currentRules;//Current rules
+	
 	//Constructor
 	game(){
 		player = NULL;
@@ -865,7 +992,7 @@ class game {
 	
 	//Function for controls handling
 	void handleControls(Uint8* keys){
-		rules resultRules = gameRules + levels.lsRules;//Applies level set custom rules
+		rules resultRules = currentRules;//Current rules
 		
 		if (keys && player){//If keys array is valid and there's a player
 			int lowestSensor = 0;//Lowest player sensor
@@ -876,13 +1003,13 @@ class game {
 			bool left = int(keys[playerControls.left]) == 1;
 			
 			for (i = 0; i < player->sensors.size(); i++)//For each sensor in player
-				if (player->sensors[i]->y > player->sensors[lowestSensor]->y) lowestSensor = i;//Sets lowest sensor
+				if ((currentRules.gravity.y > 0 && player->sensors[i]->y > player->sensors[lowestSensor]->y) || (currentRules.gravity.y < 0 && player->sensors[i]->y < player->sensors[lowestSensor]->y)) lowestSensor = i;//Sets lowest sensor
 			
 			bool ground = player->checkSensor(lowestSensor);//True if touching the ground
 			
 			list<collision>::iterator c;//Collision iterator
 			for (c = this->c.begin(); c != this->c.end(); c++){//For each collision
-				if ((c->a == player || c->b == player) && c->p.y > player->position.y && abs(c->p.x - player->position.x) < ((box*) player)->w / 3) ground = true;//Sets ground flag if touching lower entity
+				if ((c->a == player || c->b == player) && ((currentRules.gravity.y > 0 && c->p.y > player->position.y) || (currentRules.gravity.y < 0 && c->p.y < player->position.y)) && abs(c->p.x - player->position.x) < ((box*) player)->w / 3) ground = true;//Sets ground flag if touching lower entity
 			}
 			
 			if (!up) releasedJump = true;//Resets released jump flag if jump is not pressed
@@ -891,7 +1018,7 @@ class game {
 			
 			if (keys[playerControls.up] && releasedJump && playerJumps < resultRules.jumpCount){//If pressed up and can jump
 				player->speed.y = 0;//Stops on y
-				player->applyImpulse(player->position, {0, -resultRules.jumpImpulse});//Applies impulse
+				player->applyImpulse(player->position, {0, -resultRules.jumpImpulse * currentRules.gravity.y / abs(currentRules.gravity.y)});//Applies impulse
 				
 				playerJumps++;//Increases jump count
 				releasedJump = false;//Not released jump
@@ -915,6 +1042,16 @@ class game {
 			
 			else if (ground) player->applyForce(player->position, {-player->speed.x * resultRules.groundDamping, 0});//Applies damping on ground
 		}
+	}
+	
+	//Function to check for area rules
+	void checkAreaRules(){
+		deque<area>::iterator a;//Area iterator
+		
+		currentRules = defaultRules + loadedRules + levels.lsRules;//Sets rules
+		
+		for (a = currentLevel->areas.begin(); a != currentLevel->areas.end(); a++)//For each area
+			if (a->isInside(player->position.x, player->position.y)) currentRules += *a;//Adds area rules if player is inside
 	}
 	
 	//Function to print
@@ -961,6 +1098,8 @@ class game {
 		
 		paused = false;//Unpauses
 		completed = false;//Not completed
+		
+		currentRules = defaultRules + loadedRules + levels.lsRules + currentLevel->lvlRules;//Sets rules
 	}
 	
 	//Function to reset current level
@@ -997,7 +1136,7 @@ class game {
 	//Function for time step
 	void step(double t){
 		if (currentLevel){//If level exists
-			currentLevel->applyGravity(gameRules.gravity);//Applies gravity
+			currentLevel->applyGravity(currentRules.gravity);//Applies gravity
 			c = currentLevel->step(t);//Steps
 			checkRelevant();//Steps level
 		}
@@ -1006,6 +1145,8 @@ class game {
 	//Function to handle a frame
 	void frame(double t, Uint8* keys){
 		if (paused){ lastFrameTime = SDL_GetTicks(); return; }//Exits function if paused
+		
+		checkAreaRules();//Checks rules
 		
 		step(t);//Steps
 		
@@ -1195,8 +1336,10 @@ void loadSets(){
 		deque<string> t = tokenize <deque<string> > (ls->value, ",");//Splits into tokens
 		deque<string>::iterator i;//Iterator
 		
-		for (i = t.begin(); i != t.end(); i++)//For each set
-			levelSets.push_back(levelSetFromFile(*i));//Loads all level sets
+		for (i = t.begin(); i != t.end(); i++){//For each set
+			levelSet* s = levelSetFromFile(*i);//Gets level set
+			if (s) levelSets.push_back(s);//Adds to loaded
+		}
 	}
 }
 
@@ -1209,8 +1352,19 @@ void saveSets(){
 
 //Function to install a set
 void installSet(string setFile){
+	if (levelSetsFiles.find(setFile) != levelSetsFiles.npos) return;//Exits if set already exists
+	
 	if (levelSetsFiles != "") levelSetsFiles += ",";//Adds the comma
 	levelSetsFiles += setFile;//Adds path
+	
+	saveSets();//Saves sets
+}
+
+//Function to uninstall a set
+void uninstallSet(string setFile){
+	if (levelSetsFiles.find(setFile) != levelSetsFiles.npos){//If set is installed
+		levelSetsFiles.erase(levelSetsFiles.find(setFile), setFile.size() + 1);//Erases set
+	}
 	
 	saveSets();//Saves sets
 }
@@ -1246,9 +1400,7 @@ void loadRules(){
 	object o = f.objGen("rules");//Generated object
 	
 	o.type = OBJTYPE_RULES;//Sets rules
-	rules r;//New rules
-	r.fromScriptObj(o);//Loads rules
-	current.gameRules += r;//Stacks rules
+	loadedRules.fromScriptObj(o);//Loads rules
 }
 
 //Function to save settings
@@ -1324,9 +1476,13 @@ void processUpdateScript(script u){
 		else if (t[0] == "install" && t.size() >= 2)//Install command
 			installSet(t[1]);//Installs set
 			
+		else if (t[0] == "uninstall" && t.size() >= 2)//Uninstall command (removes set from list)
+			uninstallSet(t[1]);//Uninstalls set
+		
 		else if (t[0] == "message" && t.size() >= 2){//Message command
 			{BKG; msgBox.show(video, i->substr(8), 1, msgBox_ans_ok); }//Shows message box
 		}
+		
 	}
 }
 

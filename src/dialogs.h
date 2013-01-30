@@ -143,7 +143,7 @@ class inputbox: public dialog {
 	}
 	
 	//Show function
-	string show(SDL_Surface* target, string prompt){
+	string show(SDL_Surface* target, string prompt, string defaultAns = ""){
 		text->content.t = prompt;//Sets text
 		
 		DARK;
@@ -154,7 +154,7 @@ class inputbox: public dialog {
 		
 		centre(target->w, target->h);//Centres
 		
-		field->content.t = "";//Deletes text, if any
+		field->content.t = defaultAns;//Sets default answer
 		field->edit = true;//Focuses field
 		
 		while (!quitFlag || *quitFlag){//While running

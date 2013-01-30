@@ -86,6 +86,11 @@ class rectangle: public SDL_Rect, public objectBased {
 		
 		return result;//Returns result
 	}
+	
+	//Function to determine if point is inside rectangle
+	bool isInside(int x, int y){
+		return (x > this->x && x < this->x + w && y > this->y && y < this->y + h);
+	}
 };
 
 //Base image class

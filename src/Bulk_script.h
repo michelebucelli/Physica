@@ -242,10 +242,14 @@ class fileData{
 	string readContent;//Content directly read from the file, all in one line
 	deque<string> procContent;//Processed content, obtained by splitting readContent in semicolon-divided lines
 	
+	bool valid;//Valid flag
+	
 	//Constructor
 	fileData(){
 		fileName = "";
 		readContent = "";
+		
+		valid = true;
 	}
 	
 	//Constructor
@@ -259,6 +263,8 @@ class fileData{
 	void read(string path, bool comments = true){
 		ifstream file(path.c_str());//Opens file for reading
 		string tmpString;//Temporary string
+		
+		valid = file.good();//Sets valid flag
 		
 		fileName = path;//Sets file id
 		readContent = "";//Resets content
@@ -387,6 +393,7 @@ class objectBased {
 			return true;//Returns true
 		}
 		
+		cerr << "Failed loading " << type << " from " << o.type << " " << o.id << endl;//Error message
 		return false;//Returns false if type didn't match
 	}
 	
