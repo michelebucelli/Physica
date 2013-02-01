@@ -1549,7 +1549,9 @@ void checkUpdates(){
 
 //Game initialization function
 void gameInit(int argc, char* argv[]){
-	SDL_putenv ("SDL_VIDEODRIVER=directx");
+	#ifdef __WIN32__//If on windows
+		SDL_putenv ("SDL_VIDEODRIVER=directx");//Sets video driver to directx
+	#endif
 
 	Bulk_image_init();//Initializes Bulk image
 	Bulk_ui_init();//Initializes Bulk user interface
