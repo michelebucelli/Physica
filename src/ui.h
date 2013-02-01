@@ -436,14 +436,15 @@ void resize(int newW, int newH, bool fs, bool redraw){
 	fullscreen = fs;//Sets fullscreen
 	
 	if (fullscreen){//If in fullscreen mode
-		SDL_Rect best = *(SDL_ListModes(NULL, SDL_SWSURFACE | SDL_FULLSCREEN)[0]);//Best video mode
+		SDL_Rect best = *(SDL_ListModes(NULL, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF)[0]);//Best video mode
 		
 		//Gets video size
 		video_w = best.w;
 		video_h = best.h;
 	}
 	
-	video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+	video = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);
+	actVideo = SDL_SetVideoMode(video_w, video_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
 	
 	if (redraw){//If has to redraw
 		if (menuFrame){//If menu frame is available
@@ -625,31 +626,37 @@ void loadUI(){
 	msgBox.frameEnd = &frame_end;
 	msgBox.events = &events_common;
 	msgBox.quitFlag = &running;
+	msgBox.update = &update;
 	
 	inputBoxDialog.frameBegin = &frame_begin;
 	inputBoxDialog.frameEnd = &frame_end;
 	inputBoxDialog.events = &events_common;
 	inputBoxDialog.quitFlag = &running;
+	inputBoxDialog.update = &update;
 	
 	imgPreview.frameBegin = &frame_begin;
 	imgPreview.frameEnd = &frame_end;
 	imgPreview.events = &events_common;
 	imgPreview.quitFlag = &running;
+	imgPreview.update = &update;
 	
 	imgInput.frameBegin = &frame_begin;
 	imgInput.frameEnd = &frame_end;
 	imgInput.events = &events_common;
 	imgInput.quitFlag = &running;
+	imgInput.update = &update;
 	
 	achDialog.frameBegin = &frame_begin;
 	achDialog.frameEnd = &frame_end;
 	achDialog.events = &events_common;
 	achDialog.quitFlag = &running;
+	achDialog.update = &update;
 	
 	rulesDialog.frameBegin = &frame_begin;
 	rulesDialog.frameEnd = &frame_end;
 	rulesDialog.events = &events_common;
 	rulesDialog.quitFlag = &running;
+	rulesDialog.update = &update;
 }
 
 //Graphics info file loading function

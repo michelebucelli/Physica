@@ -17,6 +17,7 @@ class msgbox: public dialog {
 		frameEnd = NULL;
 		events = NULL;
 		quitFlag = NULL;
+		update = NULL;
 		
 		text = NULL;
 		
@@ -102,7 +103,7 @@ class msgbox: public dialog {
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
 			dialogWindow.print(target);//Prints dialog
-			SDL_Flip(target);//Updates target
+			if (update) update();//Updates
 			
 			if (frameEnd) frameEnd();//Frame ending
 		}
@@ -132,6 +133,7 @@ class inputbox: public dialog {
 		
 		text = NULL;
 		field = NULL;
+		update = NULL;
 	}
 	
 	//Load function
@@ -171,7 +173,7 @@ class inputbox: public dialog {
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
 			dialogWindow.print(target);//Prints dialog
-			SDL_Flip(target);//Updates target
+			if (update) update();//Updates
 			
 			if (frameEnd) frameEnd();//Frame ending
 		}
@@ -193,6 +195,7 @@ class imgpreview: public dialog {
 		frameEnd = NULL;
 		events = NULL;
 		quitFlag = NULL;
+		update = NULL;
 		
 		margin = 16;
 	}
@@ -232,7 +235,7 @@ class imgpreview: public dialog {
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
 			dialogWindow.print(target);//Prints dialog
-			SDL_Flip(target);//Updates target
+			if (update) update();//Updates
 			
 			if (frameEnd) frameEnd();//Frame ending
 		}
@@ -253,6 +256,7 @@ class imginput: public dialog {
 		frameEnd = NULL;
 		events = NULL;
 		quitFlag = NULL;
+		update = NULL;
 		
 		idField = NULL;
 		pathField = NULL;
@@ -334,7 +338,7 @@ class imginput: public dialog {
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
 			dialogWindow.print(target);//Prints dialog
-			SDL_Flip(target);//Updates target
+			if (update) update();//Updates
 			
 			if (frameEnd) frameEnd();//Frame ending
 		}
@@ -360,6 +364,7 @@ class achdialog: public dialog {
 		frameEnd = NULL;
 		events = NULL;
 		quitFlag = NULL;
+		update = NULL;
 		
 		icon = NULL;
 		iconEdit = NULL;
@@ -452,7 +457,7 @@ class achdialog: public dialog {
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
 			dialogWindow.print(target);//Prints dialog
-			SDL_Flip(target);//Updates target
+			if (update) update();//Updates
 			
 			if (frameEnd) frameEnd();//Frame ending
 		}
@@ -473,6 +478,7 @@ class rulesdialog: public dialog {
 		frameEnd = NULL;
 		events = NULL;
 		quitFlag = NULL;
+		update = NULL;
 		
 		jumpImpulse = NULL;
 		groundSpeed = NULL;
@@ -585,7 +591,7 @@ class rulesdialog: public dialog {
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
 			dialogWindow.print(target);//Prints dialog
-			SDL_Flip(target);//Updates target
+			if (update) update();//Updates
 			
 			if (frameEnd) frameEnd();//Frame ending
 		}

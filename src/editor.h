@@ -18,6 +18,7 @@ string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window 
 window properties;//Properties window
 panel* propFrame;//Properties frame
 control *idField, *wField, *hField, *dTrField, *dRotField, *stars2, *stars3;//Level properties fields
+control *editRules;//Edit rules button
 bool showProperties = true;//Show level properties flag
 
 string selPropFile = "data/cfg/ui/editor_selProp.cfg";//Selected properties file path
@@ -118,6 +119,12 @@ void editorSpringClick(clickEventData data){
 	
 	selected = NULL;
 	dragged = NULL;
+}
+
+//Rules button click
+void editRulesClick(clickEventData data){
+	rules *r = rulesDialog.show(video, &edited.lvlRules);//Edits rules
+	if (r) edited.lvlRules = *r;//Sets rules
 }
 
 //Function to apply properties
@@ -303,9 +310,12 @@ void loadEditor(){
 	dRotField = properties.getControl("frame.dRotField");
 	stars2 = properties.getControl("frame.twoField");
 	stars3 = properties.getControl("frame.threeField");
+	editRules = properties.getControl("frame.editRules");
+	
+	editRules->release.handlers.push_back(editRulesClick);//Edit rules click handler
 	
 	selProp = loadWindow(selPropFile, "selProperties");//Loads selected properties
-	
+		
 	//Gets controls
 	selPropFrame = (panel*) selProp.getControl("frame");
 	selIdField = selProp.getControl("frame.idField");

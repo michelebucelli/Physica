@@ -22,10 +22,10 @@
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
-#define UPDATE					SDL_Flip(video)//Video updating macro
+#define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
 
 #define FRAME_BEGIN				frameBegin = SDL_GetTicks()//Frame beginning macro
-#define FRAME_END				if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000; if (SDL_GetTicks() - frameBegin < 1000 / fps) SDL_Delay(1000 / fps - SDL_GetTicks() + frameBegin); frames++//Frame end macro
+#define FRAME_END				if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
 
 #define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
 
@@ -35,6 +35,8 @@
 
 //Video output
 SDL_Surface* video = NULL;//Video surface
+SDL_Surface* actVideo = NULL;//Actual video surface
+
 int video_w = 800;//Video width
 int video_h = 400;//Video height
 
@@ -101,6 +103,11 @@ void frame_end(){
 void events_common(SDL_Event e){
 	if (e.type == SDL_QUIT) running = false;
 	if (e.type == SDL_VIDEORESIZE) resize(e.resize.w, e.resize.h, fullscreen);
+}
+
+//Update function
+void update(){
+	UPDATE;
 }
 
 //Function to convert text into keysym
@@ -440,6 +447,7 @@ class level: public scene {
 		result.set("twoStarsTime", twoStarsTime);
 		result.set("threeStarsTime", threeStarsTime);
 		
+		lvlRules.id = "rules";
 		result.o.push_back(lvlRules.toScriptObj());//Adds rules
 		
 		deque<area>::iterator a;//Area iterator
@@ -1048,7 +1056,7 @@ class game {
 	void checkAreaRules(){
 		deque<area>::iterator a;//Area iterator
 		
-		currentRules = defaultRules + loadedRules + levels.lsRules;//Sets rules
+		currentRules = defaultRules + loadedRules + levels.lsRules + currentLevel->lvlRules;//Sets rules
 		
 		for (a = currentLevel->areas.begin(); a != currentLevel->areas.end(); a++)//For each area
 			if (a->isInside(player->position.x, player->position.y)) currentRules += *a;//Adds area rules if player is inside
@@ -1098,8 +1106,6 @@ class game {
 		
 		paused = false;//Unpauses
 		completed = false;//Not completed
-		
-		currentRules = defaultRules + loadedRules + levels.lsRules + currentLevel->lvlRules;//Sets rules
 	}
 	
 	//Function to reset current level
@@ -1543,6 +1549,8 @@ void checkUpdates(){
 
 //Game initialization function
 void gameInit(int argc, char* argv[]){
+	SDL_putenv ("SDL_VIDEODRIVER=directx");
+
 	Bulk_image_init();//Initializes Bulk image
 	Bulk_ui_init();//Initializes Bulk user interface
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
@@ -1556,7 +1564,7 @@ void gameInit(int argc, char* argv[]){
 	SDL_WM_SetCaption("Physica", NULL);//Sets window caption
 
 	current.success = showSuccess;//Sets success function
-	
+		
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics
 	loadUI();//Loads ui

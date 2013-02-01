@@ -14,6 +14,7 @@ class dialog {
 	void (*frameEnd)();//Frame ending function
 	void (*events)(SDL_Event);//Common event checking function
 	bool* quitFlag;//Quit flag pointer
+	void (*update)();//Update function
 	
 	//Constructor
 	dialog(){

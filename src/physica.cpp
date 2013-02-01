@@ -5,6 +5,7 @@ int main(int argc, char* argv[]){
 	gameInit(argc, argv);//Initializes the game
 	
 	while (running){//While game is running
+		int t = frameBegin;
 		FRAME_BEGIN;//Frame beginning
 		
 		if (curUiMode == ui_mainMenu){//If in main menu
@@ -32,20 +33,6 @@ int main(int argc, char* argv[]){
 			levelSetSel.print(video);//Prints level set selector
 		}
 		
-		if (curUiMode == ui_levels){//If in level selection
-			BKG;//Prints background
-			
-			while (SDL_PollEvent(&ev)){//While there are stacked events
-				EVENTS_COMMON(ev);//Common events
-					
-				if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE){ curUiMode = ui_levelSets; redrawLevelSetSel(); }//Back to level sets on esc
-					
-				levelSelect.checkEvents(ev);//Checks level selector events
-			}
-			
-			levelSelect.print(video);//Prints level selector
-		}
-		
 		if (curUiMode == ui_paused){//If paused
 			BKG;//Prints background
 			
@@ -70,28 +57,6 @@ int main(int argc, char* argv[]){
 			pauseWindow.print(video);//Prints pause screen
 		}
 		
-		if (curUiMode == ui_success){//If completed level
-			BKG;//Prints background
-			
-			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
-			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
-			
-			while (SDL_PollEvent(&ev)){//While there are stacked events
-				EVENTS_COMMON(ev);//Common events
-					
-				if (ev.type == SDL_KEYDOWN){//If pressed a key
-					if (ev.key.keysym.sym == SDLK_ESCAPE) backClick({});//Goes back on esc
-					else if (ev.key.keysym.sym == SDLK_RETURN) nextClick({});//Goes next on enter
-				}
-				
-				success.checkEvents(ev);//Checks success window events
-			}
-			
-			current.print(video, printOX, printOY);//Prints game scene
-			hud.print(video, 2, 2);//Prints hud on upper-left level
-			success.print(video);//Prints success screen
-		}
-
 		if (curUiMode == ui_game){//If in game mode
 			BKG;//Prints background
 			
@@ -115,7 +80,45 @@ int main(int argc, char* argv[]){
 				
 			updateHud();//Updates hud
 			hud.print(video, 2, 2);//Prints hud on upper-left level
-			current.frame(0.2, keys);//Game frame
+			current.frame(double((frameBegin - t)) * 0.0125, keys);//Game frame
+		}
+		
+		if (curUiMode == ui_levels){//If in level selection
+			BKG;//Prints background
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				EVENTS_COMMON(ev);//Common events
+					
+				if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE){ curUiMode = ui_levelSets; redrawLevelSetSel(); }//Back to level sets on esc
+					
+				levelSelect.checkEvents(ev);//Checks level selector events
+			}
+			
+			if (curUiMode == ui_levels) levelSelect.print(video);//Prints level selector
+		}
+		
+		if (curUiMode == ui_success){//If completed level
+			BKG;//Prints background
+			
+			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
+			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				EVENTS_COMMON(ev);//Common events
+					
+				if (ev.type == SDL_KEYDOWN){//If pressed a key
+					if (ev.key.keysym.sym == SDLK_ESCAPE) backClick({});//Goes back on esc
+					else if (ev.key.keysym.sym == SDLK_RETURN) nextClick({});//Goes next on enter
+				}
+				
+				success.checkEvents(ev);//Checks success window events
+			}
+			
+			if (curUiMode == ui_success){//If still in success mode
+				current.print(video, printOX, printOY);//Prints game scene
+				hud.print(video, 2, 2);//Prints hud on upper-left level
+				success.print(video);//Prints success screen
+			}
 		}
 		
 		if (curUiMode == ui_settings){//If in settings view
@@ -185,7 +188,7 @@ int main(int argc, char* argv[]){
 		common.print(video);//Prints common UI
 		
 		UPDATE;//Updates
-		FRAME_END;//Frame end
+		FRAME_END;
 	}
 	
 	gameQuit();//Quits
