@@ -883,6 +883,13 @@ class globalProgress: public objectBased, public list<levelProgress> {
 			
 			if (s->find(".") != s->npos){//If related to a level set
 				levelSet* l = get_ptr <levelSet> (&levelSets, s->substr(0, s->find(".")));//Level set
+				
+				if (!l){//If level set doesn't exist
+					s = unlockedAch.erase(s);//Erases element
+					s--;//Goes back
+					continue;//Next loop
+				}
+				
 				a = get <achievement> (&l->lsAchs, s->substr(s->find(".") + 1));//Gets achievement
 			}
 			

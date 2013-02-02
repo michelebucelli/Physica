@@ -231,6 +231,8 @@ void lpSaveClick(clickEventData data){
 	if (lpFile != ""){//If path is valid
 		if (levelSetsFiles.find(lpFile) == levelSetsFiles.npos) installSet(lpFile);//Installs set if not installed
 		
+		lpEdited.path = lpFile;//Sets path
+		
 		ofstream o (lpFile.c_str());//Opens file
 		o << lpEdited.toScriptObj().toString();//Outputs data
 		o.close();//Closes

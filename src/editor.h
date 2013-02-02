@@ -99,6 +99,8 @@ void editorSaveClick(clickEventData data){
 		return;//Quits
 	}
 	
+	edited.path = lFile;//Sets path
+	
 	o << edited.toScriptObj().toString();//Saves level
 	o.close();//Closes file
 }
@@ -218,7 +220,7 @@ void addAreaClick(clickEventData data){
 	newArea.y = edited.h / 2 - 48;
 	newArea.w = 96;
 	newArea.h = 96;
-	newArea.color = 0x151E28;
+	newArea.color = 0x131B24;
 	
 	int n = 0;//Counter
 	newArea.rules::id = "area_" + toString(n);//Sets id
