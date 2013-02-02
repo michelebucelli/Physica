@@ -1,6 +1,6 @@
 //Editor header
 Uint32 editorBkg = 0x181818;//Editor background
-Uint32 editorSel = 0xFFFFFF30;//Editor selected overlay
+Uint32 editorSel = 0xFFFFFF10;//Editor selected overlay
 
 image handle;//Transformation handles
 
@@ -12,6 +12,7 @@ deque<entity*> entities;//Loaded entities
 string editorFile = "data/cfg/ui/editor.cfg";//Editor window file path
 window editor;//Editor window
 control *edBack, *edNew, *edSave, *edOpen, *edProp;//Editor buttons
+control *edArea;//Add area button
 checkBox* edSpring;//Spring mode checkbox
 
 string propertiesFile = "data/cfg/ui/editor_properties.cfg";//Properties window file path
@@ -27,6 +28,11 @@ panel* selPropFrame;//Selected properties frame
 control *selIdField, *selMassField, *selEField, *selWField, *selHField, *selColorField;//Selected properties fields
 checkBox *selLockTr, *selLockRot, *selPrint;//Selected properties check boxes
 
+string areaPropFile = "data/cfg/ui/editor_areaProp.cfg";//Selected area properties file path
+window areaProp;//Selected area properties window
+panel* areaPropFrame;//Area properties frame
+control* areaRules;//Area rules edit button
+
 bool editing = false;//Editor running flag
 bool springMode = false;//True if in spring mode
 spring* adding = NULL;//Spring being added
@@ -35,10 +41,13 @@ double springK = 0.5;//Spring constant
 level edited;//Edited level
 
 box* selected = NULL;//Selected entity
+area* selectedArea = NULL;//Selected area
 
 box* dragged = NULL;//Dragged entity
 vector* draggedNode = NULL;//Dragged node
-int draggedNodeIndex;//Dragged node index
+area* draggedArea = NULL;//Dragged area
+int draggedAreaNodeIndex;//Dragged area node index
+int draggedNodeIndex = -1;//Dragged node index
 
 vector dragInitial;//Dragging intial position
 vector dragDist;//Distance between dragging point and position of dragged entity
@@ -127,6 +136,14 @@ void editRulesClick(clickEventData data){
 	if (r) edited.lvlRules = *r;//Sets rules
 }
 
+//Area rules button click
+void areaRulesEdit(clickEventData data){
+	if (selectedArea){//If there's a selected area
+		rules* r = rulesDialog.show(video, selectedArea);//Gets rules
+		if (r) selectedArea->setRules(*r);//Sets rules
+	}
+}
+
 //Function to apply properties
 void applyProp(){
 	edited.id = idField->content.t;
@@ -192,6 +209,27 @@ void addClick(clickEventData data){
 	PLAYSOUND(clickSfx);
 }
 
+//Add area button click
+void addAreaClick(clickEventData data){
+	area newArea;//New area
+	
+	//Sets parameters
+	newArea.x = edited.w / 2 - 48;
+	newArea.y = edited.h / 2 - 48;
+	newArea.w = 96;
+	newArea.h = 96;
+	newArea.color = 0x151E28;
+	
+	int n = 0;//Counter
+	newArea.rules::id = "area_" + toString(n);//Sets id
+	while (get <area> (&edited.areas, "area_" + toString(n))){//While there are areas with the same name
+		n++;//Increases counter
+		newArea.rules::id = "area_" + toString(n);//Sets id
+	}
+	
+	edited.areas.push_back(newArea);//Adds to level
+}
+
 //Function to get entity currently under the mouse
 box* getSelected(int oX, int oY){
 	int x, y;
@@ -206,18 +244,41 @@ box* getSelected(int oX, int oY){
 	return NULL;//Returns null if nothing was found
 }
 
+//Function to get area currently under the mouse
+area* getSelArea(int oX, int oY){
+	int x, y;
+	SDL_GetMouseState(&x, &y);//Gets mouse position
+	
+	deque<area>::reverse_iterator i;//Iterator
+	for (i = edited.areas.rbegin(); i != edited.areas.rend(); i++)//For each area
+		if (i->isInside(x - oX, y - oY)) return &*i;//Returns area
+		
+	return NULL;//Returns null if nothing was found
+}
+
 //Function to print transformation controls
 void printTrControls(int oX, int oY){
-	if (!selected) return;//Exits function if no entity was selected
-	box* b = (box*) selected;//Converts to box
+	if (selected){//If there's a selected entity
+		box* b = (box*) selected;//Converts to box
+		
+		rectangleColor(video, b->point[0].x + oX, b->point[0].y + oY, b->point[2].x + oX, b->point[2].y + oY, editorSel);//Highlights
+		
+		//Prints handles
+		handle.print_centre(video, oX + b->point[0].x, oY + b->point[0].y);
+		handle.print_centre(video, oX + b->point[1].x, oY + b->point[1].y);
+		handle.print_centre(video, oX + b->point[2].x, oY + b->point[2].y);
+		handle.print_centre(video, oX + b->point[3].x, oY + b->point[3].y);
+	}
 	
-	boxColor(video, b->point[0].x + oX, b->point[0].y + oY, b->point[2].x + oX, b->point[2].y + oY, editorSel);//Highlights
-	
-	//Prints handles
-	handle.print_centre(video, oX + b->point[0].x, oY + b->point[0].y);
-	handle.print_centre(video, oX + b->point[1].x, oY + b->point[1].y);
-	handle.print_centre(video, oX + b->point[2].x, oY + b->point[2].y);
-	handle.print_centre(video, oX + b->point[3].x, oY + b->point[3].y);
+	else if (selectedArea){//If there's a selected area
+		rectangleColor(video, selectedArea->x + oX, selectedArea->y + oY, selectedArea->x + selectedArea->w + oX, selectedArea->y + selectedArea->h + oY, editorSel);//Highlights
+		
+		//Prints handles
+		handle.print_centre(video, oX + selectedArea->x, oY + selectedArea->y);
+		handle.print_centre(video, oX + selectedArea->x + selectedArea->w, oY + selectedArea->y);
+		handle.print_centre(video, oX + selectedArea->x, oY + selectedArea->y + selectedArea->h);
+		handle.print_centre(video, oX + selectedArea->x + selectedArea->w, oY + selectedArea->y + selectedArea->h);
+	}
 }
 
 //Function to check links
@@ -237,6 +298,23 @@ void checkLinks(){
 		else {//Else
 			s->length_zero = (*s->a_point - *s->b_point).module();//Resets length
 			s->id = n > 0 ? "spring_" + toString(n) : "spring";//Resets id
+		}
+	}
+}
+
+//Function to check areas
+void checkAreas(){
+	deque<area>::iterator a;//Area iterator
+	
+	for (a = edited.areas.begin(); a != edited.areas.end(); a++){//For each area
+		if (a->w < 0){//If area has negative width
+			a->x -= a->w;//Adjusts x
+			a->w = -a->w;//Adjusts width
+		}
+		
+		if (a->h < 0){//If area has negative height
+			a->y -= a->h;//Adjusts y
+			a->h = -a->h;//Adjusts height
 		}
 	}
 }
@@ -290,6 +368,7 @@ void loadEditor(){
 	edOpen = editor.getControl("open");
 	edProp = editor.getControl("prop");
 	edSpring = (checkBox*) editor.getControl("spring");
+	edArea = editor.getControl("area");
 	
 	//Sets handlers
 	edBack->release.handlers.push_back(editorBackClick);
@@ -298,6 +377,7 @@ void loadEditor(){
 	edOpen->release.handlers.push_back(editorOpenClick);
 	edProp->release.handlers.push_back(editorPropClick);
 	edSpring->release.handlers.push_back(editorSpringClick);
+	edArea->release.handlers.push_back(addAreaClick);
 	
 	properties = loadWindow(propertiesFile, "properties");//Loads properties
 	
@@ -328,6 +408,15 @@ void loadEditor(){
 	selLockRot = (checkBox*) selProp.getControl("frame.lockRotCheck");
 	selPrint = (checkBox*) selProp.getControl("frame.printCheck");
 	
+	areaProp = loadWindow(areaPropFile, "areaProperties");//Loads area properties
+	
+	//Gets controls
+	areaPropFrame = (panel*) areaProp.getControl("frame");
+	areaRules = areaProp.getControl("frame.editRules");
+	
+	//Sets handlers
+	areaRules->release.handlers.push_back(areaRulesEdit);
+	
 	openLevel(loadLevel(templateFile));//Loads template
 }
 
@@ -345,6 +434,7 @@ void editorLoop(){
 			editor.checkEvents(ev);//Checks editor events
 			if (showProperties){ properties.checkEvents(ev); applyProp(); }//Checks properties events
 			if (selected) { selProp.checkEvents(ev); applySelProp(); }//Checks selected properties events
+			if (selectedArea) areaProp.checkEvents(ev);//Checks area properties events
 			
 			if (ev.type == SDL_MOUSEBUTTONDOWN){//On mouse pressure
 				if (ev.button.button == SDL_BUTTON_LEFT){//If clicked left
@@ -418,16 +508,53 @@ void editorLoop(){
 						}
 						else draggedNode = NULL;
 						
-						if (!draggedNode && selPropFrame->status != control::pressed && propFrame->status != control::pressed){//If not dragging a node or pressing a panel
+						if (selectedArea){//If there's a selected area
+							int pX = ev.button.x - oX, pY = ev.button.y - oY;//Clicked point
+							
+							if (abs(pX - selectedArea->x) < handle.w()){//If selected one of the left points
+								if (abs(pY - selectedArea->y) < handle.h())//If selected the top left node
+									draggedAreaNodeIndex = 2;//Sets index
+									
+								else if (abs(pY - selectedArea->y - selectedArea->h) < handle.h())//If selected the bottom left node
+									draggedAreaNodeIndex = 1;//Sets index
+									
+								else draggedAreaNodeIndex = -1;
+							}
+							
+							else if (abs(pX - selectedArea->x - selectedArea->w) < handle.w()){//If selected one of the right points
+								if (abs(pY - selectedArea->y) < handle.h())//If selected the top right node
+									draggedAreaNodeIndex = 3;//Sets index
+									
+								else if (abs(pY - selectedArea->y - selectedArea->h) < handle.h())//If selected the bottom right node
+									draggedAreaNodeIndex = 0;//Sets index
+									
+								else draggedAreaNodeIndex = -1;
+							}
+							
+							else draggedAreaNodeIndex = -1;
+						}
+						else draggedAreaNodeIndex = -1;
+						
+						if (!draggedNode && draggedAreaNodeIndex == -1 && selPropFrame->status != control::pressed && propFrame->status != control::pressed && areaPropFrame->status != control::pressed){//If not dragging a node or pressing a panel
 							selected = getSelected(oX, oY);//Gets entity
-							updateSelProp();//Updates selected entity properties
+							
+							if (selected) updateSelProp();//Updates selected entity properties
+							if (!selected) selectedArea = getSelArea(oX, oY);//Selected area
 						}
 					
 						dragged = selected;//Sets dragged
-						if (dragged) dragInitial = {double(ev.button.x - oX), double(ev.button.y - oY)};//Sets dragging initial position
+						draggedArea = selectedArea;//Sets dragged area
+						if (dragged || draggedArea) dragInitial = {double(ev.button.x - oX), double(ev.button.y - oY)};//Sets dragging initial position
 						
 						if (!draggedNode && dragged) dragDist = dragInitial - dragged->position;//Gets dragging distance
 						else if (draggedNode) dragDist = dragInitial - *draggedNode;//Gets dragging distance
+						else if (draggedArea && draggedAreaNodeIndex == -1) dragDist = dragInitial - vector (draggedArea->x, draggedArea->y);//Gets dragging distance
+						else if (draggedArea && draggedAreaNodeIndex != -1){//If dragging area node
+							int pX = draggedArea->x + (draggedAreaNodeIndex % 3 == 0 ? draggedArea->w : 0);//X coord
+							int pY = draggedArea->y + (draggedAreaNodeIndex < 2 ? draggedArea->h : 0);//Y coord
+							
+							dragDist = dragInitial - vector (pX, pY);//Gets dragging distance
+						}
 					}
 				}
 				
@@ -447,8 +574,9 @@ void editorLoop(){
 			}
 			
 			if (ev.type == SDL_MOUSEBUTTONUP){//On mouse release
-				if (dragged) dragged = NULL;//Drops dragged entity
-				if (draggedNode) draggedNode = NULL;//Drops dragged node
+				dragged = NULL;//Drops dragged entity
+				draggedNode = NULL;//Drops dragged node
+				draggedArea = NULL;//Drops dragged area
 				
 				dragVector = {0,0};//Resets drag vector
 			}
@@ -466,7 +594,7 @@ void editorLoop(){
 		int mX, mY;//Mouse coords
 		int mBtn = SDL_GetMouseState(&mX, &mY);//Gets mouse state
 		
-		if (dragged && selPropFrame->status != control::pressed && propFrame->status != control::pressed){//If dragging something (entity or node but not panel)
+		if ((dragged || draggedArea) && selPropFrame->status != control::pressed && propFrame->status != control::pressed && areaPropFrame->status != control::pressed){//If dragging something (area, entity or node but not panel)
 			dragVector = vector {double(ev.button.x - oX), double(ev.button.y - oY)} - dragInitial;//Calculates drag vector
 			
 			SDLMod m = SDL_GetModState();//Modifier state
@@ -527,8 +655,44 @@ void editorLoop(){
 				updateSelProp();//Updates selected properties with new info
 			}
 			
-			else {//If dragging an entity
+			else if (dragged) {//If dragging an entity
 				dragged->translate(dragInitial - dragged->position + dragVector);//Drags whole entity
+			}
+			
+			else if (draggedArea && draggedAreaNodeIndex != -1){//If dragging area node
+				switch(draggedAreaNodeIndex){//According to dragged index
+					case 0:
+					draggedArea->w = -draggedArea->x + dragInitial.x + dragVector.x;
+					draggedArea->h = -draggedArea->y + dragInitial.y + dragVector.y;
+					break;
+					
+					case 1:
+					draggedArea->w += draggedArea->x - dragInitial.x - dragVector.x;
+					draggedArea->h = -draggedArea->y + dragInitial.y + dragVector.y;
+					
+					draggedArea->x = dragInitial.x + dragVector.x;
+					break;
+					
+					case 2:
+					draggedArea->w += draggedArea->x - dragInitial.x - dragVector.x;
+					draggedArea->h += draggedArea->y - dragInitial.y - dragVector.y;
+					
+					draggedArea->x = dragInitial.x + dragVector.x;
+					draggedArea->y = dragInitial.y + dragVector.y;
+					break;
+					
+					case 3:
+					draggedArea->w = -draggedArea->x + dragInitial.x + dragVector.x;
+					draggedArea->h += draggedArea->y - dragInitial.y - dragVector.y;
+					
+					draggedArea->y = dragInitial.y + dragVector.y;
+					break;
+				}
+			}
+			
+			else if (draggedArea) {//If dragging an area
+				draggedArea->x = dragInitial.x + dragVector.x;
+				draggedArea->y = dragInitial.y + dragVector.y;
 			}
 		}
 		
@@ -543,8 +707,13 @@ void editorLoop(){
 		editor.print(video);//Prints editor UI
 		if (showProperties) properties.print(video);//Print properties
 		if (selected) selProp.print(video);//Prints selected properties
+		if (selectedArea) areaProp.print(video);//Prints area properties
 		
 		checkLinks();//Checks links
+		checkAreas();//Checks areas
+		
+		updateCommon();//Updates common ui
+		common.print(video);//Prints common ui
 		
 		UPDATE;//Updates
 		FRAME_END;//Ends frame

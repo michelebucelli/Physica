@@ -29,9 +29,6 @@ image starOn, starOff;//Star images
 image starOn_sm, starOff_sm;//Small star images
 
 //User interface
-window common;//Common UI
-control* fpsLabel;//Fps label
-
 window hud;//Hud window
 control *btnPause, *btnRestart;//Hud buttons
 control *labDeaths, *labTime;//Hud labels

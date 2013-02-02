@@ -345,6 +345,10 @@ void lpEditorLoop(){
 		
 		BKG;//Prints background
 		lpEditor.print(video);//Prints editor
+		
+		updateCommon();//Updates common ui
+		common.print(video);//Prints common ui
+		
 		UPDATE;//Updates
 		
 		if (forceLevRedraw){//If has to force redraw

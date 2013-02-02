@@ -80,10 +80,14 @@ Mix_Chunk *deathSfx;//Death sound
 bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 bool camFollow = false;//If true, camera will follow player
 
+window common;//Common UI
+control* fpsLabel;//Fps label
+
 //Prototypes
 class area;//Area class prototype
 
 void resize(int,int,bool,bool = true);//Resizing function
+void updateCommon();//Function to update common ui
 string getInput(string);//Function to get input
 
 //Common funcs
@@ -291,13 +295,11 @@ rules loadedRules;//Loaded rules
 //Area class - a rectangle plus rules definitions
 class area: public rectangle, public rules {
 	public:
-	string id, type;
 	Uint32 color;//Area color
 	
 	//Constructor
 	area(){
-		id = "";
-		type = OBJTYPE_AREA;
+		rules::id = "";
 		rules::type = OBJTYPE_AREA;
 		rectangle::type = OBJTYPE_AREA;
 		
@@ -345,7 +347,35 @@ class area: public rectangle, public rules {
 		
 		return result;//Returns result
 	}
+	
+	//Assignment for rules
+	void setRules (rules r){
+		jumpImpulse = r.jumpImpulse;
+		
+		groundSpeed = r.groundSpeed;
+		groundForce = r.groundForce;
+		groundDamping = r.groundDamping;
+		
+		airSpeed = r.airSpeed;
+		airForce = r.airForce;
+		
+		gravity = r.gravity;
+		
+		jumpCount = r.jumpCount;
+		
+		setMask = r.setMask;
+	}
 };
+
+//Specific get for areas
+template <> area* get<area> (deque<area>* c, string id){
+	deque<area>::iterator i;//Iterator
+	
+	for (i = c->begin(); i != c->end(); i++)//For each area
+		if (i->rules::id == id) return &*i;//Returns if matching
+		
+	return NULL;
+}
 
 //Level class
 //	adds a few stuff to the base scene class

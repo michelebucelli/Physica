@@ -579,7 +579,7 @@ class rulesdialog: public dialog {
 					if (groundDamping->content.t != ""){ result->setMask |= 0b00010000; result->groundDamping = atof(groundDamping->content.t.c_str()); }
 					if (airSpeed->content.t != ""){ result->setMask |= 0b00001000; result->airSpeed = atof(airSpeed->content.t.c_str()); }
 					if (airForce->content.t != ""){ result->setMask |= 0b00000100; result->airForce = atof(airForce->content.t.c_str()); }
-					if (gravity->content.t != ""){ result->setMask |= 0b00000010; result->gravity.fromString(jumpImpulse->content.t.c_str()); }
+					if (gravity->content.t != ""){ result->setMask |= 0b00000010; result->gravity.fromString(gravity->content.t.c_str()); }
 					if (jumpCount->content.t != ""){ result->setMask |= 0b00000001; result->jumpCount = atoi(jumpCount->content.t.c_str()); }
 					
 					return result;//Returns result
