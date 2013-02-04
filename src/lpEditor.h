@@ -154,6 +154,7 @@ void lpLevEditClick(clickEventData data){
 		
 		else {//Else
 			l = loadLevel(templateFile);//Loads template
+			l->path = fileField->content.t;//Sets path
 			
 			o << edited.toScriptObj().toString();//Saves level
 			o.close();//Closes file

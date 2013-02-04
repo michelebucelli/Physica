@@ -328,7 +328,7 @@ class area: public rectangle, public rules {
 	
 	//Function to load from script object
 	bool fromScriptObj(object o){
-		if (rectangle::fromScriptObj(o) && rules::fromScriptObj(o)){//If succeeded loading base data	
+		if (rules::fromScriptObj(o) && rectangle::fromScriptObj(o)){//If succeeded loading base data	
 			var* color = get <var> (&o.v, "color");//Area color
 			if (color) this->color = strtol(color->value.c_str(), NULL, 0);//Gets color
 			
@@ -365,11 +365,16 @@ class area: public rectangle, public rules {
 		
 		setMask = r.setMask;
 	}
+	
+	//Equal operator
+	bool operator == (area a){
+		return rectangle::id == a.rectangle::id;
+	}
 };
 
 //Specific get for areas
-template <> area* get<area> (deque<area>* c, string id){
-	deque<area>::iterator i;//Iterator
+template <> area* get<area> (list<area>* c, string id){
+	list<area>::iterator i;//Iterator
 	
 	for (i = c->begin(); i != c->end(); i++)//For each area
 		if (i->rules::id == id) return &*i;//Returns if matching
@@ -390,7 +395,7 @@ class level: public scene {
 	deque<string> message;//Level startup messages
 	
 	rules lvlRules;//Level specific rules
-	deque<area> areas;//Areas
+	list<area> areas;//Areas
 	
 	string path;//Level path
 	
@@ -480,7 +485,7 @@ class level: public scene {
 		lvlRules.id = "rules";
 		result.o.push_back(lvlRules.toScriptObj());//Adds rules
 		
-		deque<area>::iterator a;//Area iterator
+		list<area>::iterator a;//Area iterator
 		for (a = areas.begin(); a != areas.end(); a++)//For each area
 			result.o.push_back(a->toScriptObj());//Adds areas
 		
@@ -492,7 +497,7 @@ class level: public scene {
 		SDL_Rect offset {x, y};//Offset rect
 		SDL_BlitSurface(backgroundImage, NULL, target, &offset);//Prints background
 		
-		deque<area>::iterator a;//Area iterator
+		list<area>::iterator a;//Area iterator
 		for (a = areas.begin(); a != areas.end(); a++){//For each area
 			SDL_Rect r = *a;//Rectangle
 			r.x += x;//Offset x
@@ -1009,8 +1014,6 @@ class game {
 	
 	list <collision> c;//Frame collision list
 	
-	rules currentRules;//Current rules
-	
 	//Constructor
 	game(){
 		player = NULL;
@@ -1037,7 +1040,7 @@ class game {
 	
 	//Function for controls handling
 	void handleControls(Uint8* keys){
-		rules resultRules = currentRules;//Current rules
+		rules currentRules = getAreaRules();//Gets rules
 		
 		if (keys && player){//If keys array is valid and there's a player
 			int lowestSensor = 0;//Lowest player sensor
@@ -1061,42 +1064,56 @@ class game {
 			if (ground) playerJumps = 0;//Resets jump count
 			if (!ground && playerJumps == 0) playerJumps = 1;//If on air, at least one jump
 			
-			if (keys[playerControls.up] && releasedJump && playerJumps < resultRules.jumpCount){//If pressed up and can jump
+			if (keys[playerControls.up] && releasedJump && playerJumps < currentRules.jumpCount){//If pressed up and can jump
 				player->speed.y = 0;//Stops on y
-				player->applyImpulse(player->position, {0, -resultRules.jumpImpulse * currentRules.gravity.y / abs(currentRules.gravity.y)});//Applies impulse
+				player->applyImpulse(player->position, {0, -currentRules.jumpImpulse * currentRules.gravity.y / abs(currentRules.gravity.y)});//Applies impulse
 				
 				playerJumps++;//Increases jump count
 				releasedJump = false;//Not released jump
 			}
 			
 			if (right){//If pressing right
-				if (ground && player->speed.x < resultRules.groundSpeed)//If on ground and moving slower
-					player->applyForce(player->position, {resultRules.groundForce, 0});//Applies force
+				if (ground && player->speed.x < currentRules.groundSpeed)//If on ground and moving slower
+					player->applyForce(player->position, {currentRules.groundForce, 0});//Applies force
 					
-				else if (!ground && player->speed.x < resultRules.airSpeed)//If on air and moving slower
-					player->applyForce(player->position, {resultRules.airForce, 0});//Applies force
+				else if (!ground && player->speed.x < currentRules.airSpeed)//If on air and moving slower
+					player->applyForce(player->position, {currentRules.airForce, 0});//Applies force
 			}
 			
 			else if (left){//If pressing left
-				if (ground && player->speed.x > -resultRules.groundSpeed)//If on ground and moving slower
-					player->applyForce(player->position, {-resultRules.groundForce, 0});//Applies force
+				if (ground && player->speed.x > -currentRules.groundSpeed)//If on ground and moving slower
+					player->applyForce(player->position, {-currentRules.groundForce, 0});//Applies force
 					
-				else if (!ground && player->speed.x > -resultRules.airSpeed)//If on air and moving slower
-					player->applyForce(player->position, {-resultRules.airForce, 0});//Applies force
+				else if (!ground && player->speed.x > -currentRules.airSpeed)//If on air and moving slower
+					player->applyForce(player->position, {-currentRules.airForce, 0});//Applies force
 			}
 			
-			else if (ground) player->applyForce(player->position, {-player->speed.x * resultRules.groundDamping, 0});//Applies damping on ground
+			else if (ground) player->applyForce(player->position, {-player->speed.x * currentRules.groundDamping, 0});//Applies damping on ground
 		}
 	}
 	
 	//Function to check for area rules
-	void checkAreaRules(){
-		deque<area>::iterator a;//Area iterator
+	rules getAreaRules(){
+		list<area>::iterator a;//Area iterator
 		
-		currentRules = defaultRules + loadedRules + levels.lsRules + currentLevel->lvlRules;//Sets rules
+		rules result = defaultRules + loadedRules + levels.lsRules + currentLevel->lvlRules;//Sets rules
 		
 		for (a = currentLevel->areas.begin(); a != currentLevel->areas.end(); a++)//For each area
-			if (a->isInside(player->position.x, player->position.y)) currentRules += *a;//Adds area rules if player is inside
+			if (a->isInside(player->position.x, player->position.y)) result += *a;//Adds area rules if player is inside
+			
+		return result;//Returns result
+	}
+	
+	//Function to get rules in given point
+	rules getAreaRules(vector p){
+		list<area>::iterator a;//Area iterator
+		
+		rules result = defaultRules + loadedRules + levels.lsRules + currentLevel->lvlRules;//Sets rules
+		
+		for (a = currentLevel->areas.begin(); a != currentLevel->areas.end(); a++)//For each area
+			if (a->isInside(p.x, p.y)) result += *a;//Adds area rules if point is inside
+			
+		return result;//Returns result
 	}
 	
 	//Function to print
@@ -1179,7 +1196,12 @@ class game {
 	//Function for time step
 	void step(double t){
 		if (currentLevel){//If level exists
-			currentLevel->applyGravity(currentRules.gravity);//Applies gravity
+			list<entity*>::iterator i;//Entity iterator
+			deque<area>::iterator a;//Area iterator
+			
+			for (i = currentLevel->entities.begin(); i != currentLevel->entities.end(); i++)//For each entity in level
+				(*i)->applyForce((*i)->position, getAreaRules((*i)->position).gravity * (*i)->mass);//Applies gravity
+			
 			c = currentLevel->step(t);//Steps
 			checkRelevant();//Steps level
 		}
@@ -1188,8 +1210,6 @@ class game {
 	//Function to handle a frame
 	void frame(double t, Uint8* keys){
 		if (paused){ lastFrameTime = SDL_GetTicks(); return; }//Exits function if paused
-		
-		checkAreaRules();//Checks rules
 		
 		step(t);//Steps
 		

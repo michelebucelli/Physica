@@ -251,7 +251,7 @@ area* getSelArea(int oX, int oY){
 	int x, y;
 	SDL_GetMouseState(&x, &y);//Gets mouse position
 	
-	deque<area>::reverse_iterator i;//Iterator
+	list<area>::reverse_iterator i;//Iterator
 	for (i = edited.areas.rbegin(); i != edited.areas.rend(); i++)//For each area
 		if (i->isInside(x - oX, y - oY)) return &*i;//Returns area
 		
@@ -306,7 +306,7 @@ void checkLinks(){
 
 //Function to check areas
 void checkAreas(){
-	deque<area>::iterator a;//Area iterator
+	list<area>::iterator a;//Area iterator
 	
 	for (a = edited.areas.begin(); a != edited.areas.end(); a++){//For each area
 		if (a->w < 0){//If area has negative width
@@ -588,6 +588,11 @@ void editorLoop(){
 					if (selected && !dragged){//If there's a selected entity
 						edited.entities.remove(selected);//Removes
 						selected = NULL;//Unselects
+					}
+					
+					else if (selectedArea && draggedAreaNodeIndex == -1){//If deleting area
+						edited.areas.remove(*selectedArea);//Removes
+						selectedArea = NULL;//Unselects
 					}
 				}
 			}
