@@ -9,7 +9,15 @@
 
 #include "SDL/SDL_mixer.h"//Includes SDL sound effects library
 
-#include <curl/curl.h>
+#include <curl/curl.h>//Includes CURL
+
+#ifdef __WIN32__
+#include <windows.h>//Includes windows header
+#endif
+
+#ifdef __linux__
+#include <sys/stat.h>//Includes linux header
+#endif
 
 #define OBJTYPE_LEVEL			"level"//Level objects
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
@@ -1532,6 +1540,13 @@ void processUpdateScript(script u){
 				
 		if (t[0] == "download" && t.size() >= 3)//Download command
 			downloadFile(t[1], t[2]);//Downloads file
+			
+		else if (t[0] == "mkdir" && t.size() >= 2)//Makedir command
+			#ifdef __WIN32__
+			CreateDirectory  (t[1].c_str(), NULL);//Creates directory
+			#else if defined __linux
+			mkdir(t[1].c_str(), 0666);//Creates directory
+			#endif
 		
 		else if (t[0] == "kill" && t.size() >= 2)//Kill command
 			remove(t[1].c_str());//Kills file
