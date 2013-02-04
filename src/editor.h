@@ -32,6 +32,7 @@ string areaPropFile = "data/cfg/ui/editor_areaProp.cfg";//Selected area properti
 window areaProp;//Selected area properties window
 panel* areaPropFrame;//Area properties frame
 control* areaRules;//Area rules edit button
+control* areaColorField;//Area color field
 
 bool editing = false;//Editor running flag
 bool springMode = false;//True if in spring mode
@@ -172,6 +173,11 @@ void updateSelProp(){
 	selPrint->checked = selected->print;
 }
 
+//Function to update area properties
+void updateAreaProp(){
+	areaColorField->content.t = toString(selectedArea->color, true);
+}
+
 //Function to apply properties to selected
 void applySelProp(){
 	if (!selected) return;//Exits function if no entity is selected
@@ -185,6 +191,11 @@ void applySelProp(){
 	selected->lockTranslation = selLockTr->checked;
 	selected->lockRotation = selLockRot->checked;
 	selected->print = selPrint->checked;
+}
+
+//Function to apply properties to area
+void applyAreaProp(){
+	selectedArea->color = strtol(areaColorField->content.t.c_str(), NULL, 0);
 }
 
 //Add button click
@@ -415,6 +426,7 @@ void loadEditor(){
 	//Gets controls
 	areaPropFrame = (panel*) areaProp.getControl("frame");
 	areaRules = areaProp.getControl("frame.editRules");
+	areaColorField = areaProp.getControl("frame.colorField");
 	
 	//Sets handlers
 	areaRules->release.handlers.push_back(areaRulesEdit);
@@ -436,7 +448,7 @@ void editorLoop(){
 			editor.checkEvents(ev);//Checks editor events
 			if (showProperties){ properties.checkEvents(ev); applyProp(); }//Checks properties events
 			if (selected) { selProp.checkEvents(ev); applySelProp(); }//Checks selected properties events
-			if (selectedArea) areaProp.checkEvents(ev);//Checks area properties events
+			if (selectedArea) { areaProp.checkEvents(ev); applyAreaProp(); }//Checks area properties events
 			
 			if (ev.type == SDL_MOUSEBUTTONDOWN){//On mouse pressure
 				if (ev.button.button == SDL_BUTTON_LEFT){//If clicked left
@@ -542,6 +554,7 @@ void editorLoop(){
 							
 							if (selected) updateSelProp();//Updates selected entity properties
 							if (!selected) selectedArea = getSelArea(oX, oY);//Selected area
+							if (selectedArea) updateAreaProp();//Updates selected area properties
 						}
 					
 						dragged = selected;//Sets dragged

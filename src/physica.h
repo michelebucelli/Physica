@@ -1072,7 +1072,7 @@ class game {
 			if (ground) playerJumps = 0;//Resets jump count
 			if (!ground && playerJumps == 0) playerJumps = 1;//If on air, at least one jump
 			
-			if (keys[playerControls.up] && releasedJump && playerJumps < currentRules.jumpCount){//If pressed up and can jump
+			if (keys[playerControls.up] && releasedJump && (playerJumps < currentRules.jumpCount || currentRules.jumpCount < 0)){//If pressed up and can jump
 				player->speed.y = 0;//Stops on y
 				player->applyImpulse(player->position, {0, -currentRules.jumpImpulse * currentRules.gravity.y / abs(currentRules.gravity.y)});//Applies impulse
 				
@@ -1626,8 +1626,6 @@ void checkUpdates(){
 		default: cerr << "UPDATES ERROR: " << curl_easy_strerror(result); break;//Unexpected error
 	}
 
-	
-	
 	remove("tmp_updates");//Removes updates file
 }
 
@@ -1665,7 +1663,7 @@ void gameInit(int argc, char* argv[]){
 	loadEditor();//Loads editor
 	loadLpEditor();//Loads level pack editor
 	
-	checkUpdates();//Checks for updates
+	//checkUpdates();//Checks for updates
 
 	keys = SDL_GetKeyState(NULL);//Gets keys
 }
