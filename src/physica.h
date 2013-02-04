@@ -1532,14 +1532,23 @@ CURLcode downloadFile(string source, string dest){
 }
 
 //Function to process an update script
-void processUpdateScript(script u){
+bool processUpdateScript(script u){
 	script::iterator i;//Iterator for script lines
+	bool failed = false;
 	
 	for (i = u.begin(); i != u.end(); i++){//For each line
 		deque<string> t = tokenize <deque<string> > (*i, " ");//Splits into tokens
 				
-		if (t[0] == "download" && t.size() >= 3)//Download command
-			downloadFile(t[1], t[2]);//Downloads file
+		if (t[0] == "download" && t.size() >= 3){//Download command
+			CURLcode result = downloadFile(t[1], t[2]);//Downloads file
+			
+			if (result != CURLE_OK){//If failed
+				failed = true;//Sets failed flag
+				cerr << "ERROR - DOWNLOADING:\nfile:    " << t[1] << "\ndest:    " << t[2] << "\nerror   :" << curl_easy_strerror(result) << "\n\n";//Error message
+			}
+			
+			if (!ifstream(t[2].c_str())){ cerr << "ERROR - DOWNLOADING:\nfile:    " << t[1] << "\ndest:    " << t[2] << "\nerror   : UNKNOWN\n\n"; failed = true; }//Error message
+		}
 			
 		else if (t[0] == "mkdir" && t.size() >= 2)//Makedir command
 			#ifdef __WIN32__
@@ -1560,15 +1569,18 @@ void processUpdateScript(script u){
 		else if (t[0] == "message" && t.size() >= 2){//Message command
 			{BKG; msgBox.show(video, i->substr(8), 1, msgBox_ans_ok); }//Shows message box
 		}
-		
 	}
+	
+	if (failed) msgBox.show(video, "Download failed.", 1, msgBox_ans_ok);//Error message
+	
+	return !failed;
 }
 
 //Function to provess an update script from file path
-void processUpdateScript(string path){
+bool processUpdateScript(string path){
 	script s;//New script
 	s.fromFile(path);//Opens
-	processUpdateScript(s);//Processes script
+	return processUpdateScript(s);//Processes script
 }
 
 //Function to check for updates
