@@ -122,8 +122,6 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_settings){//If in settings view
-			BKG;//Prints background
-			
 			while (SDL_PollEvent(&ev)){//While there are events on stack
 				EVENTS_COMMON(ev);//Common events
 					
@@ -135,6 +133,7 @@ int main(int argc, char* argv[]){
 				applySettings();//Applies settings changes
 			}
 			
+			BKG;//Prints background
 			settings.print(video);//Prints settings window
 		}
 

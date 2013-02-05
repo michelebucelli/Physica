@@ -76,7 +76,10 @@ void editorNewClick(clickEventData data){
 	edited.entities.clear();//Clears entities
 	PLAYSOUND(clickSfx);
 	
+	string path = edited.path;//Gets path
+	
 	edited = *loadLevel(templateFile);//Loads template
+	edited.path = path;//Re-sets path
 	
 	updateProperties();//Updates properties panel
 }

@@ -120,6 +120,12 @@ class font: public objectBased {
 template <class eventData> class event {
 	public:
 	list <void (*)(eventData)> handlers;//Event handlers (pointer to functions)
+	bool triggered;//Triggered flag
+	
+	//Constructor
+	event(){
+		triggered = false;
+	}
 	
 	//Operator () to trigger event
 	void operator () (eventData data){
@@ -127,6 +133,8 @@ template <class eventData> class event {
 		
 		for (i = handlers.begin(); i != handlers.end(); i++)//For each handler
 			if (*i) (*i)(data);//Calls the event function
+			
+		triggered = true;
 	}
 };
 
@@ -619,6 +627,10 @@ class control: public objectBased {
 		//Applies offset
 		area.x += x;
 		area.y += y;
+		
+		//Removes triggered flags
+		press.triggered = false;
+		release.triggered = false;
 		
 		if (e.type == SDL_MOUSEBUTTONUP && (e.button.button == SDL_BUTTON_WHEELUP || e.button.button == SDL_BUTTON_WHEELDOWN)){//Wheel events
 			if (e.button.x > area.x && e.button.x < area.x + area.w && e.button.y > area.y && e.button.y < area.y + area.h){//If mouse is inside control

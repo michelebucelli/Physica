@@ -62,6 +62,7 @@ window settings;//Settings window
 panel* settingsFrame;//Settings frame
 checkBox *setFullscreen, *setCamFollow, *setSound, *setDebug;//Settings check boxes
 keyBox *setUp, *setLeft, *setRight;//Controls key boxes
+control *setUpdates;//Updates check button
 
 window achievements;//Achievements window
 panel defaultAch;//Achievement info panel
@@ -485,6 +486,13 @@ void resize(int newW, int newH, bool fs, bool redraw){
 	}
 }
 
+//Function to handle click update
+void updateClick(clickEventData data){
+	PLAYSOUND(clickSfx);
+	
+	checkUpdates(false, true);//Checks for updates
+}
+
 //Function to apply settings
 void applySettings(){
 	if (setFullscreen->checked != fullscreen) resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
@@ -584,6 +592,7 @@ void loadUI(){
 	setUp = (keyBox*) settings.getControl("frame.upKey");//Gets up key box
 	setRight = (keyBox*) settings.getControl("frame.rightKey");//Gets right key box
 	setLeft = (keyBox*) settings.getControl("frame.leftKey");//Gets left key box
+	setUpdates = settings.getControl("frame.update");//Gets updates button
 	
 	settingsFrame->area.x = (video_w - settingsFrame->area.w) / 2;//Centers settings on x
 	settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
@@ -591,6 +600,7 @@ void loadUI(){
 	setFullscreen->release.handlers.push_back(stdClick);//Adds click handler
 	setCamFollow->release.handlers.push_back(stdClick);//Adds click handler
 	setSound->release.handlers.push_back(stdClick);//Adds click handler
+	setUpdates->release.handlers.push_back(updateClick);//Adds updates click handler
 	
 	credits = loadWindow(creditsFile, "credits");//Loads credits file
 	creditsLabel = credits.getControl("credits");//Gets credits label

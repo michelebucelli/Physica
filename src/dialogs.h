@@ -96,7 +96,7 @@ class msgbox: public dialog {
 				
 				list<control*>::iterator i;//Control iterator
 				for (i = dialogFrame->children.begin(); i != dialogFrame->children.end(); i++)//For each control
-					if ((*i)->id != "text" && (*i)->status == control::pressed) return atoi((*i)->id.c_str());//Returns index if pressed
+					if ((*i)->id != "text" && (*i)->release.triggered) return atoi((*i)->id.c_str());//Returns index if pressed
 					
 				if (e.type == SDL_KEYDOWN && kp) return -1;//Returns -1 on key press
 			}
@@ -230,7 +230,7 @@ class imgpreview: public dialog {
 				
 				dialogWindow.checkEvents(e);//Checks dialog events
 				
-				if (e.type == SDL_KEYDOWN) return;//Returns on key press
+				if (e.type == SDL_KEYDOWN || e.type == SDL_MOUSEBUTTONUP) return;//Returns on key press
 			}
 			
 			SDL_BlitSurface(old, NULL, target, NULL);//Prints target
@@ -312,7 +312,7 @@ class imginput: public dialog {
 				
 				dialogWindow.checkEvents(e);//Checks dialog events
 				
-				if (ok->status == control::pressed)//If pressed ok
+				if (ok->release.triggered)//If pressed ok
 					return new image(
 									idField->content.t,
 									pathField->content.t,
@@ -321,7 +321,7 @@ class imginput: public dialog {
 									atoi(rectW->content.t.c_str()),
 									atoi(rectH->content.t.c_str()));//Result
 										
-				if (preview->status == control::pressed){//If pressed preview
+				if (preview->release.triggered){//If pressed preview
 					image i (idField->content.t,
 							pathField->content.t,
 							atoi(rectX->content.t.c_str()),
@@ -332,7 +332,7 @@ class imginput: public dialog {
 					imgPreview.show(target, i);//Shows image
 				}
 										
-				if (cancel->status == control::pressed)//If pressed cancel
+				if (cancel->release.triggered)//If pressed cancel
 					return NULL;//Returns null
 			}
 			
@@ -430,7 +430,7 @@ class achdialog: public dialog {
 				
 				dialogWindow.checkEvents(e);//Checks dialog events
 				
-				if (ok->status == control::pressed){//If pressed ok
+				if (ok->release.triggered){//If pressed ok
 					if (idField->content.t == ""){//If id is invalid
 						msgBox.show(target, "Missing ID field", 1, msgBox_ans_ok);//Message box
 						continue;//Next loop
@@ -445,13 +445,13 @@ class achdialog: public dialog {
 									checkOnce->checked);//Result
 				}
 										
-				if (iconEdit->status == control::pressed || icon->status == control::pressed){//If pressed icon
+				if (iconEdit->release.triggered || icon->release.triggered){//If pressed icon
 					image* i = imgInput.show(target, &icon->content.i);//Edits image
 					
 					if (i) icon->content.i = *i;//Sets icon
 				}
 										
-				if (cancel->status == control::pressed)//If pressed cancel
+				if (cancel->release.triggered)//If pressed cancel
 					return NULL;//Returns null
 			}
 			
@@ -567,7 +567,7 @@ class rulesdialog: public dialog {
 				
 				dialogWindow.checkEvents(e);//Checks dialog events
 				
-				if (ok->status == control::pressed){//If pressed ok
+				if (ok->release.triggered){//If pressed ok
 					rules *result = new rules;//Result rules
 					
 					result->setMask = 0;//Resets mask
@@ -585,7 +585,7 @@ class rulesdialog: public dialog {
 					return result;//Returns result
 				}
 										
-				if (cancel->status == control::pressed)//If pressed cancel
+				if (cancel->release.triggered)//If pressed cancel
 					return NULL;//Returns null
 			}
 			

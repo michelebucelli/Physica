@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="4.0000002"
-     inkscape:cx="294.29726"
-     inkscape:cy="676.59683"
+     inkscape:zoom="2.0000001"
+     inkscape:cx="321.83606"
+     inkscape:cy="642.75361"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -56,7 +56,7 @@
      id="layer1">
     <g
        id="g4592"
-       inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
+       inkscape:export-filename="F:\Documents\Programming\WIP\Physica\bin\data\graphics\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <path
@@ -217,7 +217,7 @@
     </g>
     <g
        id="g3925"
-       inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
+       inkscape:export-filename="F:\Documents\Programming\WIP\Physica\bin\data\graphics\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90"
        transform="translate(0,-0.35714152)">
@@ -260,7 +260,7 @@
     </g>
     <g
        id="g4631"
-       inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
+       inkscape:export-filename="F:\Documents\Programming\WIP\Physica\bin\data\graphics\ui.png"
        inkscape:export-xdpi="90"
        inkscape:export-ydpi="90">
       <g
@@ -324,8 +324,8 @@
          style="fill:#c0c0c0;fill-opacity:1;stroke:none"
          sodipodi:type="arc" />
       <rect
-         ry="0.99999994"
-         rx="1"
+         ry="4"
+         rx="4"
          y="309.50504"
          x="276"
          height="32"
@@ -333,8 +333,8 @@
          id="rect4042"
          style="fill:#404040;fill-opacity:1;stroke:none" />
       <rect
-         ry="0.99999994"
-         rx="1"
+         ry="4"
+         rx="4"
          y="309.50504"
          x="308"
          height="32"
@@ -342,8 +342,8 @@
          id="rect4042-7"
          style="fill:#808080;fill-opacity:1;stroke:none" />
       <rect
-         ry="0.99999994"
-         rx="1"
+         ry="4"
+         rx="4"
          y="309.50504"
          x="340"
          height="32"

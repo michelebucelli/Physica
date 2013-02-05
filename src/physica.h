@@ -98,6 +98,8 @@ void resize(int,int,bool,bool = true);//Resizing function
 void updateCommon();//Function to update common ui
 string getInput(string);//Function to get input
 
+void checkUpdates(bool = true, bool = false);//Updates function
+
 //Common funcs
 void frame_begin(){ frameBegin = SDL_GetTicks(); }//Frame beginning
 
@@ -1584,7 +1586,7 @@ bool processUpdateScript(string path){
 }
 
 //Function to check for updates
-void checkUpdates(){
+void checkUpdates(bool silent, bool dark){
 	CURLcode result = downloadFile (updatesFile, "tmp_updates");//Result of download
 	
 	if (result == 0) {//If downloaded successfully
@@ -1603,7 +1605,7 @@ void checkUpdates(){
 		
 		int s = toDownload.size();//Download size
 		
-		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn, false, false) == 0){//If user decides to download
+		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn, false, dark) == 0){//If user decides to download
 			deque<string>::iterator i;//Iterator
 			
 			for (i = toDownload.begin(); i != toDownload.end(); i++){//For each file
@@ -1618,6 +1620,8 @@ void checkUpdates(){
 			levelSets.clear();//Clears sets
 			loadSets();//Reloads sets
 		}
+		
+		else if (s == 0 && !silent) msgBox.show(video, "Database is up to date", 1, msgBox_ans_ok, false, dark);//up to date message
 	}
 	
 	else switch (result){
@@ -1662,8 +1666,6 @@ void gameInit(int argc, char* argv[]){
 	
 	loadEditor();//Loads editor
 	loadLpEditor();//Loads level pack editor
-	
-	//checkUpdates();//Checks for updates
 
 	keys = SDL_GetKeyState(NULL);//Gets keys
 }

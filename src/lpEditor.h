@@ -99,12 +99,14 @@ void lpUpdateProp(){
 //Function to handle back click
 void lpBackClick(clickEventData data){
 	lpEditing = false;//Not editing anymore
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle add level click
 void lpAddLevClick(clickEventData data){
 	lpEdited.push_back("");//Adds level
 	forceLevRedraw = true;//Forces redraw
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle add ach click
@@ -115,6 +117,8 @@ void lpAddAchClick(clickEventData data){
 		lpEdited.lsAchs.push_back(*a);//Adds achievement
 		forceAchRedraw = true;//Forces redraw
 	}
+	
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle level text changing
@@ -126,12 +130,14 @@ void lpLevTextChange (editEventData data){
 void lpLevDeleteClick(clickEventData data){
 	lpEdited.erase(lpEdited.begin() + atoi(data.caller->parent->id.c_str()));//Erases level
 	forceLevRedraw = true;//Forces level redraw
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle delete click button
 void lpAchDeleteClick(clickEventData data){
 	lpEdited.lsAchs.erase(lpEdited.lsAchs.begin() + atoi(data.caller->parent->id.c_str()));//Erases achievement
 	forceAchRedraw = true;//Forces achievements redraw
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle edit click
@@ -168,6 +174,7 @@ void lpLevEditClick(clickEventData data){
 	
 	springMode = false;
 	edSpring->checked = false;
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle edit click
@@ -179,6 +186,7 @@ void lpAchEditClick(clickEventData data){
 		lpEdited.lsAchs[n] = *a;//Sets achievement
 		forceAchRedraw = true;//Forces redraw
 	}
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle up click
@@ -190,6 +198,7 @@ void lpLevUpClick(clickEventData data){
 	}
 	
 	forceLevRedraw = true;
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle down click
@@ -201,6 +210,7 @@ void lpLevDownClick(clickEventData data){
 	}
 	
 	forceLevRedraw = true;
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle the open click
@@ -214,6 +224,7 @@ void lpOpenClick(clickEventData data){
 		lpLevelRedraw();//Redraws level
 		lpAchRedraw();//Redraws achievements
 	}
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle the save click
@@ -238,6 +249,7 @@ void lpSaveClick(clickEventData data){
 		o << lpEdited.toScriptObj().toString();//Outputs data
 		o.close();//Closes
 	}
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle the new click
@@ -247,6 +259,7 @@ void lpNewClick(clickEventData data){
 	lpUpdateProp();//Updates properties
 	lpLevelRedraw();//Redraws level
 	lpAchRedraw();//Redraws achievements
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle icon edit button click
@@ -257,6 +270,7 @@ void lpIconEditClick(clickEventData data){
 		lpEdited.icon = *i;//Sets icon
 		lpIcon->content.i = lpEdited.icon;//Sets icon
 	}
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to handle rules edit button click
@@ -266,6 +280,7 @@ void lpRulesEditClick(clickEventData data){
 	if (r){//If rules were valid
 		lpEdited.lsRules = *r;//Sets rules
 	}
+	PLAYSOUND(clickSfx);//Plays click sound
 }
 
 //Function to load level pack editor
