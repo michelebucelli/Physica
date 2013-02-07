@@ -12,7 +12,7 @@
 #include <curl/curl.h>//Includes CURL
 
 #ifdef __WIN32__
-#include <windows.h>//Includes windows header
+#include "SDL/SDL_syswm.h"//Includes SDL window manager
 #endif
 
 #ifdef __linux__
@@ -1635,10 +1635,6 @@ void checkUpdates(bool silent, bool dark){
 
 //Game initialization function
 void gameInit(int argc, char* argv[]){
-	#ifdef __WIN32__//If on windows
-		SDL_putenv ("SDL_VIDEODRIVER=directx");//Sets video driver to directx
-	#endif
-
 	Bulk_image_init();//Initializes Bulk image
 	Bulk_ui_init();//Initializes Bulk user interface
 	Bulk_physGraphics_init();//Initializes Bulk physics graphic functions
@@ -1650,6 +1646,7 @@ void gameInit(int argc, char* argv[]){
 	Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024);//Opens audio
 	
 	SDL_WM_SetCaption("Physica", NULL);//Sets window caption
+	SDL_WM_SetIcon(NULL, NULL);//Sets icon
 
 	current.success = showSuccess;//Sets success function
 		
@@ -1682,3 +1679,28 @@ void gameQuit(){
 	TTF_Quit();//Quits SDL ttf
 	SDL_Quit();//Quits SDL
 }
+
+//Windows-specific init and close function
+
+#ifdef __WIN32__
+HICON icon;
+HWND hwnd;
+
+//Initialization
+void win32_init(int argc, char* argv[]){
+	SDL_putenv ("SDL_VIDEODRIVER=directx");//Sets video driver to directx
+	gameInit(argc, argv);//Normally inits
+	
+	HINSTANCE handle = GetModuleHandle(NULL);
+	icon = LoadIcon(handle, MAKEINTRESOURCE(1));//Loads icon
+	
+	SDL_SysWMinfo wminfo;//Window manager information
+	SDL_VERSION(&wminfo.version);
+	SDL_GetWMInfo(&wminfo);//Gets window manager info
+	
+	hwnd = wminfo.window;//Gets window handler
+	
+	SetClassLong(hwnd, GCL_HICON, (LONG) icon);
+}
+
+#endif

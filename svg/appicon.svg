@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   inkscape:export-filename="F:\Documents\Programming\WIP\Physica\res\icon48.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   sodipodi:docname="appicon.svg">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="1.4"
+     inkscape:cx="334.34257"
+     inkscape:cy="524.11819"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="994"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3763"
+       transform="matrix(0.08704663,0,0,0.08704663,236.64839,443.5259)">
+      <path
+         d="m 524.28572,383.79074 c 0,152.2728 -123.44149,275.7143 -275.71429,275.7143 -152.272804,0 -275.714298,-123.4415 -275.714298,-275.7143 0,-152.2728 123.441494,-275.71429 275.714298,-275.71429 152.2728,0 275.71429,123.44149 275.71429,275.71429 z"
+         sodipodi:ry="275.71429"
+         sodipodi:rx="275.71429"
+         sodipodi:cy="383.79074"
+         sodipodi:cx="248.57143"
+         id="path3761"
+         style="fill:#202020;fill-opacity:1;stroke:none"
+         sodipodi:type="arc" />
+      <rect
+         transform="matrix(0.8660254,0.5,-0.5,0.8660254,0,0)"
+         y="58.944901"
+         x="209.62885"
+         height="222.85715"
+         width="222.85715"
+         id="rect2985"
+         style="fill:#8dff30;fill-opacity:1;stroke:none" />
+      <rect
+         transform="matrix(0.70710678,0.70710678,-0.70710678,0.70710678,0,0)"
+         y="-42.484127"
+         x="505.01855"
+         height="142.85715"
+         width="142.85715"
+         id="rect3755"
+         style="fill:#ffff30;fill-opacity:1;stroke:none" />
+      <rect
+         y="479.50504"
+         x="65.714287"
+         height="71.428574"
+         width="214.28572"
+         id="rect3757"
+         style="fill:#f0411a;fill-opacity:1;stroke:none" />
+    </g>
+  </g>
+</svg>

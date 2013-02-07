@@ -2,7 +2,11 @@
 
 //Main function
 int main(int argc, char* argv[]){
+	#ifdef __WIN32__//On win32
+	win32_init(argc, argv);//Inits
+	#else//On other systems
 	gameInit(argc, argv);//Initializes the game
+	#endif
 	
 	while (running){//While game is running
 		int t = frameBegin;
