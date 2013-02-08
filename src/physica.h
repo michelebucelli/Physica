@@ -90,6 +90,7 @@ bool camFollow = false;//If true, camera will follow player
 
 window common;//Common UI
 control* fpsLabel;//Fps label
+control* debugLabel;//Debug label
 
 //Prototypes
 class area;//Area class prototype
@@ -1681,7 +1682,6 @@ void gameQuit(){
 }
 
 //Windows-specific init and close function
-
 #ifdef __WIN32__
 HICON icon;
 HWND hwnd;

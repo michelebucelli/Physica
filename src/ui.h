@@ -474,6 +474,10 @@ void resize(int newW, int newH, bool fs, bool redraw){
 			fpsLabel->area.x = video_w - fpsLabel->area.w;//Positions
 		}
 		
+		if (debugLabel){//If debug label is available
+			debugLabel->area.x = video_w - debugLabel->area.w;//Positions
+		}
+		
 		if (achFrame){
 			achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
 		}
@@ -508,6 +512,9 @@ void applySettings(){
 //Function to update common UI
 void updateCommon(){
 	fpsLabel->content.t = "fps:" + toString(actualFps);//Sets fps label
+	
+	if (debugMode) debugLabel->content.t = "[DEBUG] video:" + toString(video_w) + "x" + toString(video_h) + ":" + toString(fullscreen);//Debug info
+	else debugLabel->content.t = "";
 }
 
 //UI loading and setup function
@@ -516,8 +523,10 @@ void loadUI(){
 	
 	common = loadWindow(commonFile, "common");//Loads common ui
 	fpsLabel = common.getControl("fps");//Gets fps label
+	debugLabel = common.getControl("debug");//Gets debug label
 	
 	fpsLabel->area.x = video_w - fpsLabel->area.w;//Positions fps label
+	debugLabel->area.x = video_w - debugLabel->area.w;//Positions fps label
 	
 	hud = loadWindow(hudFile, "hud");//Loads hud
 	btnPause = hud.getControl("pause");//Gets pause button

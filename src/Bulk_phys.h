@@ -971,7 +971,7 @@ class scene: public objectBased {
 			bool assigned = false;//Assigned flag
 			for (y = minTileY; y <= maxTileY; y++){//For each tile row
 				for (x = minTileX; x <= maxTileX; x++){//For each tile column
-					if (y * DIVISIONS + x >= 0 && y * DIVISIONS + x < DIVISIONS * DIVISIONS){//If coords are valid
+					if (x >= 0 && x < DIVISIONS && y >= 0 && y < DIVISIONS){//If coords are valid
 						cells[y * DIVISIONS + x].push_back(*i);//Adds entity to cell
 						assigned = true;//Sets assigned
 					}
