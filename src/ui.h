@@ -80,6 +80,10 @@ window levTooltip;//Level progress tooltip
 panel* levttFrame;//Frame
 control* levttTime;//Time
 control* levttDeaths;//Deaths
+int tooltipN = -1;//Tooltipped level index
+string tooltipId = "";//Tooltipped level id
+int tooltipBegin = -1;//Time when first placed mouse over level
+int tooltipDelay = 500;//Delay before showing tooltip
 
 deque<int> achBegin;//Achievements begin time
 int achDuration = 5000;//Achieved window duration
@@ -532,6 +536,7 @@ void resize(int newW, int newH, bool fs, bool redraw){
 		achFrame.area.x = (video_w - achFrame.area.w) / 2;//Centers on x
 		
 		if (curUiMode == ui_levels) redrawLevelSelect();//Redraws level selection window
+		if (curUiMode == ui_levelSets) redrawLevelSetSel();//Redraws level set selection window
 		if (curUiMode == ui_achievements) redrawAchievements();//Redraws achievements
 		
 		msgBox.centre(video_w, video_h);//Centers message box

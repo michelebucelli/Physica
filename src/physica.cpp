@@ -101,23 +101,38 @@ int main(int argc, char* argv[]){
 			if (curUiMode == ui_levels) levelSelect.print(video);//Prints level selector
 			
 			window::iterator i;//Iterator
+			bool found = false;//Found flag
 			
 			for (i = levelSelect.begin(); i != levelSelect.end(); i++){//For each control
 				if ((*i)->status == control::hover){//If control is under mouse
-					string file = current.levels[atoi((*i)->id.c_str())];//Gets id
-					string id = loadLevel(file)->id;
+					int n = atoi((*i)->id.c_str());//Gets index
 					
-					levelProgress* p = get <levelProgress> (&progress, current.levels.id + "." + id);//Requested progress
+					if (tooltipN != n){//If selected new level
+						tooltipN = n;//Sets level index
+						
+						string file = current.levels[n];//Gets file
+						tooltipId = loadLevel(file)->id;//Gets id
+						
+						tooltipBegin = frameBegin;//Sets tooltip begin time
+					}
 					
-					cout << "Checking " << current.levels.id + "." + id << endl;
+					levelProgress* p = get <levelProgress> (&progress, current.levels.id + "." + tooltipId);//Requested progress
 					
-					if (p && p->unlocked){//If progress is available
+					if (p && p->unlocked && p->time > 0){//If progress is available
 						levttTime->content.t = timeToString(p->time);//Sets time
 						levttDeaths->content.t = (current.deaths < 10 ? "0" : "") + toString(p->deaths);//Sets deaths
 						
-						levTooltip.print(video, (*i)->area.x + ((*i)->area.w - levttFrame->area.w) / 2, (*i)->area.y - levttFrame->area.h - 10);//Prints tooltip
+						if (frameBegin - tooltipBegin > tooltipDelay) levTooltip.print(video, (*i)->area.x + ((*i)->area.w - levttFrame->area.w) / 2, (*i)->area.y - levttFrame->area.h - 10);//Prints tooltip
 					}
+					
+					found = true;//Found level under mouse
 				}
+			}
+			
+			if (!found){//If not hovering
+				tooltipN = -1;
+				tooltipBegin = -1;
+				tooltipId = "";
 			}
 		}
 		
