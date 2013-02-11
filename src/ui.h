@@ -73,14 +73,11 @@ window credits;//Credits window
 control* creditsLabel;//Credits label
 
 window achieved;//Achieved window
-panel* achFrame;//Achieved frame
-control* achIcon;//Achieved icon
-control* achName;//Achieved name
-control* achInfo;//Achieved info
+panel achFrame;//Achieved frame
 
-int achBegin = -1;//Achieved window time counter
+deque<int> achBegin;//Achievements begin time
 int achDuration = 5000;//Achieved window duration
-int achSpeed = 1;//Pixels per frame of achievement window movement
+int achSpeed = 2;//Pixels per frame of achievement window movement
 
 //UI mode enumeration
 enum uiMode {
@@ -407,12 +404,60 @@ void showSettings(clickEventData data){
 
 //Unlock achievement function
 void unlockedAchievement(achievement* a){
-	achBegin = SDL_GetTicks();//Sets time beginning
+	panel* p = achFrame.copy();//New panel
+	control* achIcon = p->getControl("icon");//Gets icon
+	control* achName = p->getControl("name");//Gets name
+	control* achInfo = p->getControl("info");//Gets info
 	
-	//Sets window parameters
-	achIcon->content.i = a->icon;
-	achName->content.t = a->name;
-	achInfo->content.t = a->info;
+	//Sets position
+	p->area.x = (video_w - p->area.w) / 2;
+	if (achieved.size() > 0) p->area.y = achieved.back()->area.y - p->area.h - 4;
+	else p->area.y = -p->area.h;
+	
+	p->id = a->id;//Sets id
+	
+	if (achIcon){ achIcon->content.contentType = CONTENT_IMAGE; achIcon->content.i = a->icon; }//Sets icon
+	if (achName) achName->content.t = a->name;//Sets name
+	if (achInfo) achInfo->content.t = a->info;//Sets info
+	
+	achBegin.push_back(SDL_GetTicks());//Sets beginning
+	achieved.push_back(p);//Adds to achieved
+}
+
+//Function for achievement window frame
+void achFrameStep(){
+	window::iterator i;//Iterator
+	int n;//Counter
+	int t = SDL_GetTicks();//Time
+	
+	if (achieved.size() == 0) return;//Exits if no achievements
+	
+	for (n = 0, i = achieved.begin(); i != achieved.end(); i++, n++){//For each panel in achieved window
+		int dt = t - achBegin[n];//Time passed since achievement was shown
+		int dest = ((*i)->area.h + 4) * (achieved.size() - n - 1);//Destination on y
+		
+		if (dt < achDuration){//If still showing achievement
+			if ((*i)->area.y < dest) (*i)->area.y += achSpeed;//Moves on y
+			
+			if ((*i)->area.y > dest){//If gone past destination
+				if (abs((*i)->area.y - dest) <= achSpeed) (*i)->area.y = dest;//Caps position if small distance
+				else (*i)->area.y -= achSpeed;//Else goes back
+			}
+		}
+		
+		else {//If hiding achievement
+			(*i)->area.y -= achSpeed;//Moves upwards
+			
+			if ((*i)->area.y < -(*i)->area.h){//If got out of screen
+				delete *i;//Deletes panel
+				
+				i = achieved.erase(i);//Erases control from window
+				i--;//Goes back
+				
+				achBegin.erase(achBegin.begin() + n);//Erases begin time
+			}
+		}
+	}
 }
 
 //Function to resize video
@@ -478,9 +523,7 @@ void resize(int newW, int newH, bool fs, bool redraw){
 			debugLabel->area.x = video_w - debugLabel->area.w;//Positions
 		}
 		
-		if (achFrame){
-			achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
-		}
+		achFrame.area.x = (video_w - achFrame.area.w) / 2;//Centers on x
 		
 		if (curUiMode == ui_levels) redrawLevelSelect();//Redraws level selection window
 		if (curUiMode == ui_achievements) redrawAchievements();//Redraws achievements
@@ -618,14 +661,11 @@ void loadUI(){
 	creditsLabel->area.y = (video_h - creditsLabel->area.h) / 2;//Centers credits on y
 	
 	achieved = loadWindow(achievedFile, "achieved");//Loads achieved window
-	achFrame = (panel*) achieved.getControl("frame");//Gets frame
-	achIcon = achieved.getControl("frame.icon");//Gets icon
-	achName = achieved.getControl("frame.name");//Gets name
-	achInfo = achieved.getControl("frame.info");//Gets info
+	achFrame = * (panel*) achieved.getControl("frame");//Gets frame
+	achieved.clear();//Clears
 	
-	achFrame->area.x = (video_w - achFrame->area.w) / 2;//Centers on x
-	achFrame->area.y = -achFrame->area.h;//Hides on y
-	achIcon->content.contentType = CONTENT_IMAGE;//Sets content type
+	achFrame.area.x = (video_w - achFrame.area.w) / 2;//Centers on x
+	achFrame.area.y = -achFrame.area.h;//Hides on y
 	
 	achievements = loadWindow(achievementsUiFile, "achievements");//Loads achievements window
 	defaultAch = * (panel*) achievements.getControl("defaultAchievement");//Gets achievement info

@@ -166,26 +166,13 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (!debugMode){//If not in debug mode
-			if (achBegin > 0 && SDL_GetTicks() - achBegin < achDuration){//If has to print achievement
-				if (achFrame->area.y < 0) achFrame->area.y += achSpeed;//Moves on y
-				if (achFrame->area.y > 0) achFrame->area.y = 0;//Adjusts position
-				
-				achieved.print(video);//Prints achieved window
-			}
-			
-			else if (achBegin > 0 && achFrame->area.y > -achFrame->area.h){//If has to hide achievement
-				if (achFrame->area.y > -achFrame->area.h) achFrame->area.y -= achSpeed;//Moves on y
-				if (achFrame->area.y < -achFrame->area.h) achFrame->area.y = -achFrame->area.h;//Adjusts position
-				
-				achieved.print(video);//Prints window
-			}
-			
-			else if (achBegin > 0) achBegin = -1;//Disables achievement
-			
+			achFrameStep();//Steps achievement animation			
 			progress.verifyAchs();//Verifies achievements
 		}
 		
 		progress.check();//Checks broken progress info
+		
+		if (achieved.size() > 0) achieved.print(video);//Prints achievements
 		
 		updateCommon();//Updates common UI
 		common.print(video);//Prints common UI
