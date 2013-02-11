@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="744.09448819"
+   height="1052.3622047"
+   id="svg2"
+   version="1.1"
+   inkscape:version="0.48.4 r9939"
+   inkscape:export-filename="F:\Documents\Programming\WIP\Physica\website\img\download_normal.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
+   sodipodi:docname="Nuovo documento 1">
+  <defs
+     id="defs4" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="4"
+     inkscape:cx="236.63519"
+     inkscape:cy="474.84423"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1680"
+     inkscape:window-height="994"
+     inkscape:window-x="-4"
+     inkscape:window-y="-4"
+     inkscape:window-maximized="1" />
+  <metadata
+     id="metadata7">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Livello 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g3760"
+       inkscape:export-filename="F:\Documents\Programming\WIP\Physica\website\img\download_pressed.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-69.428989,-82.536)">
+      <path
+         transform="matrix(0.33939393,0,0,0.33939393,106.64112,413.96769)"
+         d="m 302.85714,555.93359 c 0,39.05443 -31.65987,70.71429 -70.71429,70.71429 -39.05442,0 -70.71428,-31.65986 -70.71428,-70.71429 0,-39.05442 31.65986,-70.71428 70.71428,-70.71428 39.05442,0 70.71429,31.65986 70.71429,70.71428 z"
+         sodipodi:ry="70.714287"
+         sodipodi:rx="70.714287"
+         sodipodi:cy="555.93359"
+         sodipodi:cx="232.14285"
+         id="path2985"
+         style="fill:#303030;fill-opacity:1;stroke:none"
+         sodipodi:type="arc"
+         inkscape:export-filename="F:\Documents\Programming\WIP\Physica\website\img\download_hover.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90" />
+      <g
+         id="g3805"
+         transform="translate(0,-0.44926297)"
+         style="fill:#ffffff;fill-opacity:1">
+        <path
+           style="fill:#ffffff;fill-opacity:1;stroke:none"
+           d="m 179.65021,587.64818 c -1.60384,0 -2.89501,1.05276 -2.89501,2.36044 l 0,6.10393 c -1.73867,0.15813 -2.977,0.38547 -3.23426,0.66388 -1.19088,1.28876 9.53751,12.87175 11.91928,12.87175 2.38176,0 13.08754,-11.58299 11.89666,-12.87175 -0.25667,-0.27777 -1.47947,-0.50584 -3.21165,-0.66388 l 0,-6.10393 c 0,-1.30768 -1.29117,-2.36044 -2.895,-2.36044 l -11.58002,0 z"
+           id="rect3755"
+           inkscape:connector-curvature="0" />
+        <flowRoot
+           transform="matrix(0.28262392,0,0,0.28262392,123.99118,435.24648)"
+           style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+           id="flowRoot3797"
+           xml:space="preserve"><flowRegion
+             id="flowRegion3799"><rect
+               style="fill:#ffffff;fill-opacity:1"
+               y="610.11218"
+               x="172.5"
+               height="90"
+               width="130.5"
+               id="rect3801" /></flowRegion><flowPara
+             style="font-size:45.99752045px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffffff;fill-opacity:1;font-family:La chata;-inkscape-font-specification:La chata"
+             id="flowPara3803">exe</flowPara></flowRoot>      </g>
+    </g>
+    <g
+       id="g3790"
+       inkscape:export-filename="F:\Documents\Programming\WIP\Physica\website\img\code_normal.png"
+       inkscape:export-xdpi="90"
+       inkscape:export-ydpi="90"
+       transform="translate(-93.75,-104)">
+      <path
+         sodipodi:type="arc"
+         style="fill:#303030;fill-opacity:1;stroke:none"
+         id="path2985-1"
+         sodipodi:cx="232.14285"
+         sodipodi:cy="555.93359"
+         sodipodi:rx="70.714287"
+         sodipodi:ry="70.714287"
+         d="m 302.85714,555.93359 a 70.714287,70.714287 0 1 1 -141.42857,0 70.714287,70.714287 0 1 1 141.42857,0 z"
+         transform="matrix(0.33939393,0,0,0.33939393,178.96213,435.43169)" />
+      <flowRoot
+         transform="matrix(0.79395873,0,0,0.65860914,179.54614,234.61959)"
+         style="font-size:40px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ffffff;fill-opacity:1;stroke:none;font-family:Sans"
+         id="flowRoot3782"
+         xml:space="preserve"><flowRegion
+           id="flowRegion3784"><rect
+             style="fill:#ffffff;fill-opacity:1"
+             y="566.36218"
+             x="76.75"
+             height="48"
+             width="48.25"
+             id="rect3786" /></flowRegion><flowPara
+           style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#ffffff;fill-opacity:1;font-family:La chata;-inkscape-font-specification:La chata"
+           id="flowPara3788">{};</flowPara></flowRoot>    </g>
+    <g
+       id="g3838"
+       transform="translate(-14.250001,0)">
+      <g
+         id="g3888"
+         inkscape:export-filename="F:\PortableApps\InkscapePortable\Data\settings\forum_pressed.png"
+         inkscape:export-xdpi="90"
+         inkscape:export-ydpi="90"
+         transform="translate(-42.75,-70.5)">
+        <path
+           sodipodi:type="arc"
+           style="fill:#303030;fill-opacity:1;stroke:none"
+           id="path2985-1-7"
+           sodipodi:cx="232.14285"
+           sodipodi:cy="555.93359"
+           sodipodi:rx="70.714287"
+           sodipodi:ry="70.714287"
+           d="m 302.85714,555.93359 c 0,39.05443 -31.65987,70.71429 -70.71429,70.71429 -39.05442,0 -70.71428,-31.65986 -70.71428,-70.71429 0,-39.05442 31.65986,-70.71428 70.71428,-70.71428 39.05442,0 70.71429,31.65986 70.71429,70.71428 z"
+           transform="matrix(0.33939393,0,0,0.33939393,190.21213,401.93169)" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path3855"
+           d="m 268.98438,580.796 c -7.8593,0 -14.21875,4.20055 -14.21875,9.375 0,4.37368 4.56386,8.06145 10.71875,9.09375 1.18565,2.77761 2.56255,5.40625 3.0625,5.40625 0.49211,0 1.8585,-2.55202 3.03125,-5.28125 6.62313,-0.80152 11.65625,-4.62643 11.65625,-9.21875 0,-5.17445 -6.3907,-9.375 -14.25,-9.375 z"
+           style="fill:#ffffff;fill-opacity:1;stroke:none" />
+        <path
+           inkscape:connector-curvature="0"
+           id="path3860"
+           d="m 263,589.9835 c -1.10456,0 -2,0.89543 -2,2 0,1.10457 0.89544,2 2,2 1.10457,0 2,-0.89543 2,-2 0,-1.10457 -0.89543,-2 -2,-2 z m 6,0 c -1.10456,0 -2,0.89543 -2,2 0,1.10457 0.89544,2 2,2 1.10457,0 2,-0.89543 2,-2 0,-1.10457 -0.89543,-2 -2,-2 z m 6,0 c -1.10456,0 -2,0.89543 -2,2 0,1.10457 0.89544,2 2,2 1.10457,0 2,-0.89543 2,-2 0,-1.10457 -0.89543,-2 -2,-2 z"
+           style="fill:#303030;fill-opacity:1;stroke:none" />
+      </g>
+    </g>
+  </g>
+</svg>
