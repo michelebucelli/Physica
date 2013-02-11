@@ -27,9 +27,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2.0000001"
-     inkscape:cx="321.83606"
-     inkscape:cy="642.75361"
+     inkscape:zoom="2.8284273"
+     inkscape:cx="325.86108"
+     inkscape:cy="702.44622"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -214,6 +214,40 @@
              sodipodi:type="arc" />
         </g>
       </g>
+      <path
+         sodipodi:type="star"
+         style="fill:#333333;fill-opacity:1;stroke:none"
+         id="path3800"
+         sodipodi:sides="3"
+         sodipodi:cx="370.8775"
+         sodipodi:cy="286.91913"
+         sodipodi:r1="31.114706"
+         sodipodi:r2="15.557353"
+         sodipodi:arg1="1.5707963"
+         sodipodi:arg2="2.6179939"
+         inkscape:flatsided="true"
+         inkscape:rounded="0.1"
+         inkscape:randomized="0"
+         d="m 370.8775,318.03383 c -5.38922,0 -29.64074,-42.00485 -26.94612,-46.67205 2.69461,-4.66721 51.19764,-4.66721 53.89225,-1e-5 2.69461,4.66721 -21.5569,46.67206 -26.94613,46.67206 z"
+         inkscape:transform-center-y="1.9224836"
+         transform="matrix(0.29461213,0,0,0.31890003,238.73499,208.08404)" />
+      <path
+         sodipodi:type="star"
+         style="fill:#333333;fill-opacity:1;stroke:none"
+         id="path3800-1"
+         sodipodi:sides="3"
+         sodipodi:cx="370.8775"
+         sodipodi:cy="286.91913"
+         sodipodi:r1="31.114706"
+         sodipodi:r2="15.557353"
+         sodipodi:arg1="1.5707963"
+         sodipodi:arg2="2.6179939"
+         inkscape:flatsided="true"
+         inkscape:rounded="0.1"
+         inkscape:randomized="0"
+         d="m 370.8775,318.03383 c -5.38922,0 -29.64074,-42.00485 -26.94612,-46.67205 2.69461,-4.66721 51.19764,-4.66721 53.89225,-1e-5 2.69461,4.66721 -21.5569,46.67206 -26.94613,46.67206 z"
+         inkscape:transform-center-y="-1.922485"
+         transform="matrix(-0.29461213,0,0,-0.31890003,473.26501,394.92604)" />
     </g>
     <g
        id="g3925"

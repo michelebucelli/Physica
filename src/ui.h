@@ -16,6 +16,7 @@ string settingsUiFile = "data/cfg/ui/settings.cfg";//Settings window file path
 string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
 string achievedFile = "data/cfg/ui/achievement.cfg";//Achievement window file path
 string achievementsUiFile = "data/cfg/ui/achievements.cfg";//Achievements window file path
+string levelTooltipFile = "data/cfg/ui/levelTooltip.cfg";//Level progress tooltip file
 
 string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
 string inputFile = "data/cfg/ui/input.cfg";//Input window file path
@@ -74,6 +75,11 @@ control* creditsLabel;//Credits label
 
 window achieved;//Achieved window
 panel achFrame;//Achieved frame
+
+window levTooltip;//Level progress tooltip
+panel* levttFrame;//Frame
+control* levttTime;//Time
+control* levttDeaths;//Deaths
 
 deque<int> achBegin;//Achievements begin time
 int achDuration = 5000;//Achieved window duration
@@ -669,6 +675,11 @@ void loadUI(){
 	
 	achievements = loadWindow(achievementsUiFile, "achievements");//Loads achievements window
 	defaultAch = * (panel*) achievements.getControl("defaultAchievement");//Gets achievement info
+	
+	levTooltip = loadWindow(levelTooltipFile, "levTooltip");//Loads level tooltip
+	levttFrame = (panel*) levTooltip.getControl("frame");//Gets frame
+	levttTime = levTooltip.getControl("frame.time");//Gets time
+	levttDeaths = levTooltip.getControl("frame.deaths");//Gets deaths
 	
 	msgBox.loadDialog(msgFile);//Loads message dialog
 	inputBoxDialog.loadDialog(inputFile);//Loads input dialog

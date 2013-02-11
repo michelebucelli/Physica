@@ -99,6 +99,26 @@ int main(int argc, char* argv[]){
 			}
 			
 			if (curUiMode == ui_levels) levelSelect.print(video);//Prints level selector
+			
+			window::iterator i;//Iterator
+			
+			for (i = levelSelect.begin(); i != levelSelect.end(); i++){//For each control
+				if ((*i)->status == control::hover){//If control is under mouse
+					string file = current.levels[atoi((*i)->id.c_str())];//Gets id
+					string id = loadLevel(file)->id;
+					
+					levelProgress* p = get <levelProgress> (&progress, current.levels.id + "." + id);//Requested progress
+					
+					cout << "Checking " << current.levels.id + "." + id << endl;
+					
+					if (p && p->unlocked){//If progress is available
+						levttTime->content.t = timeToString(p->time);//Sets time
+						levttDeaths->content.t = (current.deaths < 10 ? "0" : "") + toString(p->deaths);//Sets deaths
+						
+						levTooltip.print(video, (*i)->area.x + ((*i)->area.w - levttFrame->area.w) / 2, (*i)->area.y - levttFrame->area.h - 10);//Prints tooltip
+					}
+				}
+			}
 		}
 		
 		if (curUiMode == ui_success){//If completed level
