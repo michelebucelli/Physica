@@ -61,7 +61,7 @@ control *ratingA, *ratingB, *ratingC;//Rating stars
 
 window settings;//Settings window
 panel* settingsFrame;//Settings frame
-checkBox *setFullscreen, *setCamFollow, *setSound, *setDebug;//Settings check boxes
+checkBox *setFullscreen, *setSound, *setDebug;//Settings check boxes
 keyBox *setUp, *setLeft, *setRight;//Controls key boxes
 control *setUpdates;//Updates check button
 
@@ -401,7 +401,6 @@ void showSettings(clickEventData data){
 	
 	//Sets window content
 	setFullscreen->checked = fullscreen;
-	setCamFollow->checked = camFollow;
 	setSound->checked = enableSfx;
 	setDebug->checked = debugMode;
 	
@@ -554,7 +553,6 @@ void updateClick(clickEventData data){
 //Function to apply settings
 void applySettings(){
 	if (setFullscreen->checked != fullscreen) resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
-	camFollow = setCamFollow->checked;//Applies cam follow
 	enableSfx = setSound->checked;//Applies sound settings
 	debugMode = setDebug->checked;//Applies debug settings
 	
@@ -649,7 +647,6 @@ void loadUI(){
 	settings = loadWindow(settingsUiFile, "settings");//Loads settings file
 	settingsFrame = (panel*) settings.getControl("frame");//Gets frame
 	setFullscreen = (checkBox*) settings.getControl("frame.fullscreen");//Gets fullscreen checkbox
-	setCamFollow = (checkBox*) settings.getControl("frame.camFollow");//Gets camera follow checkbox
 	setSound = (checkBox*) settings.getControl("frame.enableSfx");//Gets sfx checkbox
 	setDebug = (checkBox*) settings.getControl("frame.debug");//Gets debug checkbox
 	setUp = (keyBox*) settings.getControl("frame.upKey");//Gets up key box
@@ -661,7 +658,6 @@ void loadUI(){
 	settingsFrame->area.y = (video_h - settingsFrame->area.h) / 2;//Centers settings on y
 	
 	setFullscreen->release.handlers.push_back(stdClick);//Adds click handler
-	setCamFollow->release.handlers.push_back(stdClick);//Adds click handler
 	setSound->release.handlers.push_back(stdClick);//Adds click handler
 	setUpdates->release.handlers.push_back(updateClick);//Adds updates click handler
 	

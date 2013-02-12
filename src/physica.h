@@ -86,7 +86,6 @@ Mix_Chunk *deathSfx;//Death sound
 
 //Misc
 bool debugMode = false;//Debug mode flag (all levels unlocked if true)
-bool camFollow = false;//If true, camera will follow player
 
 window common;//Common UI
 control* fpsLabel;//Fps label
@@ -103,6 +102,49 @@ void checkUpdates(bool = true, bool = false);//Updates function
 
 //Common funcs
 void frame_begin(){ frameBegin = SDL_GetTicks(); }//Frame beginning
+
+//Camera class
+class camera {
+	public:
+	vector position;//Camera position
+	vector speed;//Camera movement speed
+
+	entity* destination;//Camera destination
+	
+	double range;//Range
+	double rangeFactor;//Range factor
+	double sVal;//Speed value
+	double maxS;//Max speed value
+	
+	//Constructor
+	camera(){
+		position = {0,0};
+		speed = {0,0};
+		
+		destination = NULL;
+		
+		range = 5;
+		rangeFactor = 0.1;
+		sVal = 10;
+		maxS = 60;
+	}
+	
+	//Function to move the camera
+	void move(double t){
+		vector d = destination->position - position;//Distance vector
+		
+		double curS = sVal + (d.module() - range) * rangeFactor;
+		if (curS > maxS) curS = maxS;
+		
+		double dt = (destination->speed * t + destination->force / destination->mass / 2 * 0.5 * t * t).module();
+		double cdt = curS * t;
+		
+		if (cdt >= d.module()) position = destination->position;
+		else if (d.module() >= range){ speed = d.setModule(curS); position += speed * t; }//Moves
+		else if (dt < range){ position = destination->position; speed = vector (0,0); }//Centers
+		else speed = vector(0,0);//Stops if too close
+	}
+} cam;
 
 //Frame end
 void frame_end(){
@@ -1167,7 +1209,11 @@ class game {
 			time = 0;//Resets timer
 			deaths = 0;//Resets death counter
 			lastFrameTime = SDL_GetTicks();//Resets frame time
+			
+			cam.position = player->position;//Centers camera
 		}
+		
+		cam.destination = player;//Sets cam destination
 		
 		paused = false;//Unpauses
 		completed = false;//Not completed
@@ -1370,7 +1416,6 @@ void loadSettings(){
 	
 	//Gets data
 	var* v_fullscreen = get <var> (&g.v, "fullscreen");
-	var* v_camFollow = get <var> (&g.v, "camFollow");
 	var* v_videoW = get <var> (&g.v, "video_w");
 	var* v_videoH = get <var> (&g.v, "video_h");
 	var* v_sound = get <var> (&g.v, "enableSfx");
@@ -1382,7 +1427,6 @@ void loadSettings(){
 	var* v_updatesCount = get <var> (&g.v, "updatesCount");
 	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
-	if (v_camFollow) camFollow = v_camFollow->intValue();
 	if (v_videoW) videoWin_w = v_videoW->intValue();
 	if (v_videoH) videoWin_h = v_videoH->intValue();
 	if (v_sound) enableSfx = v_sound->intValue();
@@ -1486,7 +1530,6 @@ void saveSettings(){
 	ob.set("video_w", videoWin_w);
 	ob.set("video_h", videoWin_h);
 	ob.set("fullscreen", fullscreen);
-	ob.set("camFollow", camFollow);
 	ob.set("enableSfx", enableSfx);
 	ob.set("debugMode", debugMode);
 	ob.set("updatesFile", updatesFile);

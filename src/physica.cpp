@@ -40,9 +40,6 @@ int main(int argc, char* argv[]){
 		if (curUiMode == ui_paused){//If paused
 			BKG;//Prints background
 			
-			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
-			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
-			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
 				EVENTS_COMMON(ev);//Common events
 					
@@ -54,7 +51,7 @@ int main(int argc, char* argv[]){
 				pauseWindow.checkEvents(ev);//Checks pause events
 			}
 			
-			current.print(video, printOX, printOY);//Prints game scene
+			current.print(video, video_w / 2 - cam.position.x, video_h / 2 - cam.position.y);//Prints game scene
 			
 			hud.print(video, 2, 2);//Prints hud on upper-left level
 			
@@ -63,9 +60,6 @@ int main(int argc, char* argv[]){
 		
 		if (curUiMode == ui_game){//If in game mode
 			BKG;//Prints background
-			
-			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
-			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
 				EVENTS_COMMON(ev);//Common events
@@ -76,15 +70,15 @@ int main(int argc, char* argv[]){
 				}
 					
 				//Checks hud events
-				if (!camFollow) hud.checkEvents(ev, printOX + 2, printOY + 2);
-				else hud.checkEvents(ev, 2, 2);
+				hud.checkEvents(ev, 2, 2);
 			}
 			
-			current.print(video, printOX, printOY);//Prints game scene
+			current.print(video, video_w / 2 - cam.position.x, video_h / 2 - cam.position.y);//Prints game scene
 				
 			updateHud();//Updates hud
 			hud.print(video, 2, 2);//Prints hud on upper-left level
 			current.frame(double((frameBegin - t)) * 0.0125, keys);//Game frame
+			cam.move(double((frameBegin - t)) * 0.0125);//Moves camera
 		}
 		
 		if (curUiMode == ui_levels){//If in level selection
@@ -138,10 +132,7 @@ int main(int argc, char* argv[]){
 		
 		if (curUiMode == ui_success){//If completed level
 			BKG;//Prints background
-			
-			int printOX = video_w / 2 - (camFollow ? current.player->position.x : current.currentLevel->w / 2);//Print offset x
-			int printOY = video_h / 2 - (camFollow ? current.player->position.y : current.currentLevel->h / 2);//Print offset y
-			
+		
 			while (SDL_PollEvent(&ev)){//While there are stacked events
 				EVENTS_COMMON(ev);//Common events
 					
@@ -154,7 +145,7 @@ int main(int argc, char* argv[]){
 			}
 			
 			if (curUiMode == ui_success){//If still in success mode
-				current.print(video, printOX, printOY);//Prints game scene
+				current.print(video, video_w / 2 - cam.position.x, video_h / 2 - cam.position.y);//Prints game scene
 				hud.print(video, 2, 2);//Prints hud on upper-left level
 				success.print(video);//Prints success screen
 			}
