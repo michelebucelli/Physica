@@ -33,9 +33,9 @@
 #define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
 
 #define FRAME_BEGIN				frameBegin = SDL_GetTicks()//Frame beginning macro
-#define FRAME_END				if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
+#define FRAME_END				SDL_ShowCursor(frameBegin - lastMotion > cursorHideDelay ? SDL_DISABLE : SDL_ENABLE); if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
 
-#define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen)//Common events macro
+#define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen); if (E.type == SDL_MOUSEMOTION) lastMotion = SDL_GetTicks()//Common events macro
 
 #define PLAYSOUND(SND)			if (enableSfx) Mix_PlayChannel(-1, SND, 0)//Play sound macro
 
@@ -90,6 +90,9 @@ bool debugMode = false;//Debug mode flag (all levels unlocked if true)
 window common;//Common UI
 control* fpsLabel;//Fps label
 control* debugLabel;//Debug label
+
+int lastMotion = 0;//Last mouse motion event time
+int cursorHideDelay = 3000;//Inactivity time before hiding the cursor
 
 //Prototypes
 class area;//Area class prototype
