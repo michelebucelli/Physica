@@ -738,10 +738,14 @@ void loadGraphics(){
 	object* o_starOn_sm = get <object> (&g.o, "starOn_sm");
 	object* o_starOff_sm = get <object> (&g.o, "starOff_sm");
 	object* o_handle = get <object> (&g.o, "handle");
+
+	var* destination = get <var> (&g.v, "destination");
 	
 	if (o_starOn) starOn.fromScriptObj(*o_starOn);
 	if (o_starOff) starOff.fromScriptObj(*o_starOff);
 	if (o_starOn_sm) starOn_sm.fromScriptObj(*o_starOn_sm);
 	if (o_starOff_sm) starOff_sm.fromScriptObj(*o_starOff_sm);
 	if (o_handle) handle.fromScriptObj(*o_handle);
+	
+	if (destination) destinationArrow = loadImg(destination->value.c_str());
 }

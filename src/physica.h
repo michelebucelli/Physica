@@ -94,6 +94,8 @@ control* debugLabel;//Debug label
 int lastMotion = 0;//Last mouse motion event time
 int cursorHideDelay = 3000;//Inactivity time before hiding the cursor
 
+SDL_Surface* destinationArrow = NULL;//Destination arrow (uses SDL_Surface* instead of image for rotation)
+
 //Prototypes
 class area;//Area class prototype
 
@@ -146,6 +148,19 @@ class camera {
 		else if (d.module() >= range){ speed = d.setModule(curS); position += speed * t; }//Moves
 		else if (dt < range){ position = destination->position; speed = vector (0,0); }//Centers
 		else speed = vector(0,0);//Stops if too close
+	}
+	
+	//Function to get shown area
+	rectangle viewport(int w, int h){
+		rectangle result;//Result
+		
+		//Sets rectangle data
+		result.x = position.x - w / 2;
+		result.y = position.y - h / 2;
+		result.w = w;
+		result.h = h;
+		
+		return result;//Returns result		
 	}
 } cam;
 
@@ -1181,6 +1196,29 @@ class game {
 				if (player) printEntity(player, target, 0, x, y);//Prints player
 				if (goal) printEntity(goal, target, 0, x, y);//Prints goal
 			}
+			
+			if (goal && !cam.viewport(video_w, video_h).isInside(goal->position.x, goal->position.y)){//If goal is out of screen
+				vector dist = goal->position - cam.position;//Vector from goal to camera
+				vector pos = dist;//Position
+				
+				//Viewport corners
+				vector a (video_w / 2, video_h / 2);
+				vector b (-video_w / 2, video_h / 2);
+				vector c (-video_w / 2, -video_h / 2);
+				vector d (video_w / 2, -video_h / 2);
+				
+				double ang = dist.angleDeg();//Angle
+				
+				//Gets posiion vector
+				if ((ang > a.angleDeg() && ang < d.angleDeg()) || (ang > c.angleDeg() && ang < b.angleDeg())) pos = pos * video_w / 2 / abs(pos.x);
+				else pos = pos * video_h / 2 / abs(pos.y);
+				
+				SDL_Surface* src = rotozoomSurface(destinationArrow, ang, 1, SMOOTHING_ON);//Rotated surface
+				SDL_Rect offset = {video_w / 2 + pos.x - src->w, video_h / 2 + pos.y - src->h};//Offset rect
+				SDL_BlitSurface(src, NULL, target, &offset);//Prints arrow
+				
+				SDL_FreeSurface(src);//Frees surface
+			}
 		}
 	}
 	
@@ -1213,10 +1251,10 @@ class game {
 			deaths = 0;//Resets death counter
 			lastFrameTime = SDL_GetTicks();//Resets frame time
 			
-			cam.position = player->position;//Centers camera
+			if (player) cam.position = player->position;//Centers camera
 		}
 		
-		cam.destination = player;//Sets cam destination
+		if (player) cam.destination = player;//Sets cam destination
 		
 		paused = false;//Unpauses
 		completed = false;//Not completed
@@ -1241,6 +1279,8 @@ class game {
 	//Function to check relevant collisions
 	void checkRelevant(){
 		list<collision>::iterator i;//Iterator
+		
+		if (!player) return;//Exits function if no player was given
 		
 		for (i = c.begin(); i != c.end(); i++){//For each collision
 			if ((i->a == player && i->b->special == "hazard") || (i->a->special == "hazard" && i->b == player)){ reset(); break; }//Resets level on death

@@ -50,6 +50,11 @@ class vector {
 		return atan2(x, y);//Returns result
 	}
 	
+	//Function to get angle in degrees
+	double angleDeg(){
+		return 360 * atan2(x, y) / 2 / PI;
+	}
+	
 	//Vectors sum
 	vector operator + (vector v){
 		vector result (x + v.x, y + v.y);//Result vector
