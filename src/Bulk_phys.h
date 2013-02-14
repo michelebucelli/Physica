@@ -37,11 +37,18 @@ class entity: public objectBased {
 	deque<vector*> nodes;//Entity nodes, rototranslated with entity
 	deque<vector*> sensors;//Contact sensors, rototranslated with entity
 	
+	//Individual damping factors
+	//Scene factors are multiplied by those. They can be used to model different entity
+	//behaviour - 0 to 1 recommended
+	double damping_tr;//Translation damping factor
+	double damping_rot;//Rotation damping factor
+	
 	//Relatives
 	scene* parent;//Parent scene
 	
 	//Translation
 	bool lockTranslation;//If true, entity doesn't move
+	bool lockX, lockY;//If true, locks on X or Y axis separately (lockTranslation will have most priority)
 	
 	vector force;//Force vector
 	
@@ -79,7 +86,12 @@ class entity: public objectBased {
 		
 		axesCount = 0;
 		
+		damping_tr = 1;
+		damping_rot = 1;
+		
 		lockTranslation = false;
+		lockX = false;
+		lockY = false;
 		
 		lockRotation = false;
 		torque = 0;
@@ -96,7 +108,7 @@ class entity: public objectBased {
 		useAnim = false;
 		
 		print = true;
-		special = "";
+		special = "";	
 	}
 	
 	//Function for inertia momentum around entity centre
@@ -150,6 +162,10 @@ class entity: public objectBased {
 	
 	//Function to move entity
 	void step(double t, double trDamp, double angDamp){
+		//Applies individual damping factors
+		trDamp *= damping_tr;
+		angDamp *= damping_rot;
+	
 		//Translation
 		if (!lockTranslation){//If entity can move
 			vector oldAccel = accel;//Old acceleration
@@ -165,7 +181,12 @@ class entity: public objectBased {
 				speed = damp;//Sets speed with damping
 			else speed = {0, 0};//Else stops
 			
-			translate(speed * t + (accel + oldAccel) / 2 * 0.5 * t * t);//Translates
+			vector tr = speed * t + (accel + oldAccel) / 2 * 0.5 * t * t;//Translation vector
+			
+			if (lockX) tr.x = 0;//Removes X component
+			if (lockY) tr.y = 0;//Removes Y component
+			
+			translate(tr);//Translates
 		}
 		
 		else speed = {0, 0};//Else stops speed
@@ -233,8 +254,13 @@ class entity: public objectBased {
 			var* nodes = get <var> (&o.v, "nodes");
 			var* sensors = get <var> (&o.v, "sensors");
 			
+			var* damping_tr = get <var> (&o.v, "damping_tr");
+			var* damping_rot = get <var> (&o.v, "damping_rot");
+			
 			var* position = get <var> (&o.v, "position");
 			var* lockTranslation = get <var> (&o.v, "lockTranslation");
+			var* lockX = get <var> (&o.v, "lockX");
+			var* lockY = get <var> (&o.v, "lockY");
 			
 			var* theta = get <var> (&o.v, "theta");
 			var* lockRotation = get <var> (&o.v, "lockRotation");
@@ -249,7 +275,12 @@ class entity: public objectBased {
 			if (mass) this->mass = mass->doubleValue();
 			if (e) this->e = e->doubleValue();
 			
+			if (damping_tr) this->damping_tr = damping_tr->doubleValue();
+			if (damping_rot) this->damping_rot = damping_rot->doubleValue();
+			
 			if (lockTranslation) this->lockTranslation = lockTranslation->intValue();
+			if (lockX) this->lockX = lockX->intValue();
+			if (lockY) this->lockY = lockY->intValue();
 			if (position) this->position.fromString(position->value);
 			
 			if (lockRotation) this->lockRotation = lockRotation->intValue();
@@ -294,8 +325,12 @@ class entity: public objectBased {
 		//Sets members
 		result.set("mass", mass);
 		result.set("e", e);
+		result.set("damping_tr", damping_tr);
+		result.set("damping_rot", damping_rot);
 		result.set("position", toString(position.x) + " " + toString(position.y));
 		result.set("lockTranslation", lockTranslation);
+		result.set("lockX", lockX);
+		result.set("lockY", lockY);
 		result.set("theta", theta);
 		result.set("lockRotation", lockRotation);
 		result.set("color", color);
@@ -1009,9 +1044,35 @@ class scene: public objectBased {
 						result.push_back(*c);//Adds collision to result
 						handleCollision(*i, *j, *c);//Handles collision
 						
+						//Vector components
+						vector x (c->mtv.x, 0);
+						vector y (0, c->mtv.y);
+						
 						if (!(*i)->lockTranslation && !(*j)->lockTranslation){//If no entity is locked
-							(*i)->translate(c->mtv * (*j)->mass / ((*i)->mass + (*j)->mass));//Translates first
-							(*j)->translate(-c->mtv * (*i)->mass / ((*i)->mass + (*j)->mass));//Translates second
+							if (!(*i)->lockX && !(*i)->lockY && !(*j)->lockX && !(*j)->lockY){//If entities are totally free
+								(*i)->translate(c->mtv * (*j)->mass / ((*i)->mass + (*j)->mass));//Translates first
+								(*j)->translate(-c->mtv * (*i)->mass / ((*i)->mass + (*j)->mass));//Translates second
+							}
+							
+							else {//If at least one entity is locked on at least one axis
+								if ((*i)->lockX && !(*j)->lockX)//If first is locked on x and second isn't
+									(*j)->translate(-x);//Translates second on x
+								else if ((*j)->lockX && !(*i)->lockX)//If second is locked on x and first isn't
+									(*i)->translate(x);//Translates first on x
+								else if (!(*i)->lockX && !(*j)->lockX){//If none is locked on x
+									(*i)->translate(x * (*j)->mass / ((*i)->mass + (*j)->mass));//Translates first
+									(*j)->translate(-x * (*i)->mass / ((*i)->mass + (*j)->mass));//Translates second
+								}
+									
+								if ((*i)->lockY && !(*j)->lockY)//If first is locked on y and second isn't
+									(*j)->translate(-y);//Translates second on y
+								else if ((*j)->lockY && !(*i)->lockY)//If second is locked on y and first isn't
+									(*i)->translate(y);//Translates first on y
+								else if (!(*i)->lockY && !(*j)->lockY){//If none is locked on y
+									(*i)->translate(y * (*j)->mass / ((*i)->mass + (*j)->mass));//Translates first
+									(*j)->translate(-y * (*i)->mass / ((*i)->mass + (*j)->mass));//Translates second
+								}
+							}
 						}
 						
 						else {

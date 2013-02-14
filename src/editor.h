@@ -25,8 +25,8 @@ bool showProperties = true;//Show level properties flag
 string selPropFile = "data/cfg/ui/editor_selProp.cfg";//Selected properties file path
 window selProp;//Selected properties window
 panel* selPropFrame;//Selected properties frame
-control *selIdField, *selMassField, *selEField, *selWField, *selHField, *selColorField;//Selected properties fields
-checkBox *selLockTr, *selLockRot, *selPrint;//Selected properties check boxes
+control *selIdField, *selMassField, *selEField, *selWField, *selHField, *selColorField, *selDampTrField, *selDampRotField;//Selected properties fields
+checkBox *selLockTr, *selLockX, *selLockY, *selLockRot, *selPrint;//Selected properties check boxes
 
 string areaPropFile = "data/cfg/ui/editor_areaProp.cfg";//Selected area properties file path
 window areaProp;//Selected area properties window
@@ -168,10 +168,14 @@ void updateSelProp(){
 	selIdField->content.t = selected->id;
 	selMassField->content.t = toString(selected->mass);
 	selEField->content.t = toString(selected->e);
+	selDampTrField->content.t = toString(selected->damping_tr);
+	selDampRotField->content.t = toString(selected->damping_rot);
 	selWField->content.t = toString(selected->w);
 	selHField->content.t = toString(selected->h);
 	selColorField->content.t = toString(selected->color, true);
 	selLockTr->checked = selected->lockTranslation;
+	selLockX->checked = selected->lockX;
+	selLockY->checked = selected->lockY;
 	selLockRot->checked = selected->lockRotation;
 	selPrint->checked = selected->print;
 }
@@ -188,10 +192,14 @@ void applySelProp(){
 	selected->id = selIdField->content.t;
 	selected->mass = atof(selMassField->content.t.c_str());
 	selected->e = atof(selEField->content.t.c_str());
+	selected->damping_tr = atof(selDampTrField->content.t.c_str());
+	selected->damping_rot = atof(selDampRotField->content.t.c_str());
 	selected->resize(atof(selWField->content.t.c_str()), atof(selHField->content.t.c_str()));
 	selected->color = strtol(selColorField->content.t.c_str(), NULL, 0);
 	
 	selected->lockTranslation = selLockTr->checked;
+	selected->lockX = selLockX->checked;
+	selected->lockY = selLockY->checked;
 	selected->lockRotation = selLockRot->checked;
 	selected->print = selPrint->checked;
 }
@@ -416,11 +424,15 @@ void loadEditor(){
 	selPropFrame = (panel*) selProp.getControl("frame");
 	selIdField = selProp.getControl("frame.idField");
 	selMassField = selProp.getControl("frame.massField");
+	selDampTrField = selProp.getControl("frame.dampTrField");
+	selDampRotField = selProp.getControl("frame.dampRotField");
 	selEField = selProp.getControl("frame.eField");
 	selWField = selProp.getControl("frame.wField");
 	selHField = selProp.getControl("frame.hField");
 	selColorField = selProp.getControl("frame.colorField");
 	selLockTr = (checkBox*) selProp.getControl("frame.lockTrCheck");
+	selLockX = (checkBox*) selProp.getControl("frame.lockXCheck");
+	selLockY = (checkBox*) selProp.getControl("frame.lockYCheck");
 	selLockRot = (checkBox*) selProp.getControl("frame.lockRotCheck");
 	selPrint = (checkBox*) selProp.getControl("frame.printCheck");
 	
@@ -451,7 +463,7 @@ void editorLoop(){
 			editor.checkEvents(ev);//Checks editor events
 			if (showProperties){ properties.checkEvents(ev); applyProp(); }//Checks properties events
 			if (selected) { selProp.checkEvents(ev); applySelProp(); }//Checks selected properties events
-			if (selectedArea) { areaProp.checkEvents(ev); applyAreaProp(); }//Checks area properties events
+			else if (selectedArea) { areaProp.checkEvents(ev); applyAreaProp(); }//Checks area properties events
 			
 			if (ev.type == SDL_MOUSEBUTTONDOWN){//On mouse pressure
 				if (ev.button.button == SDL_BUTTON_LEFT){//If clicked left
@@ -730,7 +742,7 @@ void editorLoop(){
 		editor.print(video);//Prints editor UI
 		if (showProperties) properties.print(video);//Print properties
 		if (selected) selProp.print(video);//Prints selected properties
-		if (selectedArea) areaProp.print(video);//Prints area properties
+		else if (selectedArea) areaProp.print(video);//Prints area properties
 		
 		checkLinks();//Checks links
 		checkAreas();//Checks areas
