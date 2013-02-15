@@ -11,7 +11,7 @@ deque<entity*> entities;//Loaded entities
 
 string editorFile = "data/cfg/ui/editor.cfg";//Editor window file path
 window editor;//Editor window
-control *edBack, *edNew, *edSave, *edOpen, *edProp;//Editor buttons
+control *edBack, *edNew, *edSave, *edOpen, *edProp, *edTest;//Editor buttons
 control *edArea;//Add area button
 checkBox* edSpring;//Spring mode checkbox
 
@@ -254,6 +254,11 @@ void addAreaClick(clickEventData data){
 	edited.areas.push_back(newArea);//Adds to level
 }
 
+//Test button click
+void testClick(clickEventData data){
+	test(edited.path, lpEdited.lsRules);
+}
+
 //Function to get entity currently under the mouse
 box* getSelected(int oX, int oY){
 	int x, y;
@@ -393,6 +398,7 @@ void loadEditor(){
 	edProp = editor.getControl("prop");
 	edSpring = (checkBox*) editor.getControl("spring");
 	edArea = editor.getControl("area");
+	edTest = editor.getControl("test");
 	
 	//Sets handlers
 	edBack->release.handlers.push_back(editorBackClick);
@@ -402,6 +408,7 @@ void loadEditor(){
 	edProp->release.handlers.push_back(editorPropClick);
 	edSpring->release.handlers.push_back(editorSpringClick);
 	edArea->release.handlers.push_back(addAreaClick);
+	edTest->release.handlers.push_back(testClick);
 	
 	properties = loadWindow(propertiesFile, "properties");//Loads properties
 	
@@ -459,6 +466,8 @@ void editorLoop(){
 		
 		while (SDL_PollEvent(&ev)){//While there are events on stack
 			EVENTS_COMMON(ev);//Global events
+			
+			hideCursor = false;
 			
 			editor.checkEvents(ev);//Checks editor events
 			if (showProperties){ properties.checkEvents(ev); applyProp(); }//Checks properties events

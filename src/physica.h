@@ -99,10 +99,16 @@ SDL_Surface* destinationArrow = NULL;//Destination arrow (uses SDL_Surface* inst
 
 //Prototypes
 class area;//Area class prototype
+class rules;//Rules class prototype
 
 void resize(int,int,bool,bool = true);//Resizing function
+
+void updateHud();//Hud updating function
 void updateCommon();//Function to update common ui
-string getInput(string);//Function to get input
+
+void showSuccess();//Function to show success window
+
+void test(string, rules);//Level test function
 
 void checkUpdates(bool = true, bool = false);//Updates function
 
@@ -580,6 +586,45 @@ class level: public scene {
 		
 		if (printLevelScene) printScene(this, target, x, y, hidden);//Prints scene elements
 	}
+	
+	//Function to get a copy of the level
+	level* copy(){
+		level* result = new level(*this);
+		
+		result->entities.clear();//Removes entities
+		result->links.clear();//Removes links
+		
+		list<entity*>::iterator e;//Entity iterator
+		for (e = entities.begin(); e != entities.end(); e++){//For each entity
+			entity* ne = NULL;//New entity
+			
+			if ((*e)->eType == etype_box)//If entity is a box
+				ne = new box(* (box*) (*e));//Allocates as box
+			
+			else if ((*e)->eType == etype_ball)//If entity is a ball
+				ne = new ball(* (ball*) (*e));//Allocates as ball
+				
+			if (ne) result->entities.push_back(ne);//Adds new entity
+		}
+		
+		
+		////NOT WORKING!!!!!!///////////////////////////////////////
+		deque<phLink*>::iterator l;//Link iterator
+		for (l = links.begin(); l != links.end(); l++){//For each link
+			phLink* nl = NULL;//New link
+			
+			if ((*l)->type == OBJTYPE_SPRING)//If link is a spring
+				nl = new spring (* (spring*) (*l));//Allocates as spring
+				
+			if (nl->a) nl->a = get_ptr <entity> (&result->entities, nl->a->id);
+			if (nl->b) nl->b = get_ptr <entity> (&result->entities, nl->b->id);
+			
+			nl->a_point = nl->a->addNode(*nl->a_point);
+			nl->b_point = nl->b->addNode(*nl->b_point);
+		}
+		
+		return result;//Returns result
+	}
 };
 
 double *getVar(string);//Function to get variable from current game and game progress data
@@ -802,6 +847,8 @@ class levelSet: public deque<string>, public objectBased {
 		return result;
 	}
 };
+
+levelSet lpEdited;//Edited level set
 
 string levelSetsFiles = "";//Level sets files string
 deque<levelSet*> levelSets;//Level sets
@@ -1081,6 +1128,7 @@ class game {
 	int deaths;//Death counter
 	
 	bool completed;//Completed flag
+	bool dead;//Dead flag
 		
 	void (*success)();//Success function
 	
@@ -1224,12 +1272,17 @@ class game {
 	}
 	
 	//Function to setup a level
-	void setup(int levelIndex, bool death = false){
+	void setup(int levelIndex, bool death = false, bool moveCam = true){
 		if (currentLevel) delete currentLevel;//Deletes level if existing
 		currentLevel = loadLevel(levels[levelIndex]);//Loads level
 		
 		this->levelIndex = levelIndex;//Sets level index
 		
+		setup(death, moveCam);//Sets general data
+	}
+	
+	//Function for general setup
+	void setup(bool death = false, bool moveCam = true){
 		player = get_ptr <entity> (&currentLevel->entities, "player");//Gets player
 		goal = get_ptr <entity> (&currentLevel->entities, "goal");//Gets goal
 		
@@ -1252,7 +1305,7 @@ class game {
 			deaths = 0;//Resets death counter
 			lastFrameTime = SDL_GetTicks();//Resets frame time
 			
-			if (player) cam.position = player->position;//Centers camera
+			if (player && moveCam) cam.position = player->position;//Centers camera
 		}
 		
 		if (player) cam.destination = player;//Sets cam destination
@@ -1267,9 +1320,6 @@ class game {
 		deaths++;//Increases death counter
 		
 		PLAYSOUND(deathSfx);//Plays sound
-		
-		releasedJump = true;
-		playerJumps = 0;
 	}
 	
 	//Function to move onto next level (if any)
@@ -1437,6 +1487,95 @@ void installSet(string);
 #include "editor.h"//Includes editor
 #include "lpEditor.h"//Includes level set editor
 #include "ui.h"//Includes user interface header
+
+//Function to test a level
+void test(string levelPath, rules lsRules){
+	current.levels = * new levelSet;//New level set
+	current.levels.lsRules = lsRules;//Sets rules
+	
+	current.levels.push_back(levelPath);//Adds level
+	
+	current.success = NULL;//Disables success function
+	
+	current.setup(0, false, false);//Setup game
+	cam.position = vector(current.currentLevel->w / 2, current.currentLevel->h / 2);
+	
+	SDL_Event e;//Event
+	bool testing = true;//Testing flag
+	
+	uiMode u = curUiMode;//Stores old ui mode
+	curUiMode = ui_game;//Sets game mode
+	
+	btnBack->release.handlers.clear();//Removes back button handlers
+	
+	while (testing){//Game loop
+		int t = frameBegin;
+		FRAME_BEGIN;
+		
+		if (curUiMode == ui_game){//If in game mode
+			hideCursor = true;//Sets hide cursor flag
+			
+			BKG;//Prints background
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				EVENTS_COMMON(ev);//Common events
+					
+				if (ev.type == SDL_KEYDOWN){//If pressed a key
+					if (ev.key.keysym.sym == SDLK_ESCAPE) testing = false;//Stops test on esc
+					else current.paused = false;//Unpause
+				}
+					
+				//Checks hud events
+				hud.checkEvents(ev, 2, 2);
+			}
+			
+			if (current.completed) {//If completed level
+				PLAYSOUND(successSfx);//Plays sound
+				current.setup(current.levelIndex, false, false);//Resets level
+			}
+			
+			current.print(video, video_w / 2 - cam.position.x, video_h / 2 - cam.position.y);//Prints game scene
+			
+			updateHud();//Updates hud
+			hud.print(video, 2, 2);//Prints hud on upper-left level
+			current.frame(double((frameBegin - t)) * 0.0125, keys);//Game frame
+			cam.move(double((frameBegin - t)) * 0.0125);//Moves camera
+		}
+		
+		if (curUiMode == ui_paused){//If paused
+			hideCursor = false;//Sets hide cursor flag
+			
+			BKG;//Prints background
+			
+			while (SDL_PollEvent(&ev)){//While there are stacked events
+				EVENTS_COMMON(ev);//Common events
+					
+				if (ev.type == SDL_KEYDOWN){//If pressed a key
+					if (ev.key.keysym.sym == SDLK_ESCAPE) testing = false;//Stops test on esc
+					else if (ev.key.keysym.sym == SDLK_RETURN) resumeClick({});//Resumes on enter
+				}
+				
+				if (btnBack->release.triggered) testing = false;//Quits on back
+				
+				pauseWindow.checkEvents(ev);//Checks pause events
+			}
+			
+			current.print(video, video_w / 2 - cam.position.x, video_h / 2 - cam.position.y);//Prints game scene
+			
+			hud.print(video, 2, 2);//Prints hud on upper-left level
+			
+			pauseWindow.print(video);//Prints pause screen
+		}
+		
+		UPDATE;
+		FRAME_END;
+	}
+	
+	btnBack->release.handlers.push_back(backClick);
+	current.success = showSuccess;
+	
+	curUiMode = u;//Resets ui mode
+}
 
 //Sound file loading function
 void loadSound(){

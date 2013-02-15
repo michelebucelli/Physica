@@ -374,10 +374,8 @@ void object::fromStrings(string type, string id, deque<string> lines){
 //	used to represent something that can be loaded from or saved to a script object
 //	ideally, should be inherited by a class which re-defines the member functions
 class objectBased {
-	protected:
-	string type;//Object type
-	
 	public:
+	string type;//Object type
 	string id;//Object id
 	
 	//Constructor

@@ -22,7 +22,6 @@ int lpAchSpacing = 3;//Achievements spacing
 
 control *lpBtnBack, *lpBtnNew, *lpBtnSave, *lpBtnOpen;//Buttons
 
-levelSet lpEdited;//Edited level set
 bool lpEditing = false;//Editing flag
 
 bool forceLevRedraw = false;//If true, redraws level
@@ -216,7 +215,12 @@ void lpLevDownClick(clickEventData data){
 //Function to handle the open click
 void lpOpenClick(clickEventData data){
 	string lpFile = inputBoxDialog.show(video, "Enter level pack file:");//Gets file
-	levelSet* l = levelSetFromFile(lpFile);//Opens level pack
+	levelSet* l = get_ptr <levelSet> (&levelSets, lpFile);//Opens level pack according to id
+	
+	if (l)//If found
+		lpFile = l->path;//Sets path
+	
+	l = levelSetFromFile(lpFile);//Loads level set
 	
 	if (l){//If level was found
 		lpEdited = *l;//Opens pack
