@@ -13,6 +13,8 @@ int main(int argc, char* argv[]){
 		FRAME_BEGIN;//Frame beginning
 		
 		if (curUiMode == ui_mainMenu){//If in main menu
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
@@ -24,6 +26,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_levelSets){//If in level set selection
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
@@ -38,6 +42,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_paused){//If paused
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
@@ -59,6 +65,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_game){//If in game mode
+			hideCursor = true;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
@@ -82,6 +90,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_levels){//If in level selection
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are stacked events
@@ -131,6 +141,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_success){//If completed level
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 		
 			while (SDL_PollEvent(&ev)){//While there are stacked events
@@ -152,6 +164,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_settings){//If in settings view
+			hideCursor = false;//Sets hide cursor flag
+			
 			while (SDL_PollEvent(&ev)){//While there are events on stack
 				EVENTS_COMMON(ev);//Common events
 					
@@ -168,6 +182,8 @@ int main(int argc, char* argv[]){
 		}
 
 		if (curUiMode == ui_achievements){//If in achievements view
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are events on stack
@@ -180,6 +196,8 @@ int main(int argc, char* argv[]){
 		}
 		
 		if (curUiMode == ui_credits){//If in credits view
+			hideCursor = false;//Sets hide cursor flag
+			
 			BKG;//Prints background
 			
 			while (SDL_PollEvent(&ev)){//While there are events on stack

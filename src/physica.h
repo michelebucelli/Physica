@@ -33,7 +33,7 @@
 #define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
 
 #define FRAME_BEGIN				frameBegin = SDL_GetTicks()//Frame beginning macro
-#define FRAME_END				SDL_ShowCursor(frameBegin - lastMotion > cursorHideDelay ? SDL_DISABLE : SDL_ENABLE); if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
+#define FRAME_END				SDL_ShowCursor(hideCursor && frameBegin - lastMotion > cursorHideDelay ? SDL_DISABLE : SDL_ENABLE); if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
 
 #define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen); if (E.type == SDL_MOUSEMOTION) lastMotion = SDL_GetTicks()//Common events macro
 
@@ -91,6 +91,7 @@ window common;//Common UI
 control* fpsLabel;//Fps label
 control* debugLabel;//Debug label
 
+bool hideCursor = false;//Determines if the cursor must be hidden after cursorHideDelay msec
 int lastMotion = 0;//Last mouse motion event time
 int cursorHideDelay = 3000;//Inactivity time before hiding the cursor
 
