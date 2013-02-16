@@ -98,8 +98,6 @@ int cursorHideDelay = 3000;//Inactivity time before hiding the cursor
 
 SDL_Surface* destinationArrow = NULL;//Destination arrow (uses SDL_Surface* instead of image for rotation)
 
-int deathDelay = 0;//Delay before respawn after death
-
 //Prototypes
 class area;//Area class prototype
 class rules;//Rules class prototype
@@ -1148,9 +1146,6 @@ class game {
 	
 	list <collision> c;//Frame collision list
 	
-	bool dead;//Dead flag
-	int deathTime;//Death time
-	
 	//Constructor
 	game(){
 		player = NULL;
@@ -1173,9 +1168,6 @@ class game {
 		completed = false;
 		
 		gameRules.setMask = 0b11111111;
-		
-		dead = false;
-		deathTime = 0;
 	}
 	
 	//Function for controls handling
@@ -1340,10 +1332,7 @@ class game {
 	void reset(){	
 		setup(levelIndex, true);//Resets level
 		deaths++;//Increases death counter
-		progress.globalDeaths++;//Increases global deaths counter
-		
-		dead = false;
-		deathTime = 0;
+		if (!debugMode) progress.globalDeaths++;//Increases global deaths counter
 	}
 	
 	//Function to move onto next level (if any)
@@ -1360,13 +1349,7 @@ class game {
 		for (i = c.begin(); i != c.end(); i++){//For each collision
 			if ((i->a == player && i->b->special == "hazard") || (i->a->special == "hazard" && i->b == player)){//If player hit hazard
 				PLAYSOUND(deathSfx);//Plays sound
-				
-				currentLevel->entities.remove(player);//Removes player from entities
-				player = NULL;//Sets player to null
-				
-				deathTime = frameBegin;//Sets death time
-				dead = true;//Sets dead flag
-				
+				reset();//Resets
 				break;//Exits loop
 			}
 			
@@ -1405,9 +1388,7 @@ class game {
 		time += SDL_GetTicks() - lastFrameTime;
 		lastFrameTime = SDL_GetTicks();
 		
-		if (dead && frameBegin - deathTime >= deathDelay) reset();//Resets upon death
-		
-		progress.globalTime += double(frameBegin - lastFrameBegin) / 60000;//Increases global time counter
+		if (!debugMode) progress.globalTime += double(frameBegin - lastFrameBegin) / 60000;//Increases global time counter
 	}
 	
 	//Function for animation step
