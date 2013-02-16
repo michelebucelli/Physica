@@ -9,7 +9,6 @@ int main(int argc, char* argv[]){
 	#endif
 	
 	while (running){//While game is running
-		int t = frameBegin;
 		FRAME_BEGIN;//Frame beginning
 		
 		if (curUiMode == ui_mainMenu){//If in main menu
@@ -85,8 +84,8 @@ int main(int argc, char* argv[]){
 				
 			updateHud();//Updates hud
 			hud.print(video, 2, 2);//Prints hud on upper-left level
-			current.frame(double((frameBegin - t)) * 0.0125, keys);//Game frame
-			cam.move(double((frameBegin - t)) * 0.0125);//Moves camera
+			current.frame(double((frameBegin - lastFrameBegin)) * 0.0125, keys);//Game frame
+			cam.move(double((frameBegin - lastFrameBegin)) * 0.0125);//Moves camera
 		}
 		
 		if (curUiMode == ui_levels){//If in level selection

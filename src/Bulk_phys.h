@@ -43,6 +43,9 @@ class entity: public objectBased {
 	double damping_tr;//Translation damping factor
 	double damping_rot;//Rotation damping factor
 	
+	double curLifetime;//Current lifetime
+	double lifetime;//Lifetime (used for particles, 0 for endless)
+	
 	//Relatives
 	scene* parent;//Parent scene
 	
@@ -88,6 +91,9 @@ class entity: public objectBased {
 		
 		damping_tr = 1;
 		damping_rot = 1;
+		
+		curLifetime = 0;
+		lifetime = 0;
 		
 		lockTranslation = false;
 		lockX = false;
@@ -161,55 +167,7 @@ class entity: public objectBased {
 	}
 	
 	//Function to move entity
-	void step(double t, double trDamp, double angDamp){
-		//Applies individual damping factors
-		trDamp *= damping_tr;
-		angDamp *= damping_rot;
-	
-		//Translation
-		if (!lockTranslation){//If entity can move
-			vector oldAccel = accel;//Old acceleration
-			
-			accel = (force) / mass;//Sets acceleration
-		
-			vector damp = speed + ((oldAccel + accel) / 2 + speed * trDamp) * t;//New speed with damping
-			vector noDamp = speed + ((oldAccel + accel) / 2) * t;//New speed without damping
-			
-			vector direction = speed.setModule(1);//Motion direction (normalized)
-			
-			if ((damp.dot(direction) >= 0) == (noDamp.dot(direction) >= 0))//If didn't change direction
-				speed = damp;//Sets speed with damping
-			else speed = {0, 0};//Else stops
-			
-			vector tr = speed * t + (accel + oldAccel) / 2 * 0.5 * t * t;//Translation vector
-			
-			if (lockX) tr.x = 0;//Removes X component
-			if (lockY) tr.y = 0;//Removes Y component
-			
-			translate(tr);//Translates
-		}
-		
-		else speed = {0, 0};//Else stops speed
-
-		//Rotation
-		if (!lockRotation){//If entity can rotate
-			double oldAlpha = alpha;//Old angular acceleration
-			
-			alpha = (torque) / inertia();//Calculates new angular acceleration
-			
-			double damp = omega + ((oldAlpha + alpha) / 2 + omega * angDamp) * t;//New angular speed with damping
-			double noDamp = omega + ((oldAlpha + alpha) / 2) * t;//New angular speed without damping
-			
-			if (damp > 0 == noDamp > 0)//If damping wouldn't invert rotation
-				omega = damp;//Sets angular speed with damping
-			else //Else
-				omega = 0;//Stops rotation
-				
-			rotate(omega * t + (alpha + oldAlpha) / 2 * 0.5 * t * t);//Rotates
-		}
-		
-		else omega = 0;//Else stops rotation
-	}
+	void step(double, double, double);
 	
 	//Function to determine if a point is inside the entity
 	virtual bool isInside(vector p) = 0;
@@ -929,7 +887,10 @@ class spring: public phLink {
 class scene: public objectBased {
 	public:
 	list <entity*> entities;//Entities in scene
+	list <entity*> particles;//Particles in scene
 	deque <phLink*> links;//Links in scene
+	
+	list <entity*> toRemove;//Particles to remove from scene
 	
 	double damping_tr;//Translation damping factor
 	double damping_rot;//Angular damping factor
@@ -964,6 +925,9 @@ class scene: public objectBased {
 		
 		for (i = entities.begin(); i != entities.end(); i++)//For each entity
 			(*i)->resetForces();//Resets forces on entity
+			
+		for (i = particles.begin(); i != particles.end(); i++)//For each particle
+			(*i)->resetForces();//Resets forces on particle
 	}
 	
 	//Function to apply global force
@@ -973,6 +937,9 @@ class scene: public objectBased {
 		
 		for (i = entities.begin(); i != entities.end(); i++)//For each entity
 			(*i)->applyForce((*i)->position, force);//Applies the force to each entity
+			
+		for (i = particles.begin(); i != particles.end(); i++)//For each particle
+			(*i)->applyForce((*i)->position, force);//Applies the force to each particle
 	}
 	
 	//Function to apply gravity
@@ -981,8 +948,11 @@ class scene: public objectBased {
 		
 		for (i = entities.begin(); i != entities.end(); i++)//For each entity
 			(*i)->applyForce((*i)->position, g * (*i)->mass);//Applies gravity
+			
+		for (i = particles.begin(); i != particles.end(); i++)//For each particle
+			(*i)->applyForce((*i)->position, g * (*i)->mass);//Applies gravity
 	}
-
+	
 	//Function to set cells
 	void setCells(){
 		list <entity*>::iterator i;//Iterator
@@ -1131,10 +1101,16 @@ class scene: public objectBased {
 
 		for (i = entities.begin(); i != entities.end(); i++)//For each entity
 			(*i)->step(t, damping_tr, damping_rot);//Steps entity
+			
+		for (i = particles.begin(); i != particles.end(); i++)//For each particle
+			(*i)->step(t, 0, 0);//Steps particle
 		
 		setCells();
 		list<collision> result = collisions();
-			
+		
+		for (i = toRemove.begin(); i != toRemove.end(); i++) particles.remove(*i);//Removes each particle
+		toRemove.clear();//Clears removal list
+		
 		return result;
 	}
 	
@@ -1207,6 +1183,24 @@ class scene: public objectBased {
 		for (i = entities.begin(); i != entities.end(); i++)//For each entity
 			if ((*i)->useAnim) (*i)->anims.next();//Next frame of animation
 	}
+	
+	//Function to create a particle entity
+	entity* createParticle(vector position, vector speed, int mass, int radius, int color, int lifetime){
+		ball* e = new ball;//New entity
+		
+		//Sets members
+		e->position = position;
+		e->speed = speed;
+		e->mass = mass;
+		e->radius = radius;
+		e->color = color;
+		e->lifetime = lifetime;
+		
+		e->parent = this;//Sets parent
+		particles.push_back(e);//Adds to particles
+		
+		return e;//Returns ball
+	}
 };
 
 //Entity function to check contact sensors
@@ -1228,6 +1222,62 @@ bool entity::checkSensor(int id){
 	}
 	
 	return false;//Returns false
+}
+
+//Function to move entity
+void entity::step(double t, double trDamp, double angDamp){
+	//Applies individual damping factors
+	trDamp *= damping_tr;
+	angDamp *= damping_rot;
+	
+	curLifetime += t;//Increases lifetime
+
+	//Translation
+	if (!lockTranslation){//If entity can move
+		vector oldAccel = accel;//Old acceleration
+		
+		accel = (force) / mass;//Sets acceleration
+	
+		vector damp = speed + ((oldAccel + accel) / 2 + speed * trDamp) * t;//New speed with damping
+		vector noDamp = speed + ((oldAccel + accel) / 2) * t;//New speed without damping
+		
+		vector direction = speed.setModule(1);//Motion direction (normalized)
+		
+		if ((damp.dot(direction) >= 0) == (noDamp.dot(direction) >= 0))//If didn't change direction
+			speed = damp;//Sets speed with damping
+		else speed = {0, 0};//Else stops
+		
+		vector tr = speed * t + (accel + oldAccel) / 2 * 0.5 * t * t;//Translation vector
+		
+		if (lockX) tr.x = 0;//Removes X component
+		if (lockY) tr.y = 0;//Removes Y component
+		
+		translate(tr);//Translates
+	}
+	
+	else speed = {0, 0};//Else stops speed
+
+	//Rotation
+	if (!lockRotation){//If entity can rotate
+		double oldAlpha = alpha;//Old angular acceleration
+		
+		alpha = (torque) / inertia();//Calculates new angular acceleration
+		
+		double damp = omega + ((oldAlpha + alpha) / 2 + omega * angDamp) * t;//New angular speed with damping
+		double noDamp = omega + ((oldAlpha + alpha) / 2) * t;//New angular speed without damping
+		
+		if (damp > 0 == noDamp > 0)//If damping wouldn't invert rotation
+			omega = damp;//Sets angular speed with damping
+		else //Else
+			omega = 0;//Stops rotation
+			
+		rotate(omega * t + (alpha + oldAlpha) / 2 * 0.5 * t * t);//Rotates
+	}
+	
+	else omega = 0;//Else stops rotation
+	
+	if (lifetime > 0 && curLifetime >= lifetime && parent)//If reached max lifetime
+		parent->toRemove.push_back(this);//Erases entity from parent
 }
 
 //Function to load link from script object

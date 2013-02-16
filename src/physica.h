@@ -32,7 +32,7 @@
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
 #define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
 
-#define FRAME_BEGIN				frameBegin = SDL_GetTicks()//Frame beginning macro
+#define FRAME_BEGIN				lastFrameBegin = frameBegin; frameBegin = SDL_GetTicks()//Frame beginning macro
 #define FRAME_END				SDL_ShowCursor(hideCursor && frameBegin - lastMotion > cursorHideDelay ? SDL_DISABLE : SDL_ENABLE); if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
 
 #define EVENTS_COMMON(E)		if (E.type == SDL_QUIT) running = false; if (E.type == SDL_VIDEORESIZE) resize(E.resize.w, E.resize.h, fullscreen); if (E.type == SDL_MOUSEMOTION) lastMotion = SDL_GetTicks()//Common events macro
@@ -59,6 +59,7 @@ bool running = true;//If true, program is running
 
 int frames = 0;//Frame counter
 int fps = 60;//Frames per second
+int lastFrameBegin = 0;//Last frame beginning time
 int frameBegin = 0;//Current frame beginning time
 int actualFps = 0;//Actual fps
 
@@ -96,6 +97,8 @@ int lastMotion = 0;//Last mouse motion event time
 int cursorHideDelay = 3000;//Inactivity time before hiding the cursor
 
 SDL_Surface* destinationArrow = NULL;//Destination arrow (uses SDL_Surface* instead of image for rotation)
+
+int deathDelay = 0;//Delay before respawn after death
 
 //Prototypes
 class area;//Area class prototype
@@ -876,10 +879,15 @@ class globalProgress: public objectBased, public list<levelProgress> {
 	public:
 	deque<string> unlockedAch;//Unlocked achievements
 	
+	double globalDeaths, globalTime;//Global deaths, global time played
+	
 	//Constructor
 	globalProgress(){
 		id = "";
 		type = OBJTYPE_GLOBALPROGRESS;
+		
+		globalDeaths = 0;
+		globalTime = 0;
 	}
 	
 	//Function to load from script object
@@ -896,8 +904,12 @@ class globalProgress: public objectBased, public list<levelProgress> {
 			}
 			
 			var* ach = get <var> (&o.v, "achievements");//Achievements variable
+			var* deaths = get <var> (&o.v, "deaths");//Deaths variable
+			var* time = get <var> (&o.v, "time");//Time variable
 			
 			if (ach) this->unlockedAch = tokenize <deque<string> > (ach->value, ",");//Gets achievements
+			if (deaths) this->globalDeaths = deaths->intValue();//Gets deaths
+			if (time) this->globalTime = time->doubleValue();//Gets time
 	
 			return true;//Returns true
 		}
@@ -914,6 +926,9 @@ class globalProgress: public objectBased, public list<levelProgress> {
 			o.o.push_back(i->toScriptObj());//Adds to output object
 			
 		if (unlockedAch.size() > 0) o.set("achievements", join(unlockedAch, ","));//Sets achievements
+		
+		o.set("deaths", globalDeaths);//Sets deaths
+		o.set("time", globalTime);//Sets time
 		
 		return o;//Returns object
 	}
@@ -1128,11 +1143,13 @@ class game {
 	int deaths;//Death counter
 	
 	bool completed;//Completed flag
-	bool dead;//Dead flag
-		
+			
 	void (*success)();//Success function
 	
 	list <collision> c;//Frame collision list
+	
+	bool dead;//Dead flag
+	int deathTime;//Death time
 	
 	//Constructor
 	game(){
@@ -1156,6 +1173,9 @@ class game {
 		completed = false;
 		
 		gameRules.setMask = 0b11111111;
+		
+		dead = false;
+		deathTime = 0;
 	}
 	
 	//Function for controls handling
@@ -1306,8 +1326,10 @@ class game {
 			lastFrameTime = SDL_GetTicks();//Resets frame time
 			
 			if (player && moveCam) cam.position = player->position;//Centers camera
+			
 		}
 		
+		if (death) releasedJump = false;
 		if (player) cam.destination = player;//Sets cam destination
 		
 		paused = false;//Unpauses
@@ -1318,8 +1340,10 @@ class game {
 	void reset(){	
 		setup(levelIndex, true);//Resets level
 		deaths++;//Increases death counter
+		progress.globalDeaths++;//Increases global deaths counter
 		
-		PLAYSOUND(deathSfx);//Plays sound
+		dead = false;
+		deathTime = 0;
 	}
 	
 	//Function to move onto next level (if any)
@@ -1334,7 +1358,18 @@ class game {
 		if (!player) return;//Exits function if no player was given
 		
 		for (i = c.begin(); i != c.end(); i++){//For each collision
-			if ((i->a == player && i->b->special == "hazard") || (i->a->special == "hazard" && i->b == player)){ reset(); break; }//Resets level on death
+			if ((i->a == player && i->b->special == "hazard") || (i->a->special == "hazard" && i->b == player)){//If player hit hazard
+				PLAYSOUND(deathSfx);//Plays sound
+				
+				currentLevel->entities.remove(player);//Removes player from entities
+				player = NULL;//Sets player to null
+				
+				deathTime = frameBegin;//Sets death time
+				dead = true;//Sets dead flag
+				
+				break;//Exits loop
+			}
+			
 			if ((i->a == player && i->b == goal) || (i->a == goal && i->b == player)){ completed = true; if (success) success(); break; }//Success if hit goal
 		}
 	}
@@ -1369,6 +1404,10 @@ class game {
 		
 		time += SDL_GetTicks() - lastFrameTime;
 		lastFrameTime = SDL_GetTicks();
+		
+		if (dead && frameBegin - deathTime >= deathDelay) reset();//Resets upon death
+		
+		progress.globalTime += double(frameBegin - lastFrameBegin) / 60000;//Increases global time counter
 	}
 	
 	//Function for animation step
@@ -1474,7 +1513,13 @@ double *getVar(string id){
 		
 		return new double(result + achs.size());//Returns result
 	}
+
+	else if (id == "globalDeahts")//If required global deaths
+		return new double(progress.globalDeaths);
 		
+	else if (id == "globalTime")//If required global time
+		return new double(progress.globalTime);
+	
 	else { cout << "Failed: " << id << endl; return new double(0); }//Returns 0 if failed
 }
 
@@ -1509,7 +1554,6 @@ void test(string levelPath, rules lsRules){
 	btnBack->release.handlers.clear();//Removes back button handlers
 	
 	while (testing){//Game loop
-		int t = frameBegin;
 		FRAME_BEGIN;
 		
 		if (curUiMode == ui_game){//If in game mode
@@ -1538,8 +1582,8 @@ void test(string levelPath, rules lsRules){
 			
 			updateHud();//Updates hud
 			hud.print(video, 2, 2);//Prints hud on upper-left level
-			current.frame(double((frameBegin - t)) * 0.0125, keys);//Game frame
-			cam.move(double((frameBegin - t)) * 0.0125);//Moves camera
+			current.frame(double((frameBegin - lastFrameBegin)) * 0.0125, keys);//Game frame
+			cam.move(double((frameBegin - lastFrameBegin)) * 0.0125);//Moves camera
 		}
 		
 		if (curUiMode == ui_paused){//If paused

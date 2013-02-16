@@ -42,6 +42,10 @@ void printScene(scene *s, SDL_Surface* target, int x, int y, bool hidden = false
 		if ((*i)->print) printEntity(*i, target, ((*i)->color << 8) + 0xFF, x, y);//Prints the entity
 		else if (hidden) printEntity(*i, target, ((*i)->color << 8) + 0x7F, x, y, false);//Prints hidden entity
 		
+	for (i = s->particles.begin(); i != s->particles.end(); i++)//For each particle
+		if ((*i)->print) printEntity(*i, target, ((*i)->color << 8) + 0xFF, x, y);//Prints the particle
+		else if (hidden) printEntity(*i, target, ((*i)->color << 8) + 0x7F, x, y, false);//Prints hidden particle
+		
 	for (j = s->links.begin(); j != s->links.end(); j++)//For each link
 		if (((!(*j)->a || (*j)->a->print) && (!(*j)->b || (*j)->b->print)) || hidden)//If prints entities
 			lineColor(target, x + (*j)->a_point->x, y + (*j)->a_point->y, x + (*j)->b_point->x, y + (*j)->b_point->y, 0x606060FF);//Prints link
