@@ -973,17 +973,20 @@ class scene: public objectBased {
 			int maxTileY = floor(maxY / (h / DIVISIONS));//Bottom tile y
 			
 			int x, y;//Counters
-			bool assigned = false;//Assigned flag
+			
 			for (y = minTileY; y <= maxTileY; y++){//For each tile row
 				for (x = minTileX; x <= maxTileX; x++){//For each tile column
 					if (x >= 0 && x < DIVISIONS && y >= 0 && y < DIVISIONS){//If coords are valid
 						cells[y * DIVISIONS + x].push_back(*i);//Adds entity to cell
-						assigned = true;//Sets assigned
 					}
 				}
 			}
 			
-			if (!assigned) unassigned.push_back(*i);//Adds to unassigned
+			double bX, eX, bY, eY;//Projections on axes
+			dProjection(*i, vector (w, 0), &bX, &eX);//Projects on x
+			dProjection(*i, vector (0, h), &bY, &eY);//Projects on y
+			
+			if (bX < 0 || bY < 0 || eX >= w || eY >= h) unassigned.push_back(*i);//Adds to unassigned if out of scene
 		}
 	}
 	
