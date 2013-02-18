@@ -386,10 +386,11 @@ void nextClick(clickEventData data){
 	if (current.levelIndex < current.levels.size() - 1){//If not on last level
 		current.next();//Jumps to next level
 		curUiMode = ui_game;//Sets game mode
-		PLAYSOUND(clickSfx);//Plays sound
 	}
 	
-	else backClick({});//Else goes back
+	else curUiMode = ui_levelSets;//Else goes back
+	
+	PLAYSOUND(clickSfx);//Plays sound
 }
 
 //Function to handle credits click
@@ -571,10 +572,15 @@ void applySettings(){
 
 //Function to update common UI
 void updateCommon(){
-	fpsLabel->content.t = "fps:" + toString(actualFps);//Sets fps label
+	if (debugMode){//If in debug mode
+		fpsLabel->content.t = "fps:" + toString(actualFps);//Sets fps label
+		debugLabel->content.t = "video:" + toString(video_w) + "x" + toString(video_h) + ":" + toString(fullscreen);//Debug info
+	}
 	
-	if (debugMode) debugLabel->content.t = "[DEBUG] video:" + toString(video_w) + "x" + toString(video_h) + ":" + toString(fullscreen);//Debug info
-	else debugLabel->content.t = "";
+	else {
+		fpsLabel->content.t = "";
+		debugLabel->content.t = "";
+	}
 }
 
 //UI loading and setup function
