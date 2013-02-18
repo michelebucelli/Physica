@@ -379,6 +379,8 @@ class area: public rectangle, public rules {
 	//Constructor
 	area(){
 		rules::id = "";
+		rectangle::id = "";
+		
 		rules::type = OBJTYPE_AREA;
 		rectangle::type = OBJTYPE_AREA;
 		
@@ -419,8 +421,8 @@ class area: public rectangle, public rules {
 	
 	//Function to save to script object
 	object toScriptObj(){
-		object result = rules::toScriptObj();//Rules data
-		result += rectangle::toScriptObj();//Adds rectangle
+		object result = rectangle::toScriptObj();//Rules data
+		result += rules::toScriptObj();//Adds rectangle
 		
 		result.set("color", color);
 		
