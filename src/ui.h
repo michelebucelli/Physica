@@ -388,7 +388,7 @@ void nextClick(clickEventData data){
 		curUiMode = ui_game;//Sets game mode
 	}
 	
-	else curUiMode = ui_levelSets;//Else goes back
+	else { curUiMode = ui_levelSets; redrawLevelSetSel(); }//Else goes back
 	
 	PLAYSOUND(clickSfx);//Plays sound
 }
