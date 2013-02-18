@@ -22,11 +22,11 @@
      id="defs4">
     <filter
        inkscape:collect="always"
-       id="filter3775">
+       id="filter3761">
       <feGaussianBlur
          inkscape:collect="always"
-         stdDeviation="5.3380743"
-         id="feGaussianBlur3777" />
+         stdDeviation="2.6689827"
+         id="feGaussianBlur3763" />
     </filter>
   </defs>
   <sodipodi:namedview
@@ -37,7 +37,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="5.6568542"
-     inkscape:cx="71.531447"
+     inkscape:cx="43.689117"
      inkscape:cy="700.65917"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -65,7 +65,7 @@
      id="layer1">
     <path
        sodipodi:type="star"
-       style="fill:#ffff30;fill-opacity:1;stroke:none;filter:url(#filter3775)"
+       style="fill:#ffff30;fill-opacity:1;stroke:none;filter:url(#filter3761)"
        id="path2985"
        sodipodi:sides="3"
        sodipodi:cx="164.28571"
@@ -78,7 +78,7 @@
        inkscape:rounded="0.1"
        inkscape:randomized="0"
        d="m 291.55691,259.50504 c 0,22.04401 -171.81613,121.2421 -190.90681,110.22009 -19.090676,-11.02201 -19.090676,-209.41818 0,-220.44019 19.09068,-11.02201 190.90681,88.17608 190.90681,110.2201 z"
-       inkscape:transform-center-x="-1.7090952"
-       transform="matrix(0.0693098,0,0,0.06457697,80.038013,346.91448)" />
+       transform="matrix(0,0.08456357,-0.06586004,0,108.58733,349.82149)"
+       inkscape:transform-center-y="2.085231" />
   </g>
 </svg>
