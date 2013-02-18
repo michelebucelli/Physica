@@ -190,6 +190,9 @@ void events_common(SDL_Event e){
 
 //Update function
 void update(){
+	updateCommon();
+	common.print(video);
+
 	UPDATE;
 }
 
@@ -580,7 +583,7 @@ class level: public scene {
 		
 		list<area>::iterator a;//Area iterator
 		for (a = areas.begin(); a != areas.end(); a++){//For each area
-			SDL_Rect r = *a;//Rectangle
+			SDL_Rect r = {a->x, a->y, a->w, a->h};//Rectangle
 			r.x += x;//Offset x
 			r.y += y;//Offset y
 			
@@ -1497,7 +1500,7 @@ double *getVar(string id){
 		return new double(result + achs.size());//Returns result
 	}
 
-	else if (id == "globalDeahts")//If required global deaths
+	else if (id == "globalDeaths")//If required global deaths
 		return new double(progress.globalDeaths);
 		
 	else if (id == "globalTime")//If required global time

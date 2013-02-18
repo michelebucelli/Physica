@@ -54,6 +54,9 @@ vector dragInitial;//Dragging intial position
 vector dragDist;//Distance between dragging point and position of dragged entity
 vector dragVector;//Dragging vector
 
+int scrollMargin = 1;//Scroll margin
+int scrollSpeed = 10;//Scroll speed
+
 //Function to update properties content
 void updateProperties(){
 	idField->content.t = edited.id;
@@ -245,10 +248,10 @@ void addAreaClick(clickEventData data){
 	newArea.color = 0x131B24;
 	
 	int n = 0;//Counter
-	newArea.rules::id = "area_" + toString(n);//Sets id
+	newArea.rectangle::id = "area_" + toString(n);//Sets id
 	while (get <area> (&edited.areas, "area_" + toString(n))){//While there are areas with the same name
 		n++;//Increases counter
-		newArea.rules::id = "area_" + toString(n);//Sets id
+		newArea.rectangle::id = "area_" + toString(n);//Sets id
 	}
 	
 	edited.areas.push_back(newArea);//Adds to level
@@ -327,23 +330,6 @@ void checkLinks(){
 		else {//Else
 			s->length_zero = (*s->a_point - *s->b_point).module();//Resets length
 			s->id = n > 0 ? "spring_" + toString(n) : "spring";//Resets id
-		}
-	}
-}
-
-//Function to check areas
-void checkAreas(){
-	list<area>::iterator a;//Area iterator
-	
-	for (a = edited.areas.begin(); a != edited.areas.end(); a++){//For each area
-		if (a->w < 0){//If area has negative width
-			a->x -= a->w;//Adjusts x
-			a->w = -a->w;//Adjusts width
-		}
-		
-		if (a->h < 0){//If area has negative height
-			a->y -= a->h;//Adjusts y
-			a->h = -a->h;//Adjusts height
 		}
 	}
 }
@@ -458,11 +444,11 @@ void loadEditor(){
 
 //Editor loop function
 void editorLoop(){
+	int oX = (video_w - edited.w) / 2;//Print offset x
+	int oY = (video_h - edited.h) / 2;//Print offset y
+	
 	while (editing && running){//While editor is in execution
 		FRAME_BEGIN;//Begins frame
-		
-		int oX = (video_w - edited.w) / 2;//Print offset x
-		int oY = (video_h - edited.h) / 2;//Print offset y
 		
 		while (SDL_PollEvent(&ev)){//While there are events on stack
 			EVENTS_COMMON(ev);//Global events
@@ -632,6 +618,11 @@ void editorLoop(){
 						selectedArea = NULL;//Unselects
 					}
 				}
+				
+				else if (ev.key.keysym.sym == SDLK_HOME){//On home press
+					oX = (video_w - edited.w) / 2;//Resets x offset
+					oY = (video_h - edited.h) / 2;//Resets y offset
+				}
 			}
 		}
 		
@@ -740,6 +731,12 @@ void editorLoop(){
 			}
 		}
 		
+		//Checks for scrolling
+		if (mX < scrollMargin) oX += scrollSpeed;
+		if (mX >= video_w - scrollMargin) oX -= scrollSpeed;
+		if (mY < scrollMargin) oY += scrollSpeed;
+		if (mY >= video_h - scrollMargin) oY -= scrollSpeed;
+		
 		BKG;//Prints background
 		SDL_FillRect(video, & SDL_Rect { oX, oY, edited.w, edited.h }, editorBkg);//Fills editor background
 		
@@ -754,7 +751,6 @@ void editorLoop(){
 		else if (selectedArea) areaProp.print(video);//Prints area properties
 		
 		checkLinks();//Checks links
-		checkAreas();//Checks areas
 		
 		updateCommon();//Updates common ui
 		common.print(video);//Prints common ui
