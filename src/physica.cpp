@@ -188,10 +188,15 @@ int main(int argc, char* argv[]){
 			while (SDL_PollEvent(&ev)){//While there are events on stack
 				EVENTS_COMMON(ev);//Common events
 				
-				if (ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONUP) curUiMode = ui_mainMenu;//Back to main menu on key press
+				if (ev.type == SDL_KEYDOWN && ev.key.keysym.sym == SDLK_ESCAPE) curUiMode = ui_mainMenu;//Back to main menu on key press
 			}
 			
-			achievements.print(video);//Prints achievements
+			int o = (video_h - achsH) / 2 - 20 - achs_oY;//Top achievement y position
+			
+			if (keys[SDLK_UP] && achsH > video_h && o < 0) achs_oY--;//Moves up
+			if (keys[SDLK_DOWN] && achsH > video_h && o > video_h - achsH - 40) achs_oY++;//Moves down
+			
+			achievements.print(video, 0, -achs_oY);//Prints achievements
 		}
 		
 		if (curUiMode == ui_credits){//If in credits view

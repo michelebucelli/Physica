@@ -69,6 +69,11 @@ window achievements;//Achievements window
 panel defaultAch;//Achievement info panel
 int achs_spacing = 16;//Grid spacing
 int achs_w = 2;//Achievements grid width
+int achs_oY;//Achievements offset y
+int achsH;//Achievements height
+
+int aScrollMargin = 3;//Scroll margin
+int aScrollSpeed = 10;//Scroll speed
 
 window credits;//Credits window
 control* creditsLabel;//Credits label
@@ -227,8 +232,11 @@ void redrawAchievements(){
 	achievements.clearControls();//Clears window
 	
 	int rows = ceil (progress.unlockedAch.size() / achs_w);//Rows needed
-	int lsH = rows * defaultAch.area.h + (rows - 1) * achs_spacing;//Selector height
-	int offsetY = (video_h - lsH) / 2 - defaultAch.area.h / 2;//Y offset
+	int lsH = (rows) * defaultAch.area.h + (rows - 1) * achs_spacing;//Selector height
+	int offsetY = (video_h - lsH) / 2;//Y offset
+	
+	achsH = lsH;//Sets height
+	achs_oY = achsH < video_h ? 0 : offsetY - 20;//Sets offset y
 	
 	int i;//Counter
 	for (i = 0; i <= rows; i++){//For each row
