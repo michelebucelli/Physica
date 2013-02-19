@@ -21,6 +21,8 @@
 
 #define VERSION_STR				"1.2"//Version string
 
+#define DOUBLEBUF_ENABLED		1//If 1, enables hwsurface + double buffering (lower fps, no tearing)
+
 #define OBJTYPE_LEVEL			"level"//Level objects
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
 #define OBJTYPE_GLOBALPROGRESS	"gProgress"//Global progress objects
@@ -32,7 +34,12 @@
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
-#define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
+
+#if DOUBLEBUF_ENABLED//With double buffer enabled
+	#define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
+#else
+	#define UPDATE					SDL_Flip(video)//Video updating macro
+#endif
 
 #define FRAME_BEGIN				lastFrameBegin = frameBegin; frameBegin = SDL_GetTicks()//Frame beginning macro
 #define FRAME_END				SDL_ShowCursor(hideCursor && frameBegin - lastMotion > cursorHideDelay ? SDL_DISABLE : SDL_ENABLE); if (SDL_GetTicks() > frameBegin) actualFps = 1000 / (SDL_GetTicks() - frameBegin); else actualFps = 1000;//Frame end macro
@@ -45,7 +52,10 @@
 
 //Video output
 SDL_Surface* video = NULL;//Video surface
-SDL_Surface* actVideo = NULL;//Actual video surface
+
+#if DOUBLEBUF_ENABLED//With double buffer enabled
+	SDL_Surface* actVideo = NULL;//Actual video surface
+#endif
 
 int video_w = 800;//Video width
 int video_h = 400;//Video height

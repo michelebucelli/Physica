@@ -16,9 +16,15 @@
 //Function for optimized surface loading
 SDL_Surface* loadImg (const char* source){
 	SDL_Surface* s = IMG_Load(source);//Loads surface
-	if (s) s = SDL_DisplayFormatAlpha(s);//Converts surface to display format
+	SDL_Surface* t = NULL;//Optimized surface
 	
-	return s;//Returns surface
+	if (s){//If surface was found
+		t = SDL_DisplayFormatAlpha(s);//Optimizes
+		SDL_FreeSurface(s);//Frees original
+		return t;//Returns optimized
+	}
+	
+	return NULL;//Returns null if failed
 }
 
 cache <SDL_Surface*, loadImg> surfaceCache;//Surface cache

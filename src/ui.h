@@ -504,8 +504,12 @@ void resize(int newW, int newH, bool fs, bool redraw){
 		video_h = best.h;
 	}
 	
-	video = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);
-	actVideo = SDL_SetVideoMode(video_w, video_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+	#if DOUBLEBUF_ENABLED//With double buffer enabled
+		video = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);
+		actVideo = SDL_SetVideoMode(video_w, video_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+	#else
+		video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+	#endif
 	
 	if (redraw){//If has to redraw
 		if (menuFrame){//If menu frame is available
