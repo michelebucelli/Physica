@@ -11,13 +11,15 @@
 
 #include <curl/curl.h>//Includes CURL
 
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(__WIN64__)
 #include "SDL/SDL_syswm.h"//Includes SDL window manager
 #endif
 
 #ifdef __linux__
 #include <sys/stat.h>//Includes linux header
 #endif
+
+#define VERSION_STR				"1.2"//Version string
 
 #define OBJTYPE_LEVEL			"level"//Level objects
 #define OBJTYPE_LEVELPROGRESS	"progress"//Level progress objects
@@ -77,6 +79,9 @@ string rulesFile = "data/cfg/rules.cfg";//Rules file
 
 string updatesFile = "https://raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
 int updatesCount = 0;//Installed updates count
+
+string localePath = "data/cfg/locale/";//Localizations folder
+string defaultLocale = "en";//Default locale
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -572,6 +577,8 @@ class level: public scene {
 		list<area>::iterator a;//Area iterator
 		for (a = areas.begin(); a != areas.end(); a++)//For each area
 			result.o.push_back(a->toScriptObj());//Adds areas
+			
+		result.set("message", join(message, "_"));//Sets msg var
 		
 		return result;//Returns result
 	}
@@ -644,6 +651,8 @@ class achievement: public objectBased {
 	
 	bool checkOnce;//If false, checks for this achievement every time
 	
+	deque<language> langs;//Languages
+	
 	//Constructor
 	achievement(){
 		id = "";
@@ -686,6 +695,14 @@ class achievement: public objectBased {
 			if (checkOnce) this->checkOnce = checkOnce->intValue();
 			if (icon) this->icon.fromScriptObj(*icon);
 			
+			deque<object>::iterator ob;//Object iterator
+			for (ob = o.o.begin(); ob != o.o.end(); ob++){//For each object
+				if (ob->type == OBJTYPE_LANGUAGE){//If object is a language
+					langs.push_back(*ob);//Adds to level set languages
+					addLang(*ob);//Adds to language database
+				}
+			}
+			
 			return true;//Returns true
 		}
 		
@@ -703,6 +720,9 @@ class achievement: public objectBased {
 		
 		icon.id = "icon";
 		result.o.push_back(icon.toScriptObj());
+		
+		int n;
+		for (n = 0; n < langs.size(); n++) result.o.push_back(langs[n]);
 		
 		return result;
 	}
@@ -787,6 +807,8 @@ class levelSet: public deque<string>, public objectBased {
 	deque<achievement> lsAchs;//Level set achievements
 	
 	rules lsRules;//Level set custom rules (overrides normal rules)
+	
+	deque<language> langs;//Languages bound to level set
 		
 	//Constructor
 	levelSet(){
@@ -829,6 +851,11 @@ class levelSet: public deque<string>, public objectBased {
 					a.fromScriptObj(*ob);//Loads
 					lsAchs.push_back(a);//Adds to achievements
 				}
+				
+				if (ob->type == OBJTYPE_LANGUAGE){//If object is a language
+					langs.push_back(*ob);//Adds to level set languages
+					addLang(*ob);//Adds to language database
+				}
 			}
 		}
 	}
@@ -849,6 +876,7 @@ class levelSet: public deque<string>, public objectBased {
 		int n;
 		for (n = 0; n < size(); n++) result.set("level" + toString(n + 1), (*this)[n]);
 		for (n = 0; n < lsAchs.size(); n++) result.o.push_back(lsAchs[n].toScriptObj());
+		for (n = 0; n < langs.size(); n++) result.o.push_back(langs[n]);
 		
 		return result;
 	}
@@ -1311,11 +1339,11 @@ class game {
 		
 		if (!death){//If not setting up cause death
 			deque<string>::iterator i;//String iterator
-			string ans[] = { "Continue"};//Answer
+			string ans[] = { getText("continue") };//Answer
 			
 			for (i = currentLevel->message.begin(); i != currentLevel->message.end(); i++){//For each message
 				BKG;
-				msgBox.show(video, *i, 1, ans, true, false);//Shows message
+				msgBox.show(video, getText(*i), 1, ans, true, false);//Shows message
 			}
 		
 			time = 0;//Resets timer
@@ -1862,7 +1890,7 @@ void checkUpdates(bool silent, bool dark){
 		
 		int s = toDownload.size();//Download size
 		
-		if (s > 0 && msgBox.show(video, toString(s) + (s > 1 ? " updates" : " update") + " available. Download?", 2, msgBox_ans_yn, false, dark) == 0){//If user decides to download
+		if (s > 0 && msgBox.show(video, getText("upd_install", toString(s).c_str()), 2, msgBox_ans_yn, false, dark) == 0){//If user decides to download
 			deque<string>::iterator i;//Iterator
 			
 			for (i = toDownload.begin(); i != toDownload.end(); i++){//For each file
@@ -1883,11 +1911,29 @@ void checkUpdates(bool silent, bool dark){
 	
 	else switch (result){
 		case CURLE_COULDNT_CONNECT: break;//Connection error: breaks
-		case CURLE_COULDNT_RESOLVE_HOST: BKG; msgBox.show(video, "Couldn't get updates list.", 1, msgBox_ans_ok); break; //Error message if couldn't find file
+		case CURLE_COULDNT_RESOLVE_HOST: BKG; msgBox.show(video, getText("upd_listNotFound"), 1, msgBox_ans_ok); break; //Error message if couldn't find file
 		default: cerr << "UPDATES ERROR: " << curl_easy_strerror(result); break;//Unexpected error
 	}
 
 	remove("tmp_updates");//Removes updates file
+}
+
+//Function to initialize language
+void initLang(){
+	char lang[3] = "";//Locale string
+	
+	#if defined(__WIN32__) || defined(__WIN64__)//On Windows
+	GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, lang, sizeof(char) * 2);//Locale id
+	#else ifdef __linux__//On linux
+	lang = getenv("LANG");//Gets environmental language variable
+	#endif
+	
+	if (!loadLanguagesDB(localePath + string(lang) + ".cfg")){//If fails loading language
+		loadLanguagesDB(localePath + defaultLocale + ".cfg");//Loads default language
+		SETLANG(defaultLocale);//Sets default language
+	}
+	
+	else SETLANG(string(lang));//Else sets loaded language
 }
 
 //Game initialization function
@@ -1909,14 +1955,18 @@ void gameInit(int argc, char* argv[]){
 		
 	loadSettings();//Loads settings
 	loadGraphics();//Loads graphics
-	loadUI();//Loads ui
+	
+	loadSound();//Loads sound
 	
 	loadSets();//Loads level sets
+	loadAchievements();//Loads achievements
+	
+	initLang();//Inits language
+	
 	loadRules();//Loads rules
 	loadProgress();//Loads game progress
 	
-	loadAchievements();//Loads achievements
-	loadSound();//Loads sound
+	loadUI();//Loads ui
 	
 	loadEditor();//Loads editor
 	loadLpEditor();//Loads level pack editor
@@ -1938,7 +1988,7 @@ void gameQuit(){
 }
 
 //Windows-specific init and close function
-#ifdef __WIN32__
+#if defined(__WIN32__) || defined(__WIN64__)
 HICON icon;
 HWND hwnd;
 

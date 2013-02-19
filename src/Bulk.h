@@ -12,6 +12,7 @@
 #include <list>//Includes lists
 #include <cstdlib>//Includes standard C library
 #include <cstring>//Includes standard C string library
+#include <cstdarg>//Includes standard C arg library
 #include <ctime>//Includes C time header
 #include <cmath>//Includes standard C math library
 

@@ -149,11 +149,11 @@ void lpLevEditClick(clickEventData data){
 	level *l = loadLevel(fileField->content.t);//Loads level
 	
 	if (!ifstream(fileField->content.t.c_str())){//If file doesn't exist
-		if (msgBox.show(video, "Level doesn't exist. Create it?", 2, msgBox_ans_yn) == 1) return;//Exits if msgbox ans is no
+		if (msgBox.show(video, getText("createLevel"), 2, msgBox_ans_yn) == 1) return;//Exits if msgbox ans is no
 		
 		ofstream o (fileField->content.t.c_str());//Creates new file
 		if (!o.good()){//If file couldn't be opened
-			msgBox.show(video, "Failed creating level: invalid path (probably unexisting directory)", 1, msgBox_ans_ok);//Message
+			msgBox.show(video, getText("levelCreationFailure"), 1, msgBox_ans_ok);//Message
 			return;//Quits
 		}
 		
@@ -214,7 +214,7 @@ void lpLevDownClick(clickEventData data){
 
 //Function to handle the open click
 void lpOpenClick(clickEventData data){
-	string lpFile = inputBoxDialog.show(video, "Enter level pack file:");//Gets file
+	string lpFile = inputBoxDialog.show(video, getText("insertFile"));//Gets file
 	levelSet* l = get_ptr <levelSet> (&levelSets, lpFile);//Opens level pack according to id
 	
 	if (l)//If found
@@ -234,11 +234,11 @@ void lpOpenClick(clickEventData data){
 //Function to handle the save click
 void lpSaveClick(clickEventData data){
 	if (lpIdField->content.t == ""){//If empty id field
-		msgBox.show(video, "Id field required", 1, msgBox_ans_ok);//Message function
+		msgBox.show(video, getText("idRequired"), 1, msgBox_ans_ok);//Message function
 		return;//Returns
 	}
 	
-	string lpFile = inputBoxDialog.show(video, "Enter level pack file", lpEdited.path);//Gets file
+	string lpFile = inputBoxDialog.show(video, getText("insertFile"), lpEdited.path);//Gets file
 	
 	//Sets metadata
 	lpEdited.id = lpIdField->content.t;

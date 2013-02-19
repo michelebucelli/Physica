@@ -149,7 +149,7 @@ void redrawLevelSetSel(){
 			control* u = p->getControl("icon");//Icon control
 			
 			if (u && a->icon.valid()){//If icon was found
-				if (t) t->content.t = a->name + " (" + toString(progress.percent(a->id)) + "%)";//Sets text
+				if (t) t->content.t = getText(a->name) + " (" + toString(progress.percent(a->id)) + "%)";//Sets text
 				u->content.i = a->icon;//Sets icon
 				u->content.contentType = CONTENT_IMAGE;//Sets content type
 			}
@@ -265,8 +265,8 @@ void redrawAchievements(){
 			else a = get <achievement> (&achs, achId);//Else gets from global achievements
 			
 			if (icon){ icon->content.contentType = CONTENT_IMAGE; icon->content.i = a->icon; }//Sets icon
-			if (name) name->content.t = a->name;//Sets name
-			if (info) info->content.t = a->info;//Sets info
+			if (name) name->content.t = getText(a->name);//Sets name
+			if (info) info->content.t = getText(a->info);//Sets info
 			
 			p->area.x = rowOffsetX + n * (p->area.w + achs_spacing);//Sets x
 			p->area.y = offsetY + i * (p->area.h + achs_spacing);//Sets y
@@ -435,8 +435,8 @@ void unlockedAchievement(achievement* a){
 	p->id = a->id;//Sets id
 	
 	if (achIcon){ achIcon->content.contentType = CONTENT_IMAGE; achIcon->content.i = a->icon; }//Sets icon
-	if (achName) achName->content.t = a->name;//Sets name
-	if (achInfo) achInfo->content.t = a->info;//Sets info
+	if (achName) achName->content.t = getText(a->name);//Sets name
+	if (achInfo) achInfo->content.t = getText(a->info);//Sets info
 	
 	achBegin.push_back(SDL_GetTicks());//Sets beginning
 	achieved.push_back(p);//Adds to achieved
@@ -611,6 +611,8 @@ void loadUI(){
 	btnAchs = menu.getControl("frame.achievements");//Gets achievements button
 	btnCredits = menu.getControl("frame.credits");//Gets credits button
 	btnQuit = menu.getControl("frame.quit");//Gets quit button
+	
+	menu.getControl("frame.subTitle")->content.t = getText("version", VERSION_STR);//Sets version text
 	
 	menuFrame->area.x = (video_w - menuFrame->area.w) / 2;//Centers menu on x
 	menuFrame->area.y = (video_h - menuFrame->area.h) / 2;//Centers menu on y

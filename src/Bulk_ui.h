@@ -1094,7 +1094,9 @@ class keyBox: public control {
 			themes[hover] = activeTheme;//Sets hover theme
 		}
 		
-		content.t = SDL_GetKeyName(key);//Gets text
+		content.t = getText("key_" + toString(key));//Gets text
+		if (content.t == "key_" + toString(key)) content.t = SDL_GetKeyName(key);//Gets text
+		
 		control::print(target, x, y, printTheme);//Prints
 		
 		if (active){//If active

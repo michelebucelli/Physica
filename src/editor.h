@@ -89,20 +89,20 @@ void editorNewClick(clickEventData data){
 
 //Save button click
 void editorSaveClick(clickEventData data){
-	string lFile = inputBoxDialog.show(video, "Insert level file name", edited.path);//Level file path
+	string lFile = inputBoxDialog.show(video, getText("insertFile"), edited.path);//Level file path
 	
 	if (lFile == "")//Invalid file
 		return;//Returns
 		
 	else if (edited.id == ""){//Invalid id
-		msgBox.show(video, "Id field required", 1, msgBox_ans_ok);//Message function
+		msgBox.show(video, getText("idRequired"), 1, msgBox_ans_ok);//Message function
 		return;//Returns
 	}
 	
 	ofstream o (lFile.c_str());//Output level file
 
 	if (!o.good()){//If file couldn't be opened
-		msgBox.show(video, "Failed creating level: invalid path (probably unexisting directory)", 1, msgBox_ans_ok);//Message
+		msgBox.show(video, getText("fileCreationFailure"), 1, msgBox_ans_ok);//Message
 		return;//Quits
 	}
 	
@@ -116,7 +116,7 @@ void editorSaveClick(clickEventData data){
 void editorOpenClick(clickEventData data){
 	PLAYSOUND(clickSfx);
 	
-	string lFile = inputBoxDialog.show(video, "Insert level file name");//Level file path
+	string lFile = inputBoxDialog.show(video, getText("insertFile"));//Level file path
 	if (lFile != "") edited = *loadLevel(lFile);//Loads level
 	
 	updateProperties();

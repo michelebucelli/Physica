@@ -78,7 +78,7 @@ class msgbox: public dialog {
 			panel* p = new panel (answerButton);//New answer button
 			
 			p->area.x += n * p->area.w + ansSpacing;//Sets x
-			p->content.t = ansv[n];//Sets content
+			p->content.t = getText(ansv[n]);//Sets content
 			p->id = toString(n);//Sets id
 			
 			dialogFrame->children.push_back(p);//Adds to frame
@@ -112,9 +112,9 @@ class msgbox: public dialog {
 	}
 } msgBox;
 
-string msgBox_ans_ok[] = { "OK" };//OK msgbox answer
-string msgBox_ans_okCancel[] = { "OK", "Cancel"};//OK/Cancel msgbox answer
-string msgBox_ans_yn[] = { "Yes", "No"};//Yes/No msgbox answer
+string msgBox_ans_ok[] = { "ok" };//OK msgbox answer
+string msgBox_ans_okCancel[] = { "ok", "cancel"};//OK/Cancel msgbox answer
+string msgBox_ans_yn[] = { "yes", "no"};//Yes/No msgbox answer
 
 //Input box
 class inputbox: public dialog {
@@ -432,17 +432,23 @@ class achdialog: public dialog {
 				
 				if (ok->release.triggered){//If pressed ok
 					if (idField->content.t == ""){//If id is invalid
-						msgBox.show(target, "Missing ID field", 1, msgBox_ans_ok);//Message box
+						msgBox.show(target, getText("idRequired"), 1, msgBox_ans_ok);//Message box
 						continue;//Next loop
 					}
 					
-					else return new achievement(
+					else {
+						achievement *result = new achievement (
 									idField->content.t,
 									nameField->content.t,
 									infoField->content.t,
 									verifyField->content.t,
 									icon->content.i,
 									checkOnce->checked);//Result
+						
+						if (a) result->langs = a->langs;
+						
+						return result;
+					}
 				}
 										
 				if (iconEdit->release.triggered || icon->release.triggered){//If pressed icon
