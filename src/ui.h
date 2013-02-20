@@ -61,7 +61,7 @@ control *ratingA, *ratingB, *ratingC;//Rating stars
 
 window settings;//Settings window
 panel* settingsFrame;//Settings frame
-checkBox *setFullscreen, *setSound, *setDebug;//Settings check boxes
+checkBox *setFullscreen, *setDoubleBuf, *setSound, *setDebug;//Settings check boxes
 keyBox *setUp, *setLeft, *setRight;//Controls key boxes
 control *setUpdates;//Updates check button
 
@@ -410,6 +410,7 @@ void showSettings(clickEventData data){
 	
 	//Sets window content
 	setFullscreen->checked = fullscreen;
+	setDoubleBuf->checked = doubleBuffering;
 	setSound->checked = enableSfx;
 	setDebug->checked = debugMode;
 	
@@ -497,7 +498,7 @@ void resize(int newW, int newH, bool fs, bool redraw){
 	fullscreen = fs;//Sets fullscreen
 	
 	if (fullscreen){//If in fullscreen mode
-		SDL_Rect best = *(SDL_ListModes(NULL, SDL_HWSURFACE | SDL_FULLSCREEN | SDL_DOUBLEBUF)[0]);//Best video mode
+		SDL_Rect best = *(SDL_ListModes(NULL, SDL_HWSURFACE | SDL_FULLSCREEN | (DOUBLEBUF_ENABLED && doubleBuffering ? SDL_DOUBLEBUF : 0))[0]);//Best video mode
 		
 		//Gets video size
 		video_w = best.w;
@@ -505,11 +506,14 @@ void resize(int newW, int newH, bool fs, bool redraw){
 	}
 	
 	#if DOUBLEBUF_ENABLED//With double buffer enabled
-		video = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);
-		actVideo = SDL_SetVideoMode(video_w, video_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
-	#else
-		video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+		if (doubleBuffering){//If double buffering
+			video = SDL_CreateRGBSurface(SDL_SWSURFACE, video_w, video_h, 32, 0, 0, 0, 0);
+			actVideo = SDL_SetVideoMode(video_w, video_h, 32, SDL_HWSURFACE | SDL_DOUBLEBUF | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
+		}
+		
+		else
 	#endif
+		video = SDL_SetVideoMode(video_w, video_h, 32, SDL_SWSURFACE | (fullscreen ? SDL_FULLSCREEN : SDL_RESIZABLE));//Creates video surface
 	
 	if (redraw){//If has to redraw
 		if (menuFrame){//If menu frame is available
@@ -565,7 +569,10 @@ void updateClick(clickEventData data){
 
 //Function to apply settings
 void applySettings(){
-	if (setFullscreen->checked != fullscreen) resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
+	if (setFullscreen->checked != fullscreen || setDoubleBuf->checked != doubleBuffering){//If changed fullscreen or double buffering
+		doubleBuffering = setDoubleBuf->checked;//Sets double buffering setting
+		resize(videoWin_w, videoWin_h, setFullscreen->checked);//Applies fullscreen
+	}
 	enableSfx = setSound->checked;//Applies sound settings
 	debugMode = setDebug->checked;//Applies debug settings
 	
@@ -578,7 +585,7 @@ void applySettings(){
 void updateCommon(){
 	if (debugMode){//If in debug mode
 		fpsLabel->content.t = "fps:" + toString(actualFps);//Sets fps label
-		debugLabel->content.t = "video:" + toString(video_w) + "x" + toString(video_h) + ":" + toString(fullscreen);//Debug info
+		debugLabel->content.t = "video:" + toString(video_w) + "x" + toString(video_h) + ":" + toString(fullscreen) + ":" + toString(doubleBuffering);//Debug info
 	}
 	
 	else {
@@ -667,6 +674,7 @@ void loadUI(){
 	settings = loadWindow(settingsUiFile, "settings");//Loads settings file
 	settingsFrame = (panel*) settings.getControl("frame");//Gets frame
 	setFullscreen = (checkBox*) settings.getControl("frame.fullscreen");//Gets fullscreen checkbox
+	setDoubleBuf = (checkBox*) settings.getControl("frame.doublebuffer");//Gets double buffer checkbox
 	setSound = (checkBox*) settings.getControl("frame.enableSfx");//Gets sfx checkbox
 	setDebug = (checkBox*) settings.getControl("frame.debug");//Gets debug checkbox
 	setUp = (keyBox*) settings.getControl("frame.upKey");//Gets up key box

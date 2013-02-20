@@ -36,7 +36,7 @@
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
 
 #if DOUBLEBUF_ENABLED//With double buffer enabled
-	#define UPDATE					SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo)//Video updating macro
+	#define UPDATE					if (doubleBuffering) { SDL_BlitSurface(video, NULL, actVideo, NULL); SDL_Flip(actVideo); } else SDL_Flip(video)//Video updating macro
 #else
 	#define UPDATE					SDL_Flip(video)//Video updating macro
 #endif
@@ -64,6 +64,7 @@ int videoWin_w = 800;//Video width if windowed
 int videoWin_h = 400;//Video height if windowed
 
 bool fullscreen = true;//Fullscreen flag
+bool doubleBuffering = true;//Double buffering flag
 Uint32 background = 0x101010;//Background color
 
 //Program flow
@@ -1667,6 +1668,7 @@ void loadSettings(){
 	
 	//Gets data
 	var* v_fullscreen = get <var> (&g.v, "fullscreen");
+	var* v_doubleBuf = get <var> (&g.v, "doubebuffer");
 	var* v_videoW = get <var> (&g.v, "video_w");
 	var* v_videoH = get <var> (&g.v, "video_h");
 	var* v_sound = get <var> (&g.v, "enableSfx");
@@ -1678,6 +1680,7 @@ void loadSettings(){
 	var* v_updatesCount = get <var> (&g.v, "updatesCount");
 	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
+	if (v_doubleBuf) doubleBuffering = v_doubleBuf->intValue();
 	if (v_videoW) videoWin_w = v_videoW->intValue();
 	if (v_videoH) videoWin_h = v_videoH->intValue();
 	if (v_sound) enableSfx = v_sound->intValue();
@@ -1781,6 +1784,7 @@ void saveSettings(){
 	ob.set("video_w", videoWin_w);
 	ob.set("video_h", videoWin_h);
 	ob.set("fullscreen", fullscreen);
+	ob.set("doublebuffer", doubleBuffering);
 	ob.set("enableSfx", enableSfx);
 	ob.set("debugMode", debugMode);
 	ob.set("updatesFile", updatesFile);
