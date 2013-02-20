@@ -16,11 +16,30 @@ list <language> languagesDB;//Languages database
 language *currentLang = NULL;//Current language
 
 //Function to add language object to database
-void addLang(language l){
+void addLang(language l, bool namespaced = false, string namespaceId = ""){
 	language *o = get <language> (&languagesDB, l.id);//Requested language
 	
-	if (o) *o += l;//If existing, adds to language
-	else languagesDB.push_back(l);//Else adds to database
+	if (namespaced){//If language is namespaced
+		if (o){//If existing
+			l.id = namespaceId;//Sets namespace id
+			o->o.push_back(l);//Adds to language
+		}
+		
+		else {//If not existing
+			language ln;//New language
+			ln.id = l.id;//Sets id
+			
+			l.id = namespaceId;//Sets namespace id
+			ln.o.push_back(l);//Adds sub-language
+			
+			languagesDB.push_back(ln);//Adds new language
+		};
+	}
+	
+	else {//If not namespaced
+		if (o) *o += l;//If existing, adds to language
+		else languagesDB.push_back(l);//Else adds to database
+	}
 }
 
 //Function to load language database from a file
@@ -43,7 +62,7 @@ string getText(string id, ...){
 	va_start (l, id);//Stores args
 	
 	if (currentLang){//If current language is set
-		var* v = get <var, deque<var> > (&currentLang->v, id);//Requested variable
+		var* v = currentLang->getVar(id);//Requested variable
 		
 		if (v){//If variable was found
 			string s = v->value;//Retrieved string

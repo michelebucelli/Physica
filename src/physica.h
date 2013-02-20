@@ -710,7 +710,7 @@ class achievement: public objectBased {
 			for (ob = o.o.begin(); ob != o.o.end(); ob++){//For each object
 				if (ob->type == OBJTYPE_LANGUAGE){//If object is a language
 					langs.push_back(*ob);//Adds to level set languages
-					addLang(*ob);//Adds to language database
+					addLang(*ob, true, this->id);//Adds to language database
 				}
 			}
 			
@@ -865,7 +865,7 @@ class levelSet: public deque<string>, public objectBased {
 				
 				if (ob->type == OBJTYPE_LANGUAGE){//If object is a language
 					langs.push_back(*ob);//Adds to level set languages
-					addLang(*ob);//Adds to language database
+					addLang(*ob, true, this->id);//Adds to language database
 				}
 			}
 		}

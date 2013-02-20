@@ -217,6 +217,19 @@ class object{
 		
 		return result;//Returns the result
 	}
+	
+	//Function to get variable
+	var* getVar(string id){
+		if (id.find(".") == id.npos) return get <var> (&v, id);//Returns variable normally if not inside sub-object
+		
+		else {//Else
+			string sId = id.substr(0, id.find("."));//Child id
+			object* child = get <object> (&o, sId);//Gets child
+			
+			if (child) return child->getVar(id.substr(id.find(".") + 1));//Returns variable from child if existing
+			else return NULL;//Else returns null
+		}
+	}
 } presetObjects;//Preset objects (can be recalled with inherit line in object descriptions)
 
 //Specialized template for get function with objects
