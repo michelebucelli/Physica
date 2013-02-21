@@ -213,6 +213,19 @@ int main(int argc, char* argv[]){
 			credits.print(video);//Prints credits
 		}
 		
+		if (curUiMode == ui_um){//If in updates manager
+			hideCursor = false;//Sets hide cursor flag
+			
+			BKG;//Prints background
+			
+			while (SDL_PollEvent(&ev)){//While there are events on stack
+				EVENTS_COMMON(ev);//Common events
+				um.checkEvents(ev);//Checks manager events
+			}
+			
+			um.print(video);//Prints update manager
+		}
+		
 		if (!debugMode){//If not in debug mode
 			achFrameStep();//Steps achievement animation			
 			progress.verifyAchs();//Verifies achievements

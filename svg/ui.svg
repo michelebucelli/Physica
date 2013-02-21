@@ -28,7 +28,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="2.8284273"
-     inkscape:cx="325.86108"
+     inkscape:cx="283.61145"
      inkscape:cy="702.44622"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -384,6 +384,114 @@
          width="32"
          id="rect4042-1"
          style="fill:#c87137;fill-opacity:1;stroke:none" />
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
+         transform="matrix(0.8,0,0,0.8,9.0527572,126.8153)"
+         id="g4101-1"
+         style="fill:#808080">
+        <g
+           id="g4032-7"
+           transform="translate(-0.90446,0)"
+           style="fill:#808080">
+          <path
+             transform="matrix(1.0285189,0,0,1.0285189,35.497621,9.078663)"
+             sodipodi:end="4.712389"
+             sodipodi:start="1.5707963"
+             d="m 232.46135,349.32126 c -10.73942,0 -19.44544,-8.70602 -19.44544,-19.44544 0,-10.73941 8.70602,-19.44543 19.44544,-19.44543 0,0 0,0 0,0 l 0,19.44543 z"
+             sodipodi:ry="19.445436"
+             sodipodi:rx="19.445436"
+             sodipodi:cy="329.87582"
+             sodipodi:cx="232.46135"
+             id="path3993-4"
+             style="fill:#808080;fill-opacity:1;stroke:none"
+             sodipodi:type="arc" />
+        </g>
+        <g
+           transform="matrix(-1,0,0,1,568.27257,0)"
+           id="g4032-2-0"
+           style="fill:#808080">
+          <path
+             transform="matrix(1.0285189,0,0,1.0285189,35.497621,9.078663)"
+             sodipodi:end="4.712389"
+             sodipodi:start="1.5707963"
+             d="m 232.46135,349.32126 c -10.73942,0 -19.44544,-8.70602 -19.44544,-19.44544 0,-10.73941 8.70602,-19.44543 19.44544,-19.44543 0,0 0,0 0,0 l 0,19.44543 z"
+             sodipodi:ry="19.445436"
+             sodipodi:rx="19.445436"
+             sodipodi:cy="329.87582"
+             sodipodi:cx="232.46135"
+             id="path3993-7-9"
+             style="fill:#808080;fill-opacity:1;stroke:none"
+             sodipodi:type="arc" />
+        </g>
+        <g
+           id="g4097-4"
+           transform="translate(-0.90444699,0)"
+           style="fill:#808080">
+          <rect
+             y="328.36218"
+             x="274.5885"
+             height="40"
+             width="20"
+             id="rect3991-8"
+             style="fill:#808080;fill-opacity:1;stroke:none" />
+        </g>
+      </g>
+      <g
+         inkscape:export-ydpi="90"
+         inkscape:export-xdpi="90"
+         inkscape:export-filename="F:\Documents\Programming\SDL e C++\Progetti\Physica\bin\data\graphics\misc\ui.png"
+         transform="matrix(0.8,0,0,0.8,57.05276,126.8153)"
+         id="g4101-8"
+         style="fill:#c87137">
+        <g
+           id="g4032-24"
+           transform="translate(-0.90446,0)"
+           style="fill:#c87137">
+          <path
+             transform="matrix(1.0285189,0,0,1.0285189,35.497621,9.078663)"
+             sodipodi:end="4.712389"
+             sodipodi:start="1.5707963"
+             d="m 232.46135,349.32126 c -10.73942,0 -19.44544,-8.70602 -19.44544,-19.44544 0,-10.73941 8.70602,-19.44543 19.44544,-19.44543 0,0 0,0 0,0 l 0,19.44543 z"
+             sodipodi:ry="19.445436"
+             sodipodi:rx="19.445436"
+             sodipodi:cy="329.87582"
+             sodipodi:cx="232.46135"
+             id="path3993-5"
+             style="fill:#c87137;fill-opacity:1;stroke:none"
+             sodipodi:type="arc" />
+        </g>
+        <g
+           transform="matrix(-1,0,0,1,568.27257,0)"
+           id="g4032-2-5"
+           style="fill:#c87137">
+          <path
+             transform="matrix(1.0285189,0,0,1.0285189,35.497621,9.078663)"
+             sodipodi:end="4.712389"
+             sodipodi:start="1.5707963"
+             d="m 232.46135,349.32126 c -10.73942,0 -19.44544,-8.70602 -19.44544,-19.44544 0,-10.73941 8.70602,-19.44543 19.44544,-19.44543 0,0 0,0 0,0 l 0,19.44543 z"
+             sodipodi:ry="19.445436"
+             sodipodi:rx="19.445436"
+             sodipodi:cy="329.87582"
+             sodipodi:cx="232.46135"
+             id="path3993-7-1"
+             style="fill:#c87137;fill-opacity:1;stroke:none"
+             sodipodi:type="arc" />
+        </g>
+        <g
+           id="g4097-7"
+           transform="translate(-0.90444699,0)"
+           style="fill:#c87137">
+          <rect
+             y="328.36218"
+             x="274.5885"
+             height="40"
+             width="20"
+             id="rect3991-1"
+             style="fill:#c87137;fill-opacity:1;stroke:none" />
+        </g>
+      </g>
     </g>
   </g>
 </svg>

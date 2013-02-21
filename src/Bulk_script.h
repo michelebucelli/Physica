@@ -401,11 +401,24 @@ class objectBased {
 	virtual bool fromScriptObj(object o){
 		if (o.type == type){//If object type is matching
 			id = o.id;//Sets id
+			
+			//Loads id from variable
+			var* idV = get <var> (&o.v, "id");
+			if (idV) this->id = idV->value;
+			
 			return true;//Returns true
 		}
 		
 		cerr << "Failed loading " << type << " from " << o.type << " " << o.id << endl;//Error message
 		return false;//Returns false if type didn't match
+	}
+	
+	//Function to load from a file
+	void fromFile(string path){
+		fileData f(path);//File
+		object o = f.objGen("");
+		o.type = type;
+		fromScriptObj(o);
 	}
 	
 	//Function to convert to script object

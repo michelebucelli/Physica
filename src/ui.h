@@ -17,6 +17,7 @@ string creditsFile = "data/cfg/ui/credits.cfg";//Credits window file path
 string achievedFile = "data/cfg/ui/achievement.cfg";//Achievement window file path
 string achievementsUiFile = "data/cfg/ui/achievements.cfg";//Achievements window file path
 string levelTooltipFile = "data/cfg/ui/levelTooltip.cfg";//Level progress tooltip file
+string umFile = "data/cfg/ui/updateManager.cfg";//Update manager file
 
 string msgFile = "data/cfg/ui/msg.cfg";//Message window file path
 string inputFile = "data/cfg/ui/input.cfg";//Input window file path
@@ -90,6 +91,10 @@ string tooltipId = "";//Tooltipped level id
 int tooltipBegin = -1;//Time when first placed mouse over level
 int tooltipDelay = 500;//Delay before showing tooltip
 
+window um;//Update manager window
+control umItem;//Update item panel
+control *umBack, *umName, *umInfo;//Back button and name and info labels in update manager
+
 deque<int> achBegin;//Achievements begin time
 int achDuration = 5000;//Achieved window duration
 int achSpeed = 2;//Pixels per frame of achievement window movement
@@ -109,7 +114,9 @@ enum uiMode {
 	
 	ui_achievements,//Achievements window
 	
-	ui_credits//Credits
+	ui_credits,//Credits
+	
+	ui_um//Update manager
 } curUiMode = ui_mainMenu;//Current UI mode
 
 //Function to convert a time in msec into a string
@@ -565,6 +572,7 @@ void updateClick(clickEventData data){
 	PLAYSOUND(clickSfx);
 	
 	checkUpdates(false, true);//Checks for updates
+	curUiMode = ui_um;//Goes to update manager
 }
 
 //Function to apply settings
@@ -591,6 +599,51 @@ void updateCommon(){
 	else {
 		fpsLabel->content.t = "";
 		debugLabel->content.t = "";
+	}
+}
+
+//Function to handle back click in update manager
+void umBackClick(clickEventData data){
+	curUiMode = ui_settings;//Back to settings
+}
+
+//Function to handle download click
+void umItemClick(clickEventData data){
+	update* u = get <update> (&um_toInstall, data.caller->id);//Gets update
+	
+	if (u){//If update was found
+		u->proc();//Processes update
+		
+		levelSets.clear();//Clears sets
+		loadSets();//Reloads sets
+		
+		checkUpdates();//Re-checks updates
+	}
+}
+
+//Function to redraw update manager
+void umRedraw(){
+	int n;//Counter
+	
+	window::iterator i;//Iterator
+		
+	for (i = um.begin(); i != um.end(); i++){//For each control
+		if ((*i)->id != "back"){//If not back button
+			delete *i;//Deletes control
+			i = um.erase(i);//Erases control
+			i--;//Back to previous
+		}
+	}
+	
+	for (n = 0; n < um_toInstall.size(); n++){//For each update to install
+		control* c = new control (umItem);//New control
+		
+		c->id = um_toInstall[n].id;//Sets id
+		c->content.t = um_toInstall[n].name + (um_toInstall[n].test ? " " + getText("test") : "");//Sets name
+		
+		c->area.y += (c->area.h + 4) * n;//Moves on y
+		
+		um.push_back(c);//Adds to window
 	}
 }
 
@@ -705,6 +758,16 @@ void loadUI(){
 	achievements = loadWindow(achievementsUiFile, "achievements");//Loads achievements window
 	defaultAch = * (panel*) achievements.getControl("defaultAchievement");//Gets achievement info
 	
+	um = loadWindow(umFile, "um");//Loads update manager
+	umBack = um.getControl("back");//Gets back button
+	
+	control* p_umItem = um.getControl("item");//Gets item
+	umItem = *p_umItem;//Stores button
+	um.remove(p_umItem);//Removes button
+	
+	umItem.release.handlers.push_back(umItemClick);
+	umBack->release.handlers.push_back(umBackClick);
+	
 	levTooltip = loadWindow(levelTooltipFile, "levTooltip");//Loads level tooltip
 	levttFrame = (panel*) levTooltip.getControl("frame");//Gets frame
 	levttTime = levTooltip.getControl("frame.time");//Gets time
@@ -722,37 +785,37 @@ void loadUI(){
 	msgBox.frameEnd = &frame_end;
 	msgBox.events = &events_common;
 	msgBox.quitFlag = &running;
-	msgBox.update = &update;
+	msgBox.update = &updateVideo;
 	
 	inputBoxDialog.frameBegin = &frame_begin;
 	inputBoxDialog.frameEnd = &frame_end;
 	inputBoxDialog.events = &events_common;
 	inputBoxDialog.quitFlag = &running;
-	inputBoxDialog.update = &update;
+	inputBoxDialog.update = &updateVideo;
 	
 	imgPreview.frameBegin = &frame_begin;
 	imgPreview.frameEnd = &frame_end;
 	imgPreview.events = &events_common;
 	imgPreview.quitFlag = &running;
-	imgPreview.update = &update;
+	imgPreview.update = &updateVideo;
 	
 	imgInput.frameBegin = &frame_begin;
 	imgInput.frameEnd = &frame_end;
 	imgInput.events = &events_common;
 	imgInput.quitFlag = &running;
-	imgInput.update = &update;
+	imgInput.update = &updateVideo;
 	
 	achDialog.frameBegin = &frame_begin;
 	achDialog.frameEnd = &frame_end;
 	achDialog.events = &events_common;
 	achDialog.quitFlag = &running;
-	achDialog.update = &update;
+	achDialog.update = &updateVideo;
 	
 	rulesDialog.frameBegin = &frame_begin;
 	rulesDialog.frameEnd = &frame_end;
 	rulesDialog.events = &events_common;
 	rulesDialog.quitFlag = &running;
-	rulesDialog.update = &update;
+	rulesDialog.update = &updateVideo;
 }
 
 //Graphics info file loading function

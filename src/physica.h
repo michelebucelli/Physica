@@ -31,6 +31,7 @@
 #define OBJTYPE_CONTROLS		"controls"//Controls objects
 #define OBJTYPE_LEVELSET		"levelSet"//Level set objects
 #define OBJTYPE_AREA			"area"//Area objects
+#define OBJTYPE_UPDATE			"update"//Update objects
 
 #define BKG						SDL_FillRect(video, &video->clip_rect, background)//Background applying macro
 #define DARK					boxColor(video, 0, 0, video_w, video_h, 0x0000007F)//Dark transparent fill
@@ -56,6 +57,25 @@ SDL_Surface* video = NULL;//Video surface
 #if DOUBLEBUF_ENABLED//With double buffer enabled
 	SDL_Surface* actVideo = NULL;//Actual video surface
 #endif
+
+//Prototypes
+class area;//Area class prototype
+class rules;//Rules class prototype
+class update;//Update class prototype
+
+void resize(int,int,bool,bool = true);//Resizing function
+
+void updateHud();//Hud updating function
+void updateCommon();//Function to update common ui
+
+void showSuccess();//Function to show success window
+
+void test(string, rules);//Level test function
+
+bool processUpdateScript(script);//Function to process update script
+void checkUpdates(bool = true, bool = false);//Updates function
+
+
 
 int video_w = 800;//Video width
 int video_h = 400;//Video height
@@ -87,12 +107,15 @@ string levelsFile = "data/cfg/levels/levelPacks.cfg";//Level set file
 string progressFile = "data/cfg/progress.cfg";//Progress file
 string achievementsFile = "data/cfg/achievements.cfg";//Achievements file
 string rulesFile = "data/cfg/rules.cfg";//Rules file
-
-string updatesFile = "https://raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
-int updatesCount = 0;//Installed updates count
+string instUpdFile = "data/cfg/installed.cfg";//Installed updates file
 
 string localePath = "data/cfg/locale/";//Localizations folder
 string defaultLocale = "en";//Default locale
+
+//Updates
+string updatesFile = "https://raw.github.com/buch415/Physica/master/updates/updates.cfg";//Updates file path
+deque<update> installedUpdates;//Installed updates
+deque<update> um_toInstall;//Updates to install (for update manager)
 
 //Sound
 bool enableSfx = true;//Enables sound
@@ -114,20 +137,7 @@ int cursorHideDelay = 3000;//Inactivity time before hiding the cursor
 
 SDL_Surface* destinationArrow = NULL;//Destination arrow (uses SDL_Surface* instead of image for rotation)
 
-//Prototypes
-class area;//Area class prototype
-class rules;//Rules class prototype
 
-void resize(int,int,bool,bool = true);//Resizing function
-
-void updateHud();//Hud updating function
-void updateCommon();//Function to update common ui
-
-void showSuccess();//Function to show success window
-
-void test(string, rules);//Level test function
-
-void checkUpdates(bool = true, bool = false);//Updates function
 
 //Common funcs
 void frame_begin(){ frameBegin = SDL_GetTicks(); }//Frame beginning
@@ -205,7 +215,7 @@ void events_common(SDL_Event e){
 }
 
 //Update function
-void update(){
+void updateVideo(){
 	updateCommon();
 	common.print(video);
 
@@ -1554,6 +1564,72 @@ void loadSets();
 //Install set prototype
 void installSet(string);
 
+//Update class
+class update: public objectBased {
+	public:
+	string name;//Friendly name of the update
+	string author;//Author of the update file
+	string info;//Description
+	
+	bool test;//If false, not stable
+		
+	script updScript;//Update script
+	
+	//Constructor
+	update(){
+		id = "";
+		type = OBJTYPE_UPDATE;
+		
+		name = "";
+		author = "";
+		info = "";
+		
+		test = false;
+	}
+	
+	//Function to load from script object
+	bool fromScriptObj(object o){
+		if (objectBased::fromScriptObj(o)){//If succeeded loading base data
+			deque<object>::iterator i;//Iterator
+			
+			for (i = o.o.begin(); i != o.o.end(); i++)//For each sub-object
+				if (i->type == OBJTYPE_LANGUAGE) addLang(*i, true, id);//Adds language
+			
+			var* name = get <var> (&o.v, "name");
+			var* author = get <var> (&o.v, "author");
+			var* info = get <var> (&o.v, "info");
+			
+			var* test = get <var> (&o.v, "test");
+			
+			var* updScript = get <var> (&o.v, "script");
+			
+			if (name) this->name = getText(name->value);
+			if (author) this->author = getText(author->value);
+			if (info) this->info = getText(info->value);
+			
+			if (test) this->test = test->intValue();
+			
+			if (updScript) this->updScript.fromString(updScript->value);
+			
+			return true;//Returns true
+		}
+		
+		return false;//Returns false
+	}
+	
+	//Function to check if update is installed
+	bool installed(){
+		update* u = get <update> (&installedUpdates, id);//Corresponding update
+		return u != NULL;//Returns result
+	}
+	
+	//Function to process update
+	void proc(){
+		processUpdateScript(updScript);//Processes script
+		installedUpdates.push_back(*this);//Adds to installed
+	}
+};
+
 #include "editor.h"//Includes editor
 #include "lpEditor.h"//Includes level set editor
 #include "ui.h"//Includes user interface header
@@ -1677,7 +1753,6 @@ void loadSettings(){
 	object* c = get <object> (&g.o, "controls");
 	
 	var* v_updatesFile = get <var> (&g.v, "updatesFile");
-	var* v_updatesCount = get <var> (&g.v, "updatesCount");
 	
 	if (v_fullscreen) fullscreen = v_fullscreen->intValue();
 	if (v_doubleBuf) doubleBuffering = v_doubleBuf->intValue();
@@ -1690,9 +1765,25 @@ void loadSettings(){
 	playerControls.id = "controls";
 	
 	if (v_updatesFile) updatesFile = v_updatesFile->value;
-	if (v_updatesCount) updatesCount = v_updatesCount->intValue();
 	
 	resize(videoWin_w, videoWin_h, fullscreen, false);//Resizes window
+}
+
+//Function to load installed updates
+//only identifiers given
+void loadUpdates(){
+	fileData f (instUpdFile);//File
+	var* list = get <var> (&f.objGen("").v, "list");//List
+	
+	if (list){//If list was found
+		deque<string> s = tokenize <deque<string> > (list->value, ", \t");//Splits into tokens
+		
+		for (deque<string>::iterator i = s.begin(); i != s.end(); i++){//For each string
+			update u;//Update
+			u.id = *i;//Sets id
+			installedUpdates.push_back(u);//Adds to installed
+		}
+	}
 }
 
 //Function to load all level sets (according to levelsFile definitions)
@@ -1719,6 +1810,22 @@ void loadSets(){
 void saveSets(){
 	ofstream o (levelsFile.c_str());//Output
 	o << "levelPacks = " << levelSetsFiles << ";";
+	o.close();
+}
+
+//Function to save installed updates
+//only identifiers saved
+void saveUpdates(){
+	ofstream o (instUpdFile.c_str());//Out file
+	string list = "";
+	
+	for (deque<update>::iterator i = installedUpdates.begin(); i != installedUpdates.end(); i++)//For each installed update
+		list += "," + i->id;
+		
+	list.erase(0,1);
+	
+	o << "list = " << list << ";\n";
+	
 	o.close();
 }
 
@@ -1788,7 +1895,6 @@ void saveSettings(){
 	ob.set("enableSfx", enableSfx);
 	ob.set("debugMode", debugMode);
 	ob.set("updatesFile", updatesFile);
-	ob.set("updatesCount", updatesCount);
 	
 	ob.o.push_back(playerControls.toScriptObj());
 	
@@ -1885,42 +1991,35 @@ bool processUpdateScript(string path){
 }
 
 //Function to check for updates
+//Gets update list, then goes with update dialog
 void checkUpdates(bool silent, bool dark){
 	CURLcode result = downloadFile (updatesFile, "tmp_updates");//Result of download
 	
 	if (result == 0) {//If downloaded successfully
 		fileData up ("tmp_updates", false);//Opens updates file
-		object u = up.objGen("updates");//Generated object
+		var* u = get <var> (&up.objGen("updates").v, "list");//Updates list variable
 		
-		deque<string> toDownload;//Updates to download
+		um_toInstall.clear();//Clears updates to install
 		
-		int n;//Counter
-		for (n = updatesCount + 1; ; n++){//Starting from next update
-			var* v = get <var> (&u.v, "update" + toString(n));//Update file variable
+		if (u){
+			deque<string> updateFiles = tokenize < deque<string> > (u->value, ", \t");//Splits into tokens
 			
-			if (!v) break;//Exits if didn't find variable
-			else toDownload.push_back(v->value);//Else adds to download
-		}
-		
-		int s = toDownload.size();//Download size
-		
-		if (s > 0 && msgBox.show(video, getText("upd_install", toString(s).c_str()), 2, msgBox_ans_yn, false, dark) == 0){//If user decides to download
 			deque<string>::iterator i;//Iterator
-			
-			for (i = toDownload.begin(); i != toDownload.end(); i++){//For each file
-				if (downloadFile(*i, "tmp_update_file") == 0){//If downloaded successfully
-					processUpdateScript("tmp_update_file");//Processes script
-					updatesCount++;//Increases updates count
+			for (i = updateFiles.begin(); i != updateFiles.end(); i++){//For each update
+				CURLcode uResult = downloadFile(*i, "tmp_update");//Downloads file
+				
+				if (uResult == 0){//If downloaded successfully
+					update upd;//New update
+					upd.fromFile("tmp_update");//Loads update
+					
+					if (!upd.installed()) um_toInstall.push_back(upd);//Adds to updates to install
 				}
 			}
 			
-			remove("tmp_update_file");//Removes temporary file
+			umRedraw();//Redrws update manager
 			
-			levelSets.clear();//Clears sets
-			loadSets();//Reloads sets
+			remove("tmp_update");//Removes file
 		}
-		
-		else if (s == 0 && !silent) msgBox.show(video, "Database is up to date", 1, msgBox_ans_ok, false, dark);//up to date message
 	}
 	
 	else switch (result){
@@ -1934,12 +2033,12 @@ void checkUpdates(bool silent, bool dark){
 
 //Function to initialize language
 void initLang(){
-	char lang[3] = "";//Locale string
 	
 	#if defined(__WIN32__) || defined(__WIN64__)//On Windows
+	char lang[3] = "";//Locale string
 	GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, lang, sizeof(char) * 2);//Locale id
 	#else ifdef __linux__//On linux
-	lang = getenv("LANG");//Gets environmental language variable
+	char* lang = getenv("LANG");//Gets environmental language variable
 	#endif
 	
 	if (!loadLanguagesDB(localePath + string(lang) + ".cfg")){//If fails loading language
@@ -1975,6 +2074,8 @@ void gameInit(int argc, char* argv[]){
 	loadSets();//Loads level sets
 	loadAchievements();//Loads achievements
 	
+	loadUpdates();//Loads updates
+	
 	initLang();//Inits language
 	
 	loadRules();//Loads rules
@@ -1992,6 +2093,7 @@ void gameInit(int argc, char* argv[]){
 void gameQuit(){
 	saveProgress();//Saves progress
 	saveSettings();//Saves settings
+	saveUpdates();//Saves updates
 	
 	while (Mix_Playing(-1)){}//Waits for all channels to finish playing
 	
