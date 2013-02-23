@@ -1997,7 +1997,8 @@ void checkUpdates(bool silent, bool dark){
 	
 	if (result == 0) {//If downloaded successfully
 		fileData up ("tmp_updates", false);//Opens updates file
-		var* u = get <var> (&up.objGen("updates").v, "list");//Updates list variable
+		object o = up.objGen("updates");
+		var* u = get <var> (&o.v, "list");//Updates list variable
 		
 		um_toInstall.clear();//Clears updates to install
 		
@@ -2011,7 +2012,7 @@ void checkUpdates(bool silent, bool dark){
 				if (uResult == 0){//If downloaded successfully
 					update upd;//New update
 					upd.fromFile("tmp_update");//Loads update
-					
+								
 					if (!upd.installed()) um_toInstall.push_back(upd);//Adds to updates to install
 				}
 			}
