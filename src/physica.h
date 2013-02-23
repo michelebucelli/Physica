@@ -1974,11 +1974,11 @@ bool processUpdateScript(script u){
 			uninstallSet(t[1]);//Uninstalls set
 		
 		else if (t[0] == "message" && t.size() >= 2){//Message command
-			{BKG; msgBox.show(video, i->substr(8), 1, msgBox_ans_ok); }//Shows message box
+			{BKG; msgBox.show(video, getText(i->substr(8)), 1, msgBox_ans_ok); }//Shows message box
 		}
 	}
 	
-	if (failed) msgBox.show(video, "Download failed.", 1, msgBox_ans_ok);//Error message
+	if (failed) msgBox.show(video, getText("downloadFailed"), 1, msgBox_ans_ok);//Error message
 	
 	return !failed;
 }
