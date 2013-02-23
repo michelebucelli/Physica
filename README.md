@@ -19,7 +19,7 @@
 
 	<li>
 	    from inside the downloaded folder, run the command<br>
-	    <code>g++ -enable-auto-import -w -obin/physica src/physica.cpp -lSDLmain -lSDL -lSDL_image -lSDL_ttf -lSDL_mixer -lSDL_gfx -lcurl -fpermissive</code>
+	    <code>sh compile.sh</code>
 	</li>
 
 	<li>
@@ -35,7 +35,7 @@ Use the arrow keys to move the green cube, reach the yellow cube to complete the
 
 <h2> 3. ADD NEW LEVELS </h2>
 
-Just use the editor bundled with the game to make new awesome levels! You can then find the levels you made inside the data/cfg/levels folder, along with core levels.
+Just use the editor bundled with the game to make new awesome levels!
 Take a look at the <a href="https://github.com/buch415/Physica/wiki">Wiki</a> for some instructions on how to use the editor.
 
 <h2> 4. I WANT YOU FOR LEVEL EDITING! </h2>
