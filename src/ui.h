@@ -616,8 +616,6 @@ void umItemClick(clickEventData data){
 		
 		levelSets.clear();//Clears sets
 		loadSets();//Reloads sets
-		
-		checkUpdates();//Re-checks updates
 	}
 }
 

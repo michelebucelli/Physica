@@ -1625,6 +1625,8 @@ class update: public objectBased {
 	
 	//Function to process update
 	void proc(){
+		if (installed()) return;
+		
 		processUpdateScript(updScript);//Processes script
 		installedUpdates.push_back(*this);//Adds to installed
 	}
@@ -1974,7 +1976,7 @@ bool processUpdateScript(script u){
 			uninstallSet(t[1]);//Uninstalls set
 		
 		else if (t[0] == "message" && t.size() >= 2){//Message command
-			{BKG; msgBox.show(video, getText(i->substr(8)), 1, msgBox_ans_ok); }//Shows message box
+			{BKG; msgBox.show(video, getText(i->substr(8)), 1, msgBox_ans_ok, true, false); }//Shows message box
 		}
 	}
 	
