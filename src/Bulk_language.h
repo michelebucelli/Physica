@@ -43,17 +43,17 @@ void addLang(language l, bool namespaced = false, string namespaceId = ""){
 }
 
 //Function to load language database from a file
-bool loadLanguagesDB(string path){
-	if (!ifstream(path.c_str())) return false;//If failed opening, quits
+object* loadLanguagesDB(string path){
+	if (!ifstream(path.c_str())) return NULL;//If failed opening, quits
 	
 	fileData source (path);//Source file, loaded and processed
-	object database = source.objGen(path);//Object generated from the file
+	object *database = new object(source.objGen(path));//Object generated from the file
 	
 	deque<object>::iterator i;//Iterator
-	for (i = database.o.begin(); i != database.o.end(); i++)//For each object in database
+	for (i = database->o.begin(); i != database->o.end(); i++)//For each object in database
 		if (i->type == OBJTYPE_LANGUAGE) addLang(*i);//Adds object to database if it is a language
 		
-	return true;
+	return database;
 }
 
 //Function to get a text from current language

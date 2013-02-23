@@ -19,7 +19,7 @@
 #include <sys/stat.h>//Includes linux header
 #endif
 
-#define VERSION_STR				"1.2"//Version string
+#define VERSION_STR				"2.0"//Version string
 
 #define DOUBLEBUF_ENABLED		1//If 1, enables hwsurface + double buffering (lower fps, no tearing)
 
@@ -2041,12 +2041,20 @@ void initLang(){
 	char* lang = getenv("LANG");//Gets environmental language variable
 	#endif
 	
-	if (!loadLanguagesDB(localePath + string(lang) + ".cfg")){//If fails loading language
-		loadLanguagesDB(localePath + defaultLocale + ".cfg");//Loads default language
+	object* o = loadLanguagesDB(localePath + string(lang) + ".cfg");//Loads locale
+	
+	if (!o){//If fails loading language
+		o = loadLanguagesDB(localePath + defaultLocale + ".cfg");//Loads default language
 		SETLANG(defaultLocale);//Sets default language
 	}
 	
 	else SETLANG(string(lang));//Else sets loaded language
+	
+	if (o){//If locale was found
+		var* v_themesFile = get <var> (&o->v, "themesFile");//New themes file
+		
+		if (v_themesFile) themesFile = v_themesFile->value;//Sets value
+	}
 }
 
 //Game initialization function
