@@ -24,7 +24,7 @@
 
 	<li>
 	    move into the bin folder and run the command<br>
-	    <code>physica</code>
+	    <code>./physica</code>
 	</li>
 </ul>
 				
