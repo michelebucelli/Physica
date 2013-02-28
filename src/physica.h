@@ -15,7 +15,7 @@
 #include "SDL/SDL_syswm.h"//Includes SDL window manager
 #endif
 
-#ifdef __linux__
+#if defined(__linux__) || defined(__FreeBSD__)
 #include <sys/stat.h>//Includes linux header
 #endif
 
