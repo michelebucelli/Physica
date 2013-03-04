@@ -15,6 +15,7 @@
 #include <cstdarg>//Includes standard C arg library
 #include <ctime>//Includes C time header
 #include <cmath>//Includes standard C math library
+#include <clocale>//Includes standard C locale library
 
 using namespace std;//Uses standard namespace
 

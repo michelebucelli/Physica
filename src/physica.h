@@ -2036,13 +2036,8 @@ void checkUpdates(bool silent, bool dark){
 
 //Function to initialize language
 void initLang(){
-	
-	#if defined(__WIN32__) || defined(__WIN64__)//On Windows
-	char lang[3] = "";//Locale string
-	GetLocaleInfoA(LOCALE_USER_DEFAULT, LOCALE_SISO639LANGNAME, lang, sizeof(char) * 2);//Locale id
-	#else ifdef __linux__//On linux
-	char* lang = getenv("LANG");//Gets environmental language variable
-	#endif
+	string lang = string(setlocale(LC_ALL, "")).substr(0,2);//Gets language
+	lang[0] = tolower(lang[0]);//Sets lower letter
 	
 	object* o = loadLanguagesDB(localePath + string(lang) + ".cfg");//Loads locale
 	

@@ -1,4 +1,4 @@
-//Buch's Library Kollection
+﻿//Buch's Library Kollection
 //User interaface handling header
 
 #ifndef _BULK_UI
@@ -34,7 +34,7 @@
 #define CTYPE_SCROLLBAR		7//Scrollbar
 
 //Macros
-#define RENDERTEXT(FONT,TEXT)	TTF_RenderText_Blended(FONT.f, TEXT, FONT.color)//Macro to render text using font class instead of TTF_Font
+#define RENDERTEXT(FONT,TEXT)	TTF_RenderUTF8_Blended(FONT.f, TEXT, FONT.color)//Macro to render text using font class instead of TTF_Font
 #define GETTHEME(ID)			get <theme, list<theme> > (&themesDB, ID)//Macro to get a theme
 
 //Prototypes
