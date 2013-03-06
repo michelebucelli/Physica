@@ -2037,6 +2037,7 @@ void checkUpdates(bool silent, bool dark){
 //Function to initialize language
 void initLang(){
 	string lang = string(setlocale(LC_ALL, "")).substr(0,2);//Gets language
+	setlocale(LC_NUMERIC, "C");//Sets locale for numbers
 	lang[0] = tolower(lang[0]);//Sets lower letter
 	
 	object* o = loadLanguagesDB(localePath + string(lang) + ".cfg");//Loads locale
