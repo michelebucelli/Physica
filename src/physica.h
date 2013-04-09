@@ -1248,7 +1248,6 @@ class game {
 			
 			if (!up) releasedJump = true;//Resets released jump flag if jump is not pressed
 			if (ground) playerJumps = 0;//Resets jump count
-			if (!ground && playerJumps == 0) playerJumps = 1;//If on air, at least one jump
 			
 			if (keys[playerControls.up] && releasedJump && (playerJumps < currentRules.jumpCount || currentRules.jumpCount < 0)){//If pressed up and can jump
 				player->speed.y = 0;//Stops on y
