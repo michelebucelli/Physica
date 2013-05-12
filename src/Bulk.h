@@ -1,3 +1,18 @@
+/*
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 //Buch's Library Kollection
 //Main file - includes other headers and defines common methods
 
@@ -33,7 +48,6 @@ template <class containerType> string join(containerType, string); //Function to
 int howMany(string, char);//Function to count the number of repetitions of a character in a string
 
 #include "Bulk_cache.h"//Includes the cache handling header
-#include "Bulk_console.h"//Includes the console handling header
 #include "Bulk_script.h"//Includes the script handling header
 #include "Bulk_language.h"//Includes the localization handling header
 

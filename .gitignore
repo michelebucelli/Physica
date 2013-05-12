@@ -1,7 +1,7 @@
 *.bat
 *.dll
 *.exe
-*.txt
+bin/*.txt
 *.zip
 progress.cfg
 settings.cfg
