@@ -1,0 +1,290 @@
+<!-- UI THEMES DEFINITIONS -->
+
+<button_normal>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="0" 	y="64" 	w="16" 	h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="16"	y="64" 	w="16" 	h="16" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="32"	y="64" 	w="16" 	h="16" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="0"	y="80" 	w="16" 	h="16" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="16"	y="80" 	w="16" 	h="16" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="32"	y="80" 	w="16" 	h="16" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="0"	y="96" 	w="16" 	h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="16"	y="96" 	w="16" 	h="16" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="32"	y="96" 	w="16" 	h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_normal>
+
+<button_over>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="48" 	y="64" 	w="16" 	h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="64"	y="64" 	w="16" 	h="16" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="80"	y="64" 	w="16" 	h="16" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="48"	y="80" 	w="16" 	h="16" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="64"	y="80" 	w="16" 	h="16" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="80"	y="80" 	w="16" 	h="16" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="48"	y="96" 	w="16" 	h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="64"	y="96" 	w="16" 	h="16" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="80"	y="96" 	w="16" 	h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_over>
+
+<button_pressed>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="96" 	y="64" 	w="16" 	h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="112"	y="64" 	w="16" 	h="16" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="128"	y="64" 	w="16" 	h="16" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="96"	y="80" 	w="16" 	h="16" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="112"	y="80" 	w="16" 	h="16" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="128"	y="80" 	w="16" 	h="16" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="96"	y="96" 	w="16" 	h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="112"	y="96" 	w="16" 	h="16" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="128"	y="96" 	w="16" 	h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_pressed>
+
+<button_dark>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="144" 	y="64" 	w="16" 	h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="160"	y="64" 	w="16" 	h="16" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="176"	y="64" 	w="16" 	h="16" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="144"	y="80" 	w="16" 	h="16" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="160"	y="80" 	w="16" 	h="16" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="176"	y="80" 	w="16" 	h="16" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="144"	y="96" 	w="16" 	h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="160"	y="96" 	w="16" 	h="16" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="176"	y="96" 	w="16" 	h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_dark>
+
+<button_round_normal>
+	<element x_centre="0" y_centre="0">
+		<renderable type="image" file="(@graphics)/ui.png"> <area x="0" y="0" w="32" h="32" /> </renderable>
+	</element>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_round_normal>
+
+<button_round_over>
+	<element x_centre="0" y_centre="0">
+		<renderable type="image" file="(@graphics)/ui.png"> <area x="32" y="0" w="32" h="32" /> </renderable>
+	</element>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_round_over>
+
+<button_round_pressed>
+	<element x_centre="0" y_centre="0">
+		<renderable type="image" file="(@graphics)/ui.png"> <area x="64" y="0" w="32" h="32" /> </renderable>
+	</element>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_round_pressed>
+
+<button_round_alt>
+	<element x_centre="0" y_centre="0">
+		<renderable type="image" file="(@graphics)/ui.png"> <area x="120" y="112" w="32" h="32" /> </renderable>
+	</element>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_round_alt>
+
+<button_small_normal>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="0" y="32" w="16" h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="16" y="32" w="16" h="16" /> </top>
+	<topRight		file="(@graphics)/ui.png"> <area x="32" y="32" w="16" h="16" /> </topRight>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="0" y="48" w="16" h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="16" y="48" w="16" h="16" /> </bottom>
+	<bottomRight	file="(@graphics)/ui.png"> <area x="32" y="48" w="16" h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_small_normal>
+
+<button_small_over>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="0" y="112" w="16" h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="16" y="112" w="16" h="16" /> </top>
+	<topRight		file="(@graphics)/ui.png"> <area x="32" y="112" w="16" h="16" /> </topRight>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="0" y="128" w="16" h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="16" y="128" w="16" h="16" /> </bottom>
+	<bottomRight	file="(@graphics)/ui.png"> <area x="32" y="128" w="16" h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_small_over>
+
+<button_small_pressed>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="48" y="112" w="16" h="16" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="64" y="112" w="16" h="16" /> </top>
+	<topRight		file="(@graphics)/ui.png"> <area x="80" y="112" w="16" h="16" /> </topRight>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="48" y="128" w="16" h="16" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="64" y="128" w="16" h="16" /> </bottom>
+	<bottomRight	file="(@graphics)/ui.png"> <area x="80" y="128" w="16" h="16" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</button_small_pressed>
+
+<label_base>
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</label_base>
+
+<box_normal>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="64"	y="32" 	w="8" 	h="8" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="72"	y="32" 	w="8" 	h="8" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="88"	y="32" 	w="8" 	h="8" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="64"	y="40" 	w="8" 	h="8" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="72"	y="40" 	w="8" 	h="8" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="88"	y="40" 	w="8" 	h="8" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="64"	y="56" 	w="8" 	h="8" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="72"	y="56" 	w="8" 	h="8" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="88"	y="56" 	w="8" 	h="8" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</box_normal>
+
+<box_over>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="96"	y="32" 	w="8" 	h="8" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="104"	y="32" 	w="8" 	h="8" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="120"	y="32" 	w="8" 	h="8" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="96"	y="40" 	w="8" 	h="8" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="104"	y="40" 	w="8" 	h="8" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="120"	y="40" 	w="8" 	h="8" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="96"	y="56" 	w="8" 	h="8" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="104"	y="56" 	w="8" 	h="8" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="120"	y="56" 	w="8" 	h="8" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</box_over>
+
+<box_pressed>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="128"	y="32" 	w="8" 	h="8" /> </topLeft>
+	<top 				file="(@graphics)/ui.png"> <area x="136"	y="32" 	w="8" 	h="8" /> </top>
+	<topRight 		file="(@graphics)/ui.png"> <area x="152"	y="32" 	w="8" 	h="8" /> </topRight>
+	<left 			file="(@graphics)/ui.png"> <area x="128"	y="40" 	w="8" 	h="8" /> </left>
+	<centre 		file="(@graphics)/ui.png"> <area x="136"	y="40" 	w="8" 	h="8" /> </centre>
+	<right 			file="(@graphics)/ui.png"> <area x="152"	y="40" 	w="8" 	h="8" /> </right>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="128"	y="56" 	w="8" 	h="8" /> </bottomLeft>
+	<bottom 			file="(@graphics)/ui.png"> <area x="136"	y="56" 	w="8" 	h="8" /> </bottom>
+	<bottomRight 	file="(@graphics)/ui.png"> <area x="152"	y="56" 	w="8" 	h="8" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</box_pressed>
+
+<slider>
+	<element x_centre="0" y_centre="0">
+		<renderable type="image" file="(@graphics)/ui.png"> <area x="160" y="0" w="32" h="32" /> </renderable>
+	</element>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</slider>
+
+<bigSection>
+	<topLeft 		file="(@graphics)/ui.png"> <area x="0" y="144" w="56" h="56" /> </topLeft>
+	<top 			file="(@graphics)/ui.png"> <area x="56" y="144" w="56" h="56" /> </top>
+	<topRight		file="(@graphics)/ui.png"> <area x="112" y="144" w="56" h="56" /> </topRight>
+	<bottomLeft 	file="(@graphics)/ui.png"> <area x="0" y="200" w="56" h="56" /> </bottomLeft>
+	<bottom 		file="(@graphics)/ui.png"> <area x="56" y="200" w="56" h="56" /> </bottom>
+	<bottomRight	file="(@graphics)/ui.png"> <area x="112" y="200" w="56" h="56" /> </bottomRight>
+	
+	<fonts>
+		<bigFont file="(@fonts)/LaChataNormal.ttf" size="72"> <color r="255" g="255" b="255" /> </bigFont>
+		<aveFont file="(@fonts)/LaChataNormal.ttf" size="48"> <color r="255" g="255" b="255" /> </aveFont>
+		<midFont file="(@fonts)/LaChataNormal.ttf" size="16"> <color r="255" g="255" b="255" /> </midFont>
+		<smallFont file="(@fonts)/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+		<monoFont file="(@fonts)/ConsolaMonoBold.ttf" size="12"> <color r="255" g="255" b="255" /> </monoFont>
+	</fonts>
+</bigSection>

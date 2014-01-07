@@ -1,10 +1,8 @@
 *.bat
 *.dll
 *.exe
-bin/*.txt
+bin/*.log
 *.zip
 progress.cfg
 settings.cfg
-installed.cfg
-website/
-PhysicaPortable/
+*~

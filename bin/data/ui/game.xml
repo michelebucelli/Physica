@@ -1,0 +1,131 @@
+<base status="2" visible="0">
+	<area x="0" y="0" w="100" h="100" xRef="1" yRef="1" />
+	
+	<children>
+		<pauseButton externFile="(@ui)/presets.xml" importedNode="button_round">
+			<area x="4" y="4" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="0" y="0" w="16" h="16" /> </image>
+				</icon>
+			</content>
+		</pauseButton>
+		
+		<restartButton externFile="(@ui)/presets.xml" importedNode="button_round">
+			<area x="4" y="4" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="32" y="0" w="16" h="16" /> </image>
+				</icon>
+			</content>
+		</restartButton>
+		
+		<timer>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+	
+			<area w="96" h="32" />
+			
+			<content>
+				<icon type="image" x_left="8" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="16" y="0" w="16" h="16" /> </image>
+				</icon>
+				
+				<label type="text" x_left="32" y_centre="0" text="00:00:00" fontId="monoFont" />
+			</content>
+		</timer>
+		
+		<deaths>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+	
+			<area w="64" h="32" />
+			
+			<content>
+				<icon type="image" x_left="8" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="48" y="0" w="16" h="16" /> </image>
+				</icon>
+				
+				<label type="text" x_left="32" y_centre="0" text="000" fontId="monoFont" />
+			</content>
+		</deaths>
+		
+		<pauseScreen externFile="(@ui)/pauseScreen.xml" importedNode="base" />
+	</children>
+	
+	<event type="onKeyDown"> <script>
+		if (event.key == key_escape){
+			importScript("(@script)/control_funcs.js");
+			
+			menu_hide(caller, 1);
+			menu_show(caller.parent.levelSelect, -1);
+		}
+	</script> </event>
+	
+	<event type="onLoad" status="-2"> <script>
+		caller.pauseButton.area.x = 8 - (viewport.w - caller.area.w) / 2;
+		caller.pauseButton.area.y = 8 - (viewport.h - caller.area.h) / 2;
+		
+		caller.restartButton.area.x = 44 - (viewport.w - caller.area.w) / 2;
+		caller.restartButton.area.y = 8 - (viewport.h - caller.area.h) / 2;
+		
+		caller.timer.area.x = 80 - (viewport.w - caller.area.w) / 2;
+		caller.timer.area.y = 8 - (viewport.h - caller.area.h) / 2;
+		
+		caller.deaths.area.x = 180 - (viewport.w - caller.area.w) / 2;
+		caller.deaths.area.y = 8 - (viewport.h - caller.area.h) / 2;
+	</script> </event>
+	
+	<event type="onWindowResize" status="-2"> <script>		
+		caller.pauseButton.area.x = 8 - (viewport.w - caller.area.w) / 2;
+		caller.pauseButton.area.y = 8 - (viewport.h - caller.area.h) / 2;
+		
+		caller.restartButton.area.x = 44 - (viewport.w - caller.area.w) / 2;
+		caller.restartButton.area.y = 8 - (viewport.h - caller.area.h) / 2;
+		
+		caller.timer.area.x = 80 - (viewport.w - caller.area.w) / 2;
+		caller.timer.area.y = 8 - (viewport.h - caller.area.h) / 2;
+		
+		caller.deaths.area.x = 180 - (viewport.w - caller.area.w) / 2;
+		caller.deaths.area.y = 8 - (viewport.h - caller.area.h) / 2;
+	</script> </event>
+	
+	<event type="onWindowResize" status="2"> <script>
+		caller.visible = 0;
+	</script> </event>
+	
+	<event type="onSuccess" status="-2"> <script>
+		caller.parent.successScreen.visible = 1;
+		caller.parent.successScreen.status = status_normal;
+		caller.status = status_disabled;
+		
+		if (event.rating > 0)
+			caller.parent.successScreen.stars.content.star1.image.file = caller.parent.successScreen.stars.userDefined.star_on;
+		else caller.parent.successScreen.stars.content.star1.image.file = caller.parent.successScreen.stars.userDefined.star_off;
+		
+		if (event.rating > 1)
+			caller.parent.successScreen.stars.content.star2.image.file = caller.parent.successScreen.stars.userDefined.star_on;
+		else caller.parent.successScreen.stars.content.star2.image.file = caller.parent.successScreen.stars.userDefined.star_off;
+		
+		if (event.rating > 2)
+			caller.parent.successScreen.stars.content.star3.image.file = caller.parent.successScreen.stars.userDefined.star_on;
+		else caller.parent.successScreen.stars.content.star3.image.file = caller.parent.successScreen.stars.userDefined.star_off;
+	</script> </event>
+	
+	<event type="onNextLevel" status="-2"> <script>
+		caller.parent.successScreen.visible = 0;
+		caller.parent.successScreen.status = status_disabled;
+		caller.status = status_normal;
+	</script> </event>
+	
+	<event type="onCompleted" status="-2"> <script>
+		importScript("(@script)/control_funcs.js");
+		
+		menu_hide (caller, 1);
+		menu_show (caller.parent.levelPackSelect, -1);
+	</script> </event>
+</base>

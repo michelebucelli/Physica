@@ -1,0 +1,97 @@
+<!-- MAIN MENU -->
+
+<base status="0" visible="1">
+	<area x="0" y="0" w="360" h="228" xRef="1" yRef="1" />
+	
+	<children>
+		<title externFile="(@ui)/presets.xml" importedNode="label">
+			<area x="0" y="0" w="356" h="70" />
+			
+			<content>
+				<text type="text" text="PHYSICA" fontId="bigFont" x_centre="0" y_centre="0"/>
+			</content>
+		</title>
+		
+		<playButton externFile="(@ui)/presets.xml" importedNode="button_big">
+			<area x="20" y="100" w="128" h="128"/>
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="96" y="128" w="96" h="96" /> </image>
+				</icon>
+			</content>
+			
+			<event type="onMouseUp"> <script>
+					importScript("(@script)/control_funcs.js");
+					
+					menu_hide(caller.parent, -1);
+					menu_show(caller.parent.parent.levelPackSelect, 1);
+			</script> </event>
+		</playButton>
+		
+		<editorButton externFile="(@ui)/presets.xml" importedNode="button_big">
+			<area x="164" y="110" w="48" h="48" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="128" y="0" w="32" h="32" /> </image>
+				</icon>
+			</content>
+		</editorButton>
+		
+		<settingsButton externFile="(@ui)/presets.xml" importedNode="button_big">
+			<area x="164" y="170" w="48" h="48" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="160" y="0" w="32" h="32" /> </image>
+				</icon>
+			</content>
+			
+			<event type="onMouseUp"> <script>
+					importScript("(@script)/control_funcs.js");
+					
+					menu_hide(caller.parent, -1);
+					menu_show(caller.parent.parent.settings, 1);
+			</script> </event>
+		</settingsButton>
+		
+		<achievementsButton externFile="(@ui)/presets.xml" importedNode="button_big">
+			<area x="228" y="110" w="48" h="48" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="224" y="0" w="32" h="32" /> </image>
+				</icon>
+			</content>
+		</achievementsButton>
+		
+		<creditsButton externFile="(@ui)/presets.xml" importedNode="button_big">
+			<area x="228" y="170" w="48" h="48" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="192" y="0" w="32" h="32" /> </image>
+				</icon>
+			</content>
+		</creditsButton>
+		
+		<quitButton externFile="(@ui)/presets.xml" importedNode="button_big">
+			<area x="292" y="140" w="48" h="48" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="96" y="0" w="32" h="32" /> </image>
+				</icon>
+			</content>
+			
+			<event type="onMouseUp"> <script>
+				quit();
+			</script> </event>		
+		</quitButton>
+	</children>
+	
+	<event type="onWindowResize" status="2"> <script>
+			caller.visible = 0;
+	</script> </event>
+</base>

@@ -1,0 +1,323 @@
+<!-- UI PRESET PIECES -->
+
+<!-- PANEL -->
+<panel type="panel">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_disabled_outside externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_disabled_over	 externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_disabled_pressed externFile="(@ui)/themes.xml" importedNode="button_dark" />
+</panel>
+
+<!-- TEXT ONLY -->
+<label type="label">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="label_base" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="label_base" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="label_base" />
+</label>
+
+<!-- ROUND BUTTON -->
+<button_round type="button">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_round_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_round_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_round_pressed" />
+	
+	<event type="onLoad" status="-2"><script>
+		caller.area.w = 32;
+		caller.area.h = 32;
+	</script></event>
+</button_round>
+
+<!-- SMALL BUTTON -->
+<button_small type="button">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_pressed" />
+</button_small>
+
+<!-- BIG BUTTON -->
+<button_big type="button">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_pressed" />
+</button_big>
+
+<!-- CHECKBOX -->
+<checkBox type="checkBox">
+	<theme_normal_outside>
+		<element xRef="1" yRef="1" x="0" y="0">
+			<renderable file="(@graphics)/ui.png" > <area x="112" y="16" w="16" h="16" /> </renderable>
+		</element>
+		
+		<fonts>
+			<smallFont file="data/fonts/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		</fonts>
+	</theme_normal_outside>
+	
+	<theme_normal_over>
+		<element xRef="1" yRef="1" x="0" y="0">
+			<renderable file="(@graphics)/ui.png" > <area x="112" y="0" w="16" h="16" /> </renderable>
+		</element>
+		
+		<fonts>
+			<smallFont file="data/fonts/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		</fonts>
+	</theme_normal_over>
+	
+	<theme_normal_pressed>
+		<element xRef="1" yRef="1" x="0" y="0">
+			<renderable file="(@graphics)/ui.png" > <area x="128" y="0" w="16" h="16" /> </renderable>
+		</element>
+		
+		<fonts>
+			<smallFont file="data/fonts/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		</fonts>
+	</theme_normal_pressed>
+	
+	<theme_active_outside>
+		<element xRef="1" yRef="1" x="0" y="0">
+			<renderable file="(@graphics)/ui.png" > <area x="96" y="16" w="16" h="16" /> </renderable>
+		</element>
+		
+		<fonts>
+			<smallFont file="data/fonts/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		</fonts>
+	</theme_active_outside>
+	
+	<theme_active_over>
+		<element xRef="1" yRef="1" x="0" y="0">
+			<renderable file="(@graphics)/ui.png" > <area x="96" y="0" w="16" h="16" /> </renderable>
+		</element>
+		
+		<fonts>
+			<smallFont file="data/fonts/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		</fonts>
+	</theme_active_over>
+	
+	<theme_active_pressed>
+		<element xRef="1" yRef="1" x="0" y="0">
+			<renderable file="(@graphics)/ui.png" > <area x="128" y="0" w="16" h="16" /> </renderable>
+		</element>
+		
+		<fonts>
+			<smallFont file="data/fonts/LaChataNormal.ttf" size="12"> <color r="255" g="255" b="255" /> </smallFont>
+		</fonts>
+	</theme_active_pressed>
+	
+	<event type="onMouseUp"> <script>
+		if (caller.status == status_normal) caller.status = status_active;
+		else caller.status = status_normal;
+	</script> </event>
+	
+</checkBox>
+
+<!-- KEYBOX -->
+<!-- (when activated, registers the first pressed key and prints it, then deactivates) -->
+<keyBox type="keyBox">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	<theme_active_outside externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	<theme_active_over	 externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	<theme_active_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	
+	<content>
+		<keyLabel type="text" x_centre="0" y_centre="0" fontId="smallFont"/>
+	</content>
+	
+	<event type="onKeyDown" status="1"> <script>
+		var caller.userDefined.storedKey = event.key;
+		caller.status = status_normal;
+		
+		caller.content.keyLabel.text = getKeyName(caller.userDefined.storedKey);
+	</script> </event>
+	
+	<event type="onMouseUp"> <script>
+		if (caller.status == status_normal) caller.status = status_active;
+		else caller.status = status_normal;
+	</script> </event>
+	
+	<event type="onMouseUp_outside"> <script>
+		caller.status = status_normal;
+	</script> </event>
+	
+	<event type="onDraw"> <script>
+		caller.content.keyLabel.text = getKeyName(caller.userDefined.storedKey);
+	</script> </event>
+</keyBox>
+
+<!-- COMBO BOX -->
+<comboBox type="comboBox">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="label_base" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="label_base" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="label_base" />
+	
+	<children>
+		<selected>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />	
+			<theme_active_outside externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			<theme_active_over	 externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			<theme_active_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			
+			<content>
+				<selected type="text" x_centre="-8" y_centre="0" fontId="smallFont" />
+				<icon type="image" x_right="4" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="224" y="32" w="16" h="16" /> </image>
+				</icon>
+			</content>
+			
+			<event type="onMouseUp"> <script>
+				importScript("(@script)/control_funcs.js");
+				
+				if (caller.parent.userDefined.open != 1) comboBox_open(caller.parent);
+				else comboBox_close(caller.parent);
+			</script> </event>
+			
+			<event type="onMouseUp_outside"> <script>
+				importScript("(@script)/control_funcs.js");
+				comboBox_close(caller.parent);
+			</script> </event>
+			
+			<event type="onLoad" status="-2"> <script>
+				caller.area.x = 0;
+				caller.area.y = 0;
+				caller.area.w = caller.parent.area.w;
+				caller.area.h = caller.parent.area.h;
+			</script> </event>
+		</selected>		
+	</children>
+</comboBox>
+
+<!-- COMBO BOX ITEM -->
+<comboBoxItem type="comboBoxItem" status="2">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	<theme_disabled_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_disabled_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_disabled_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	
+	<event type="onMouseDown"> <script>
+		caller.parent.selected.content.selected.text = caller.content.value.text;
+	</script> </event>
+	
+	<event type="onLoad" status="-2"> <script>
+		caller.area.x = 2;
+		caller.area.y = 0;
+		caller.area.w = caller.parent.area.w - 4;
+		caller.area.h = caller.parent.area.h;
+	</script> </event>
+</comboBoxItem>
+
+<!-- SEPARATOR -->
+<separator type="separator">
+	<theme_normal_outside>
+		<left file="(@graphics)/ui.png"> <area x="96" y="112" w="8" h="4" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="104" y="112" w="8" h="4" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="112" y="112" w="8" h="4" /> </right>
+	</theme_normal_outside>
+	
+	<theme_normal_over>
+		<left file="(@graphics)/ui.png"> <area x="96" y="112" w="8" h="4" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="104" y="112" w="8" h="4" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="112" y="112" w="8" h="4" /> </right>
+	</theme_normal_over>
+	
+	<theme_normal_pressed>
+		<left file="(@graphics)/ui.png"> <area x="96" y="112" w="8" h="4" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="104" y="112" w="8" h="4" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="112" y="112" w="8" h="4" /> </right>
+	</theme_normal_pressed>
+	
+	<event type="onLoad" status="-2"> <script>
+		caller.area.h = 4;
+	</script> </event>
+</separator>
+
+<!-- FILLBAR -->
+<fillbar type="fillbar">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	
+	<children>
+		<fill>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			
+			<event type="onLoad" status="-2"> <script>
+				caller.area.x = 4;
+				caller.area.y = 4;
+				caller.area.w = 16;
+				caller.area.h = caller.parent.area.h - 8;
+			</script> </event>
+		</fill>
+	</children>
+</fillbar>
+
+<!-- SLIDER -->
+<slider type="slider">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	
+	<children>
+		<fill>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+			
+			<event type="onLoad"> <script>
+				caller.area.x = 4;
+				caller.area.y = 4;
+				caller.area.w = 16;
+				caller.area.h = caller.parent.area.h - 8;
+			</script> </event>
+		</fill>
+		
+		<slider>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="slider" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="slider" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="slider" />
+			<theme_active_outside externFile="(@ui)/themes.xml" importedNode="slider" />
+			<theme_active_over externFile="(@ui)/themes.xml" importedNode="slider" />
+			<theme_active_pressed externFile="(@ui)/themes.xml" importedNode="slider" />
+			
+			<area x="4" y="0" w="32" h="32" xRef="0" yRef="1" />
+			
+			<event type="onMouseDown"> <script>
+				caller.status = status_active;
+				var caller.userDefined.x0 = caller.area.x;
+				var caller.userDefined.grabX = event.x;
+			</script> </event>
+			
+			<event type="onMouseUp" status="1"> <script>
+				caller.status = status_normal;
+			</script> </event>
+			
+			<event type="onMouseUp_outside" status="1"> <script>
+				caller.status = status_normal;
+			</script> </event>
+			
+			<event type="onRefresh" status="1"> <script> 
+				<![CDATA[
+				
+				var maxX = caller.parent.area.w - caller.area.w / 2 - 8;
+				var minX = 4;
+				
+				caller.area.x = caller.userDefined.x0 + mouse.x - caller.userDefined.grabX;
+				
+				if (caller.area.x > maxX) caller.area.x = maxX;
+				if (caller.area.x < minX) caller.area.x = minX;
+				
+				caller.parent.fill.area.w = caller.area.x - 4 + caller.area.w / 2;
+				
+				]]>
+			</script> </event>
+		</slider>
+	</children>	
+</slider>

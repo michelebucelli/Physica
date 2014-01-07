@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<progress achievements="" deaths="0" time="0">
+	<levels>
+		<tutorial.level_1 time="1547" deaths="0" rating="3" />
+		<tutorial.level_2 time="3131" deaths="0" rating="1" />
+		<levelPack1.level_1 time="2731" deaths="0" rating="1" />
+	</levels>
+</progress>

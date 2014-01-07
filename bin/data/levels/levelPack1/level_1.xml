@@ -1,0 +1,117 @@
+<level_1 damping_tr="-0.025" damping_rot="-0.05" w="800" h="400" >
+	
+	<entities>
+		<player externFile="(@levels)/presets.xml" importedNode="player"
+			position="72 240"
+		/>
+		
+		<goal externFile="(@levels)/presets.xml" importedNode="goal"
+			position="640 272"
+		/>
+		
+		<falling externFile="(@levels)/presets.xml" importedNode="staticHazard"
+			position="400 416"
+			w="1600"
+			h="20"
+			print="0"
+		/>
+		
+		<base_0 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="144 264"
+			w="64"
+			h="96"
+		/>
+		
+		<base_1 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="80 296"
+			w="64"
+			h="32"
+		/>
+		
+		<base_2 externFile="(@levels)/presets.xml" importedNode="translatingBase"
+			position="256 176"
+			w="64"
+			h="64"
+			
+			lockX="1"
+		/>
+		
+		<base_3 externFile="(@levels)/presets.xml" importedNode="translatingBase"
+			position="384 160"
+			w="64"
+			h="64"
+			
+			lockX="1"
+		/>
+		
+		<base_4 externFile="(@levels)/presets.xml" importedNode="translatingBase"
+			position="496 192"
+			w="64"
+			h="64"
+			
+			lockX="1"
+		/>
+		
+		<base_5 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="640 312"
+			w="176"
+			h="32"
+		/>
+		
+		<base_6 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="256 464"
+			w="64"
+			h="32"
+			
+			print="0"
+		/>
+		
+		<base_7 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="384 464"
+			w="64"
+			h="32"
+			
+			print="0"
+		/>
+		
+		<base_8 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="496 464"
+			w="64"
+			h="32"
+			
+			print="0"
+		/>
+	</entities>
+	
+	<links>
+		<spring_0 externFile="(@levels)/presets.xml" importedNode="spring"
+			a="base_2"
+			a_point="0 32"
+			
+			b="base_6"
+			b_point="0 -16"
+			
+			length_zero="240"
+		/>
+		
+		<spring_1 externFile="(@levels)/presets.xml" importedNode="spring"
+			a="base_3"
+			a_point="0 32"
+			
+			b="base_7"
+			b_point="0 -16"
+			
+			length_zero="256"
+		/>
+		
+		<spring_2 externFile="(@levels)/presets.xml" importedNode="spring"
+			a="base_4"
+			a_point="0 32"
+			
+			b="base_8"
+			b_point="0 -16"
+			
+			length_zero="224"
+		/>
+	</links>
+</level_1>

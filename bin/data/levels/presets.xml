@@ -1,0 +1,83 @@
+<staticHazard type="box"
+	mass="0"
+	
+	e="0"
+	
+	lockTranslation="1"
+	lockRotation="1"
+	
+	theta="0"
+	
+	color="0x1A41F0"
+	
+	special="hazard"
+/>
+
+<staticBase type="box"
+	mass="100"
+	
+	e="1"
+	
+	lockTranslation="1"
+	lockRotation="1"
+	
+	theta="0"
+	
+	color="0x303030"
+/>
+
+<translatingBase type="box"
+	mass="2"
+	
+	e="1"
+	
+	lockTranslation="0"
+	lockRotation="1"
+	
+	damping_tr="40"
+	
+	theta="0"
+	
+	color="0x303030"
+/>
+
+<player type="box"
+	mass="1"
+	
+	e="0"
+	
+	lockTranslation="0"
+	lockRotation="0"
+	
+	theta="0"
+	
+	color="0x30FF8D"
+	
+	sensors="-16 16; 0 17; 16 16; 17 0; 16 -16; 0 -16; -16 -16; -16 0"
+	
+	w="32"
+	h="32"
+	
+	light="1"
+	lightColor="0xFFFFFF"
+/>
+
+<goal type="box"
+	mass="100"
+	
+	e="0"
+	
+	lockTranslation="1"
+	lockRotation="1"
+	
+	theta="0"
+	
+	color="0x30FFFF"
+	
+	w="16"
+	h="16"
+/>
+
+<spring type="spring"
+	k="0.5"
+/>

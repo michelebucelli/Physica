@@ -1,0 +1,113 @@
+<base status="2" visible="0" externFile="(@ui)/presets.xml" importedNode="panel">
+	<area x="0" y="0" w="400" h="328" xRef="1" yRef="1"/>
+	
+	<children>
+		<title externFile="(@ui)/presets.xml" importedNode="label">
+			<area x="0" y="15" w="400" h="64" xRef="1" />
+			
+			<content>
+				<title type="text" x_centre="0" y_centre="0" text="SUCCESS!" fontId="bigFont" />
+			</content>
+		</title>
+		
+		<stars>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="label_base" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="label_base" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="label_base" />
+			
+			<area x="0" y="100" w="356" h="112" xRef="1" />
+			
+			<content>
+				<star1 type="image" x_centre="-110" y_centre="0">
+					<image file="(@graphics)/star_off.png" > <area x="0" y="0" w="96" h="96" /> </image>
+				</star1>
+				
+				<star2 type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/star_off.png" > <area x="0" y="0" w="96" h="96" /> </image>
+				</star2>
+				
+				<star3 type="image" x_centre="110" y_centre="0">
+					<image file="(@graphics)/star_off.png" > <area x="0" y="0" w="96" h="96" /> </image>
+				</star3>
+			</content>
+			
+			<event type="onLoad" status="-2"> <script>
+				caller.userDefined.star_off = "(@graphics)/star_off.png";
+				caller.userDefined.star_on = "(@graphics)/star_on.png";
+			</script> </event>
+		</stars>
+		
+		<timer>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+	
+			<area x="0" y="240" w="96" h="32" xRef="1"/>
+			
+			<content>
+				<icon type="image" x_left="8" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="16" y="0" w="16" h="16" /> </image>
+				</icon>
+				
+				<label type="text" x_left="32" y_centre="0" text="00:00:00" fontId="monoFont" />
+			</content>
+		</timer>
+		
+		<deaths>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+	
+			<area x="0" y="280" w="64" h="32" xRef="1"/>
+			
+			<content>
+				<icon type="image" x_left="8" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="48" y="0" w="16" h="16" /> </image>
+				</icon>
+				
+					<label type="text" x_left="32" y_centre="0" text="000" fontId="monoFont" />
+			</content>
+		</deaths>
+		
+		<next>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_over" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_pressed" />
+	
+			<area x="30" y="260" w="72" h="32" xRef="2"/>
+			
+			<content>
+				<icon type="image" x_right="8" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="80" y="0" w="16" h="16" /> </image>
+				</icon>
+				
+				<label type="text" x_right="32" y_centre="0" text="next" fontId="smallFont" />
+			</content>
+		</next>
+		
+		<back>
+			<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_small_normal" />
+			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_over" />
+			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_pressed" />
+	
+			<area x="30" y="260" w="72" h="32" xRef="0"/>
+			
+			<content>
+				<icon type="image" x_left="8" y_centre="0">
+					<image file="(@graphics)/icons.png"> <area x="64" y="0" w="16" h="16" /> </image>
+				</icon>
+				
+				<label type="text" x_left="32" y_centre="0" text="back" fontId="smallFont" />
+			</content>
+		</back>
+	</children>
+	
+	<event type="prePrint" status="-2"> <script>
+		dark();
+	</script> </event>
+	
+	<event type="onKeyDown"> <script>
+		if (event.key == key_enter)
+			caller.next.triggerEvent("onMouseUp");
+	</script> </event>
+</base>

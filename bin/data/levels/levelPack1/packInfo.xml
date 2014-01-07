@@ -1,0 +1,5 @@
+<levelPack1 order="1" name="Pack 1">
+	<icon file="(@graphics)/levelPacks.png"> <area x="56" y="0" w="56" h="56" /> </icon>
+	
+	<level file="level_1.xml" />
+</levelPack1>

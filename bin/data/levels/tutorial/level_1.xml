@@ -1,0 +1,31 @@
+<level_1 damping_tr="-0.025" damping_rot="-0.05" w="800" h="400" twoStarsTime="10" threeStarsTime="15">	
+	<entities>
+		<player externFile="(@levels)/presets.xml" importedNode="player"
+			position="256 208"
+		/>
+		
+		<falling externFile="(@levels)/presets.xml" importedNode="staticHazard"
+			position="400 468"
+			w="1600"
+			h="20"
+			
+			print="0"
+		/>
+		
+		<base_0 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="252 304"
+			w="120"
+			h="112"
+		/>
+		
+		<base_1 externFile="(@levels)/presets.xml" importedNode="staticBase"
+			position="552 312"
+			w="112"
+			h="64"
+		/>
+		
+		<goal externFile="(@levels)/presets.xml" importedNode="goal"
+			position="552 248"
+		/>
+	</entities>
+</level_1>

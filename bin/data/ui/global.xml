@@ -1,0 +1,15 @@
+<!-- GLOBAL UI DEFINITION -->
+
+<global dontUseAsReference="1">
+	<children>	
+		<mainMenu externFile="(@ui)/mainMenu.xml" importedNode="base" />
+		<levelPackSelect externFile="(@ui)/levelPackSelectMenu.xml" importedNode="base" />
+		<levelSelect externFile="(@ui)/levelSelectMenu.xml" importedNode="base" />
+		<game externFile="(@ui)/game.xml" importedNode="base" />
+		<settings externFile="(@ui)/settingsMenu.xml" importedNode="base" />
+		<achievements externFile="(@ui)/achievementsMenu.xml" importedNode="base" />
+		<credits externFile="(@ui)/creditsMenu.xml" importedNode="base" />
+		<successScreen externFile="(@ui)/successScreen.xml" importedNode="base" />
+	</children>
+</global>
+

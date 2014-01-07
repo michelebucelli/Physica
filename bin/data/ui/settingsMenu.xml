@@ -1,0 +1,105 @@
+<!-- SETTINGS MENU -->
+
+<base status="2" visible="0">
+	<area x="0" y="0" w="210" h="364" xRef="1" yRef="1" />
+	
+	<children>
+		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="3" w="150" /> </sep>
+		
+		<fullscreen externFile="(@ui)/presets.xml" importedNode="checkBox">
+			<area x="25" y="22" w="16" h="16" />
+			
+			<content>
+				<text type="text" text="Fullscreen" x_left="24" y_centre="0" fontId="smallFont" />
+			</content>
+		</fullscreen>
+		
+		<sfx externFile="(@ui)/presets.xml" importedNode="checkBox">
+			<area x="25" y="48" w="16" h="16" />
+			
+			<content>
+				<text type="text" text="Enable SFX" x_left="24" y_centre="0" fontId="smallFont" />
+			</content>
+		</sfx>
+		
+		<debug externFile="(@ui)/presets.xml" importedNode="checkBox">
+			<area x="25" y="74" w="16" h="16" />
+			
+			<content>
+				<text type="text" text="Enable debug mode" x_left="24" y_centre="0" fontId="smallFont" />
+			</content>
+		</debug>
+	
+		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="109" w="150" /> </sep>
+		
+		<upKey externFile="(@ui)/presets.xml" importedNode="keyBox">
+			<area x="90" y="128" w="64" h="24" />
+			
+			<content>
+				<text type="text" text="Jump" x_right="70" y_centre="0" fontId="smallFont" />
+			</content>
+		</upKey>
+		
+		<leftKey externFile="(@ui)/presets.xml" importedNode="keyBox">
+			<area x="90" y="158" w="64" h="24" />
+			
+			<content>
+				<text type="text" text="Left" x_right="70" y_centre="0" fontId="smallFont" />
+			</content>
+		</leftKey>
+		
+		<rightKey externFile="(@ui)/presets.xml" importedNode="keyBox">
+			<area x="90" y="188" w="64" h="24" />
+			
+			<content>
+				<text type="text" text="Right" x_right="70" y_centre="0" fontId="smallFont" />
+			</content>
+		</rightKey>
+		
+		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="231" w="150" /> </sep>
+		
+		<language externFile="(@ui)/presets.xml" importedNode="comboBox">
+			<area x="94" y="250" w="96" h="24" />
+			
+			<content> <label type="text" text="Language" x_right="104" y_centre="0" fontId="smallFont" /> </content>
+			
+			<children>
+				<en externFile="(@ui)/presets.xml" importedNode="comboBoxItem">
+					<content> <value type="text" text="English" x_centre="0" y_centre="0" fontId="smallFont" /> </content>
+				</en>
+				
+				<it externFile="(@ui)/presets.xml" importedNode="comboBoxItem">
+					<content> <value type="text" text="Italiano" x_centre="0" y_centre="0" fontId="smallFont" /> </content>
+				</it>
+			</children>
+		</language>
+		
+		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="293" w="150" /> </sep>
+		
+		<back externFile="(@ui)/presets.xml" importedNode="button_small">
+			<area x="57" y="312" w="96" h="32" />
+			
+			<content> <label type="text" text="Back" x_centre="0" y_centre="0" fontId="smallFont" /> </content>
+			
+			<event type="onMouseUp"> <script>
+				importScript("(@script)/control_funcs.js");
+				
+				menu_hide(caller.parent, 1);
+				menu_show(caller.parent.parent.mainMenu, -1);
+			</script> </event>
+		</back>
+	</children>
+	
+	<event type="onKeyDown"> <script>
+			if (event.key == key_escape && caller.upKey.status != status_active && caller.leftKey.status != status_active && caller.rightKey.status != status_active){
+				importScript("(@script)/control_funcs.js");
+				
+				menu_hide(caller, 1);
+				menu_show(caller.parent.mainMenu, -1);
+			}
+	</script> </event>
+	
+	<event type="onWindowResize" status="2"> <script>
+			caller.visible = 0;
+	</script> </event>
+</base>
