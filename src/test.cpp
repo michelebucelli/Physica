@@ -75,12 +75,14 @@ void init(){
 	REPORT_TIME  (loadProgress(),					"   Loaded player progress");
 	REPORT_TIME  (initViewport(),                   "   Initialized viewport");
 	REPORT_TIME	 (loadLevelPacks(),                 "   Loaded level packs");
+	REPORT_TIME  (loadAchievements(),				"   Loaded achievements");
 	REPORT_TIME  (initUI(),                         "   Initialized UI");
 	
 	LOG_TIME_0("Done");
 	LOG_HR;
 	
 	LOG("Loaded " << levelPacks.size() << " level packs");
+	LOG("Loaded " << globalAchievements.size() << " global achievements");
 	LOG_HR;
 }
 

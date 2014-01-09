@@ -57,19 +57,20 @@ string preprocessFilePath(string filePath){
 //Function to debug folders
 void folderDebug(ostream &o){
 	o << "PROGRAM FOLDERS STRUCTURE:" << endl;
-	o << "  DATA        " << FOLDER_DATA << endl;
-	o << "  GRAPHICS    " << FOLDER_GRAPHICS << endl;
-	o << "  AUDIO       " << FOLDER_AUDIO << endl;
-	o << "  FONTS       " << FOLDER_FONTS << endl;
-	o << "  SCRIPT      " << FOLDER_SCRIPT << endl;
-	o << "  UI          " << FOLDER_UI << endl;
-	o << "  SETTINGS    " << FOLDER_SETTINGS << endl;
-	o << "  LEVELS      " << FOLDER_LEVELS << endl << endl;
+	o << "  DATA         " << FOLDER_DATA << endl;
+	o << "  GRAPHICS     " << FOLDER_GRAPHICS << endl;
+	o << "  AUDIO        " << FOLDER_AUDIO << endl;
+	o << "  FONTS        " << FOLDER_FONTS << endl;
+	o << "  SCRIPT       " << FOLDER_SCRIPT << endl;
+	o << "  UI           " << FOLDER_UI << endl;
+	o << "  SETTINGS     " << FOLDER_SETTINGS << endl;
+	o << "  LEVELS       " << FOLDER_LEVELS << endl << endl;
 	
 	o << "RELEVANT FILES:" << endl;
-	o << "  SETTINGS    " << FILE_SETTINGS << endl;
-	o << "  PROGRESS    " << FILE_PROGRESS << endl;
-	o << "  MENU        " << FILE_MENU << endl;
-	o << "  EASINGS     " << FILE_EASINGS << endl;
-	o << "  UI SCRIPT   " << FILE_UI_SCRIPT << endl;
+	o << "  ACHIEVEMENTS " << FILE_ACHIEVEMENTS << endl;
+	o << "  SETTINGS     " << FILE_SETTINGS << endl;
+	o << "  PROGRESS     " << FILE_PROGRESS << endl;
+	o << "  MENU         " << FILE_MENU << endl;
+	o << "  EASINGS      " << FILE_EASINGS << endl;
+	o << "  UI SCRIPT    " << FILE_UI_SCRIPT << endl;
 }

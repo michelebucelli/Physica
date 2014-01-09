@@ -59,6 +59,7 @@ using namespace std;
 #define FILE_UI_SCRIPT		STR(_FOLDER_SCRIPT/control_funcs.js)
 #define FILE_SETTINGS		STR(_FOLDER_SETTINGS/settings.xml)
 #define FILE_PROGRESS		STR(_FOLDER_DATA/progress.xml)
+#define FILE_ACHIEVEMENTS	STR(_FOLDER_DATA/achievements.xml)
 #define FILE_LOG			STR(output.log)
 
 

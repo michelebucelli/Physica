@@ -150,6 +150,11 @@ class achievement: public content {
 	bool verify();
 };
 
+extern list <achievement> globalAchievements;
+
+//Function to load all achievements
+void loadAchievements ();
+
 //Level progress
 //Best times, least deaths, best rating
 class levelProgress: public content {

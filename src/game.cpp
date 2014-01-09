@@ -228,6 +228,22 @@ void achievement::load(xml_node source){
 bool achievement::verify(){
 }
 
+list<achievement> globalAchievements;
+
+void loadAchievements () {
+	xml_document d;
+	d.load_file(FILE_ACHIEVEMENTS);
+	
+	xml_node n = d.child("achievements");
+	
+	for ( xml_node m = n.first_child(); m; m = m.next_sibling() ) {
+		achievement a;
+		a.load(m);
+		
+		globalAchievements.push_back(a);
+	}
+}
+
 levelProgress::levelProgress(){
 	time = -1;
 	deaths = 0;
@@ -533,6 +549,7 @@ void game::setup(bool death, bool moveCam){
 void game::reset(){
 	setup(levelIndex, true, false);
 	deaths++;
+	progress.globalDeaths++;
 }
 
 bool game::next(){
@@ -581,6 +598,7 @@ void game::frame(double t, Uint8* keys){
 	handleControls(keys);
 	
 	time += SDL_GetTicks() - lastFrameTime;
+	progress.globalTime += SDL_GetTicks() - lastFrameTime;
 	lastFrameTime = SDL_GetTicks();
 	
 	//if (!debugMode) progress.globalTime += double(frameBegin - lastFrameBegin) / 60000;//Increases global time counter
