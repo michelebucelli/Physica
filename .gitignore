@@ -6,3 +6,4 @@ bin/*.log
 progress.cfg
 settings.cfg
 *~
+bin/test

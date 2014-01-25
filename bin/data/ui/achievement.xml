@@ -1,0 +1,24 @@
+<!-- ACHIEVEMENT PANEL -->
+
+<achievement status="2" visible="0" externFile="(@ui)/presets.xml" importedNode="panel">
+	<area x="0" y="0" w="320" h="72" />
+	
+	<content>
+		<title type="text" x_left="72" y_top="16" text="TITLE" fontId="midFont" />
+		<info type="text" x_left="72" y_top="32" text="short description" fontId="smallFont" />
+		
+		<icon type="image" x_left="12" y_centre="0">
+			<image file="(@graphics)/achievements.png"> <area x="0" y="0" w="48" h="48" /> </image>
+		</icon>
+	</content>
+	
+	<event type="hideAchievement" status="-2"><script>
+		importScript ( "(#easings)" );
+		caller.area.setEasingX ( caller.area.x, -caller.area.w - caller.area.x, 400, easings.quarticInOut, 0, 0 );
+		caller.parent.userDefined.achievementsCount--;
+		
+		caller.userDefined.mustPop = true;
+		
+		caller.parent.timeout(500, "popAchievements");
+	</script></event>
+</achievement>
