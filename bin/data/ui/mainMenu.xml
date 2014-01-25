@@ -64,6 +64,15 @@
 					<image file="(@graphics)/icons.png"> <area x="224" y="0" w="32" h="32" /> </image>
 				</icon>
 			</content>
+			
+			<event type="onMouseUp"> <script>
+					importScript("(@script)/control_funcs.js");
+					
+					menu_hide(caller.parent, -1);
+					menu_show(caller.parent.parent.achievements, 1);
+					
+					caller.parent.parent.achievements.triggerEvent("onDraw");
+			</script> </event>
 		</achievementsButton>
 		
 		<creditsButton externFile="(@ui)/presets.xml" importedNode="button_big">

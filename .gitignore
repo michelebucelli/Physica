@@ -3,7 +3,7 @@
 *.exe
 bin/*.log
 *.zip
-progress.cfg
-settings.cfg
+progress.xml
+settings.xml
 *~
 bin/test

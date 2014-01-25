@@ -52,6 +52,9 @@ control* ui_lc_time = NULL;
 control* ui_lc_nextLevel = NULL;
 control* ui_lc_back = NULL;
 
+control* ui_achievements = NULL;
+control* ui_ach_single = NULL;
+
 //Draw flags
 bool mustDraw_levelPackSel = false;
 
@@ -134,6 +137,16 @@ void initUI(){
 	LOG_CHECK(ui_lc_deaths, "successScreen/deaths control not found");
 	
 	ui_lc_nextLevel->events.push_back( event("onMouseUp", lcNextClick) );
+	
+	ui_achievements = ui_menu.getChild("achievements");
+	LOG_CHECK(ui_achievements, "achievements control not found");
+	
+	ui_ach_single = ui_achievements->getChild("achievement");
+	LOG_CHECK(ui_ach_single, "achievements/achievement control not found");
+	
+	ui_achievements->children.remove(ui_ach_single);
+	
+	ui_achievements->events.push_back ( event("onDraw", achShow, -6) );
 	
 	drawSettingsMenu();
 	drawLevelPackSelect();
@@ -383,6 +396,49 @@ void lcShow(){
 //Function to hide level cleared screen
 void lcHide(){
 	ui_game->triggerEvent("onNextLevel", NULL);
+}
+
+//Function to draw achievement screen
+void achShow(control* c, eventData* d){	
+	ui_achievements->children.clear();
+	
+	if (progress.unlockedAch.size() == 0){
+	}
+	
+	int spacing = (*c)["spacing"]->getInt();
+	int columns = (*c)["columns"]->getInt();
+	
+	int xOffset = -((ui_ach_single->area.w + spacing) * columns - spacing) / 2 + ui_ach_single->area.w / 2;
+	int yOffset = -((ui_ach_single->area.h + spacing) * floor(progress.unlockedAch.size() / columns)) / 2 + ui_ach_single->area.h / 2;
+	
+	int col = 0, row = 0;
+	
+	LOG("Drawing " << progress.unlockedAch.size() << " achievements");
+	
+	for (deque<string>::iterator i = progress.unlockedAch.begin(); i != progress.unlockedAch.end(); i++) {
+		control* ach = ui_ach_single->copy();
+		
+		ach->clearScriptVar();
+		
+		ach->area.xRef = 1;
+		ach->area.yRef = 1;
+		ach->area.x = xOffset + col * (ach->area.w + spacing);
+		ach->area.y = yOffset + row * (ach->area.h + spacing);
+		
+		achievement* a = getAchievement(*i);
+		
+		*ach->getContent("title")->data.text = a->name;
+		*ach->getContent("info")->data.text = a->info;
+		ach->getContent("icon")->data.img = &a->icon;
+		
+		ui_achievements->addChild(ach);
+		
+		ach->genScriptVar();
+		ach->linkScriptVar();
+		
+		col++;
+		if (col % columns == 0) { col = 0; row++; }
+	}
 }
 
 //Function that draws needed ui pieces

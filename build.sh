@@ -14,6 +14,8 @@ then
 	./test
 	cd ..
 	
+	echo $?
+	
 	echo LOG
 	
 	cat ./bin/output.log

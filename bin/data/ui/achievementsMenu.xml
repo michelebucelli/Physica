@@ -1,0 +1,25 @@
+<base status="2" visible="0">
+	<area x="0" y="0" w="800" h="800" xRef="1" yRef="1" />
+	
+	<children>
+		<achievement externFile="(@ui)/achievement.xml" importedNode="achievement" />
+	</children>
+	
+	<event type="onLoad" status="-2"> <script>
+		caller.userDefined.spacing = 16;
+		caller.userDefined.columns = 2;
+	</script> </event>
+	
+	<event type="onKeyDown"> <script>
+			if (event.key == key_escape && caller.upKey.status != status_active && caller.leftKey.status != status_active && caller.rightKey.status != status_active){
+				importScript("(@script)/control_funcs.js");
+				
+				menu_hide(caller, 1);
+				menu_show(caller.parent.mainMenu, -1);
+			}
+	</script> </event>
+	
+	<event type="onWindowResize" status="2"> <script>
+			caller.visible = 0;
+	</script> </event>
+</base>

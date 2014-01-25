@@ -232,6 +232,13 @@ bool achievement::verify(CTinyJS* js){
 
 list<achievement> globalAchievements;
 
+achievement* getAchievement ( string id ) {
+	for ( list<achievement>::iterator i = globalAchievements.begin(); i != globalAchievements.end(); i++ )
+		if ( i->id == id ) return &*i;
+		
+	return NULL;
+}
+
 void loadAchievements () {
 	xml_document d;
 	d.load_file(FILE_ACHIEVEMENTS);

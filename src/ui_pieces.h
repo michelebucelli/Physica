@@ -70,6 +70,10 @@ extern control* ui_lc_star1, *ui_lc_star2, *ui_lc_star3;
 extern control* ui_lc_nextLevel;
 extern control* ui_lc_back;
 
+//Achievements screen
+extern control* ui_achievements;
+extern control* ui_ach_single;
+
 //Draw flags
 //To avoid interference with event handling, some UI drawing
 //(e.g. drawing level selector) is done at the end of the main loop.
@@ -110,6 +114,9 @@ void lcShow();
 void lcHide();
 void lcNextClick(control*, eventData*);
 void lcBackClick(control*, eventData*);
+
+//Functions to handle achievement screen
+void achShow(control*, eventData*);
 
 //Function that draws needed UI pieces
 void redrawUI();

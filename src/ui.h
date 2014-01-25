@@ -232,7 +232,7 @@ class event: public content {
 	int status;
 	
 	event();
-	event(string, void (*) (control*, eventData*));
+	event(string, void (*) (control*, eventData*), int = -3);
 	
 	//Function to trigger the event
 	void trigger(control*, eventData*);

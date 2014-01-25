@@ -511,10 +511,10 @@ event::event(){
 
 //Event constructor
 //Sets type and adds a handler
-event::event(string type, void (*handler) (control*, eventData*)){
+event::event(string type, void (*handler) (control*, eventData*), int status){
 	this->type = type;
 	this->handlers.push_back(handler);
-	status = -3;
+	this->status = status;
 }
 
 //Event trigger function

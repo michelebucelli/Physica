@@ -1,6 +1,6 @@
 <!-- ACHIEVEMENT PANEL -->
 
-<achievement status="2" visible="0" externFile="(@ui)/presets.xml" importedNode="panel">
+<achievement status="0" visible="1" externFile="(@ui)/presets.xml" importedNode="panel">
 	<area x="0" y="0" w="320" h="72" />
 	
 	<content>

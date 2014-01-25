@@ -158,6 +158,9 @@ class achievement: public content {
 
 extern list <achievement> globalAchievements;
 
+//Function to get an achievement by id
+achievement* getAchievement ( string );
+
 //Function to load all achievements
 void loadAchievements ();
 
