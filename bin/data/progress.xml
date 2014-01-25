@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<progress achievements="firstOfMany,firstOfMay" deaths="2" time="0.400883">
-	<levels>
-		<tutorial.level_1 time="1644" deaths="0" rating="3" />
-		<tutorial.level_2 time="1485" deaths="0" rating="3" />
-		<levelPack1.level_1 time="2750" deaths="0" rating="3" />
-		<levelPack1.level_2 time="2795" deaths="0" rating="3" />
-	</levels>
-</progress>
