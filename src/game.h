@@ -31,6 +31,12 @@ GAME LOGICS
 
 #include <algorithm>
 
+class game;
+class levelPack;
+class achievement;
+
+#include "ui_pieces.h"
+
 //Control scheme class
 class controls: public content {
 	public:
@@ -147,7 +153,7 @@ class achievement: public content {
 	achievement(string, string, string, string, image, bool);
 	void load(xml_node);
 	
-	bool verify();
+	bool verify(CTinyJS*);
 };
 
 extern list <achievement> globalAchievements;
@@ -316,6 +322,9 @@ class game {
 	
 	//Calculates rating of current level
 	int rating();
+	
+	//Stores variables inside js context
+	void storeVariables ( CTinyJS* );
 };
 
 extern game currentGame;

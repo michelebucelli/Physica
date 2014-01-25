@@ -11,5 +11,35 @@
 		<credits externFile="(@ui)/creditsMenu.xml" importedNode="base" />
 		<successScreen externFile="(@ui)/successScreen.xml" importedNode="base" />
 	</children>
+	
+	<event type="onAchievementUnlocked" status="-2"> <script>		
+		if (caller.userDefined.achievementsCount) caller.userDefined.achievementsCount++;
+		else caller.userDefined.achievementsCount = 1;
+		
+		var v = caller.addChild ( "(@ui)/achievement.xml" );
+		
+		v.id = "ach_" + caller.userDefined.achievementsCount;
+				
+		v.content.icon.image = event.custom.icon;
+		v.content.title.text = event.custom.title;
+		v.content.info.text = event.custom.info;
+		
+		importScript("(#easings)");
+		v.area.y = v.area.h * caller.userDefined.achievementsCount;
+		v.area.x = -v.area.w;
+		v.area.setEasingX ( -v.area.w, v.area.w + 24, 400, easings.quarticInOut, 0, 0 );
+		
+		v.visible = 1;
+		
+		v.timeout ( 4000, "hideAchievement" );
+	</script> </event>
+	
+	<event type="popAchievements" status="-2"> <script>
+		for (var v = caller.firstChild; v != undefined; v = v.nextSibling){
+			if (v.userDefined.mustPop){
+				caller.removeChild(v.id);
+			}
+		}
+	</script> </event>
 </global>
 

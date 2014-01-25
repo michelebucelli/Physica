@@ -59,7 +59,7 @@
 	h="32"
 	
 	light="1"
-	lightColor="0xFFFFFF"
+	lightColor="0xF6F6F6"
 />
 
 <goal type="box"

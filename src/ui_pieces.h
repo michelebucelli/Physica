@@ -88,6 +88,9 @@ void dark(CScriptVar*, void*);
 //Loads interface from XML and gets all controls
 void initUI();
 
+//Function to handle achievement unlock
+void showUnlockedAchievement(achievement*);
+
 //Functions to handle settings menu
 void drawSettingsMenu();
 void applySettingsMenu();

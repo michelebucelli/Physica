@@ -103,15 +103,15 @@
 		caller.parent.successScreen.status = status_normal;
 		caller.status = status_disabled;
 		
-		if (event.rating > 0)
+		if (event.custom.rating > 0)
 			caller.parent.successScreen.stars.content.star1.image.file = caller.parent.successScreen.stars.userDefined.star_on;
 		else caller.parent.successScreen.stars.content.star1.image.file = caller.parent.successScreen.stars.userDefined.star_off;
 		
-		if (event.rating > 1)
+		if (event.custom.rating > 1)
 			caller.parent.successScreen.stars.content.star2.image.file = caller.parent.successScreen.stars.userDefined.star_on;
 		else caller.parent.successScreen.stars.content.star2.image.file = caller.parent.successScreen.stars.userDefined.star_off;
 		
-		if (event.rating > 2)
+		if (event.custom.rating > 2)
 			caller.parent.successScreen.stars.content.star3.image.file = caller.parent.successScreen.stars.userDefined.star_on;
 		else caller.parent.successScreen.stars.content.star3.image.file = caller.parent.successScreen.stars.userDefined.star_off;
 	</script> </event>

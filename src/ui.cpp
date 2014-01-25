@@ -462,7 +462,7 @@ void theme::fromJSVar(CScriptVar* c){
 	
 	elements.clear();
 	
-	if (CScriptVarLink* v = c->findChild("elements")){
+	if (CScriptVarLink* v = c->findChild("elements")) {
 		for (CScriptVarLink* t = v->var->firstChild; t; t = t->nextSibling){
 			themeElement e;
 			e.fromJSVar(t->var);
@@ -499,7 +499,7 @@ void eventData::toJSVar(CScriptVar* c){
 	}
 	
 	if (type == 2) {
-		c->copyValue ( data.custom.var ); 
+		c->addChild("custom", data.custom.var);
 	}
 }
 
@@ -968,7 +968,8 @@ void control::toJSVar(CScriptVar* c){
 				*removeChildFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
 				*grabEventsFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
 				*releaseEventsFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
-				*triggerEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE);
+				*triggerEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
+				*timeoutEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE);
 	
 	addChildFunc->addChildNoDup("sourceFile");
 	addChildFunc->setCallback(scAddChildFromFile, this);
@@ -983,11 +984,16 @@ void control::toJSVar(CScriptVar* c){
 	triggerEventFunc->addChildNoDup("event");
 	triggerEventFunc->setCallback(scTriggerEvent, this);
 	
+	timeoutEventFunc->addChildNoDup("time");
+	timeoutEventFunc->addChildNoDup("event");
+	timeoutEventFunc->setCallback(scTimeout, this);
+	
 	c->addChild("addChild", addChildFunc);
 	c->addChild("removeChild", removeChildFunc);
 	c->addChild("grabEvents", grabEventsFunc);
 	c->addChild("releaseEvents", releaseEventsFunc);
 	c->addChild("triggerEvent", triggerEventFunc);
+	c->addChild("timeout", timeoutEventFunc);
 }
 
 //Function to reload control from its own js variable
@@ -1084,6 +1090,15 @@ void control::refresh(){
 		(*i)->refresh();
 		
 	area.move(SDL_GetTicks());
+	
+	//Checks for timeouts
+	for (list<eventTimeout>::iterator i = eventTimeouts.begin(); i != eventTimeouts.end(); i++){
+		if (SDL_GetTicks() - i->startTime >= i->time) {
+			triggerEvent ( i->eventType, NULL );
+			eventTimeouts.erase(i);
+			i--;
+		}
+	}
 }
 
 //Function to draw control content
@@ -1212,7 +1227,11 @@ void scAddChildFromFile(CScriptVar* v, void* userdata){
 		
 		c->load_file(preprocessFilePath(v->getParameter("sourceFile")->getString()));//Loads control
 		target->addChild(c);
+		
+		v->setReturnVar ( c->jsVar );
 	}
+	
+	else LOG("Failed adding child: invalid target");
 }
 
 //Function to remove a child
@@ -1221,7 +1240,8 @@ void scRemoveChild(CScriptVar* v, void* userdata){
 	
 	if (target){//If target is valid
 		control* toRemove = target->getChild(v->getParameter("childId")->getString());//Gets control
-		if (toRemove) target->children.remove(toRemove);//Removes
+		if (toRemove){ target->children.remove(toRemove); v->getReturnVar()->setInt(1); }
+		else v->getReturnVar()->setInt(0);
 	}
 }
 
@@ -1247,4 +1267,16 @@ void scTriggerEvent(CScriptVar*v, void* userdata){
 	string event = v->getParameter("event")->getString();
 	
 	caller->triggerEvent(event, NULL);
+}
+
+//Function to add a timeout to a control
+void scTimeout ( CScriptVar* v, void* userdata ) {
+	control* caller = (control*) userdata;
+	
+	eventTimeout t;
+	t.startTime = SDL_GetTicks();
+	t.time = v->getParameter("time")->getInt();
+	t.eventType = v->getParameter("event")->getString();
+	
+	caller->eventTimeouts.push_back(t);
 }

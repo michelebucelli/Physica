@@ -225,7 +225,9 @@ void achievement::load(xml_node source){
 }
 
 ////TO DO//////////////
-bool achievement::verify(){
+bool achievement::verify(CTinyJS* js){
+	CScriptVarLink result = js->evaluateComplex ( expression );
+	return result.var->getBool();
 }
 
 list<achievement> globalAchievements;
@@ -289,10 +291,18 @@ void globalProgress::load(xml_node source){
 	if (xml_attribute a = source.attribute("achievements")){
 		string s = a.value();
 		int b = s.find(",");
-		int c = 0;		
+		int c = 0;
 		
-		for ( ; b != s.npos; b = s.find(",", b), c = b + 1)
+		unlockedAch.clear();
+		
+		while ( b != s.npos ) {
 			unlockedAch.push_back(s.substr(c, b - c));
+			
+			c = b + 1;
+			b = s.find(",", b + 1);
+		}
+			
+		unlockedAch.push_back(s.substr(c));
 	}
 	
 	if (xml_attribute a = source.attribute("deaths")) globalDeaths = a.as_int();
@@ -311,7 +321,7 @@ void globalProgress::save (xml_node *target){
 	for ( deque<string>::iterator i = unlockedAch.begin(); i != unlockedAch.end(); i++ )
 		achString += "," + *i;
 	
-	achString.erase(0, 1);
+	achString.erase(achString.begin());
 	
 	target->append_attribute ("achievements") = achString.c_str();
 	target->append_attribute ("deaths") = globalDeaths;
@@ -380,8 +390,24 @@ void globalProgress::unlock(string id){
 	}
 }
 
-////TO DO//////////////
 void globalProgress::verifyAchs(){
+	CTinyJS* js = new CTinyJS();
+	currentGame.storeVariables(js);
+	
+	//Verifies global achievements
+	for ( list<achievement>::iterator i = globalAchievements.begin(); i != globalAchievements.end(); i++ ) {
+		if ( i->checkOnce && find ( unlockedAch.begin(), unlockedAch.end(), i->id ) != unlockedAch.end() ){
+			continue;
+		}
+		
+		else if ( i->verify ( js ) ) {
+			LOG("Unlocked achievement '" << i->id << "'");
+			showUnlockedAchievement ( &*i );
+			unlockedAch.push_back(i->id);
+		}
+	}
+	
+	delete js;
 }
 
 ////TO DO//////////////
@@ -394,6 +420,7 @@ int globalProgress::percent(string id){
 
 ////TO DO//////////////
 void globalProgress::check(){
+	verifyAchs();
 }
 
 //Current progress
@@ -491,30 +518,6 @@ _rules game::getAreaRules(vect p){
 void game::print(SDL_Renderer* target, int x, int y){
 	if (currentLevel){
 		currentLevel->print(target, x - cam.position.x, y - cam.position.y);
-		
-		//GOAL DIRECTION - TO DO//
-		/*if (goal && !cam.viewport(video_w, video_h).isInside(goal->position.x, goal->position.y)){//If goal is out of screen
-			vector dist = goal->position - cam.position;//Vector from goal to camera
-			vector pos = dist;//Position
-			
-			//Viewport corners
-			vector a (video_w / 2, video_h / 2);
-			vector b (-video_w / 2, video_h / 2);
-			vector c (-video_w / 2, -video_h / 2);
-			vector d (video_w / 2, -video_h / 2);
-			
-			double ang = dist.angleDeg();//Angle
-			
-			//Gets posiion vector
-			if ((ang > a.angleDeg() && ang < d.angleDeg()) || (ang > c.angleDeg() && ang < b.angleDeg())) pos = pos * video_w / 2 / abs(pos.x);
-			else pos = pos * video_h / 2 / abs(pos.y);
-			
-			SDL_Surface* src = rotozoomSurface(destinationArrow, ang, 1, SMOOTHING_ON);//Rotated surface
-			SDL_Rect offset = {video_w / 2 + pos.x - src->w, video_h / 2 + pos.y - src->h};//Offset rect
-			SDL_BlitSurface(src, NULL, target, &offset);//Prints arrow
-			
-			SDL_FreeSurface(src);//Frees surface
-		}*/
 	}
 }
 
@@ -527,6 +530,7 @@ void game::setup(int levelIndex, bool death, bool moveCam){
 	if (!death){
 		lastFrameTime = SDL_GetTicks();
 		time = 0;
+		deaths = 0;
 	}
 }
 
@@ -598,10 +602,9 @@ void game::frame(double t, Uint8* keys){
 	handleControls(keys);
 	
 	time += SDL_GetTicks() - lastFrameTime;
-	progress.globalTime += SDL_GetTicks() - lastFrameTime;
-	lastFrameTime = SDL_GetTicks();
+	progress.globalTime += double(SDL_GetTicks() - lastFrameTime) / 60000;//Increases global time counter
 	
-	//if (!debugMode) progress.globalTime += double(frameBegin - lastFrameBegin) / 60000;//Increases global time counter
+	lastFrameTime = SDL_GetTicks();
 }
 
 int game::rating(){
@@ -610,6 +613,13 @@ int game::rating(){
 	if (time / 1000 + deaths < currentLevel->threeStarsTime) return 3;
 	else if (time / 1000 + deaths < currentLevel->twoStarsTime) return 2;
 	else return 1;
+}
+
+void game::storeVariables ( CTinyJS* js ) {
+	CScriptVarLink* global = js->root->addChild("global");
+	
+	global->var->findChildOrCreate("deaths")->var->setInt(progress.globalDeaths);
+	global->var->findChildOrCreate("time")->var->setInt(progress.globalTime);
 }
 
 game currentGame;

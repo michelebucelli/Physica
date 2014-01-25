@@ -139,6 +139,8 @@ int main(int argc, char** argv){
 			ui_menu.handleEvents(NULL, windowRect);
 			ui_menu.refresh();
 			
+			progress.check();
+			
 			if (currentGame.completed && ui_levelClear->cStatus == cs_disabled){
 				lcShow();
 				ui_game->cStatus = cs_disabled;

@@ -264,6 +264,15 @@ class controlContent: public position {
 	void fromJSVar(CScriptVar*);
 };
 
+//Event timeout structure
+struct eventTimeout {
+	int startTime;//Time when timeout was setup
+	int time;//Time after which event is triggered
+	
+	string eventType;//Type of the triggered event
+	eventData* data;//Event data (unused at the moment)
+};
+
 //Control class
 //Each control is a node of the UI tree. It links towards its parent
 //and its children
@@ -302,6 +311,9 @@ class control: public content {
 	//onRefresh - triggered when refreshing control
 	//onDraw - triggered when drawing control
 	list <event> events;//Control events
+	
+	//Event timeouts
+	list <eventTimeout> eventTimeouts;
 	
 	CScriptVar* jsVar;//Script variable associated to the control
 	
@@ -399,5 +411,7 @@ void scGrabEvents(CScriptVar*, void*);//Grabs events
 void scReleaseEvents(CScriptVar*, void*);//Releases events
 
 void scTriggerEvent(CScriptVar*, void*);//Triggers events
+
+void scTimeout(CScriptVar*, void*);//Triggers events after some time
 
 #endif

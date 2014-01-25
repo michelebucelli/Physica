@@ -51,7 +51,8 @@ void scImportScript(CScriptVar* c, void* userdata){
 
 //Function for output
 void scOut(CScriptVar* c, void* userdata){
-	outputLog << "[SCRIPT OUTPUT] " << c->getParameter("out")->getString() << endl;
+	CScriptVar* parameter = c->getParameter("out");
+	outputLog << "[SCRIPT OUTPUT] " << parameter->getString() << endl;
 }
 
 //Function to convert keycode to corresponding text

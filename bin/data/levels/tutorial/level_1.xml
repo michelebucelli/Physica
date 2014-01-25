@@ -1,4 +1,4 @@
-<level_1 damping_tr="-0.025" damping_rot="-0.05" w="800" h="400" twoStarsTime="10" threeStarsTime="15">	
+<level_1 damping_tr="-0.025" damping_rot="-0.05" w="800" h="400" twoStarsTime="10" threeStarsTime="5">
 	<entities>
 		<player externFile="(@levels)/presets.xml" importedNode="player"
 			position="256 208"

@@ -139,6 +139,24 @@ void initUI(){
 	drawLevelPackSelect();
 }
 
+//Function to handle achievement unlock
+void showUnlockedAchievement ( achievement* a ) {
+	eventData d;
+	
+	d.type = 2;
+	d.data.custom.var = new CScriptVar;
+	CScriptVar* v = new CScriptVar;
+	a->icon.toJSVar(v);
+	
+	v->ref();//WHY??? Without it, segfault
+	
+	d.data.custom.var->addChild("icon", v);
+	d.data.custom.var->addChild("title")->var->setString(a->name);
+	d.data.custom.var->addChild("info")->var->setString(a->info);
+	
+	ui_menu.triggerEvent("onAchievementUnlocked", &d);
+}
+
 //Function to draw settings menu
 void drawSettingsMenu(){
 	(*ui_set_upKey)["storedKey"]->setInt(playerControls.up);
