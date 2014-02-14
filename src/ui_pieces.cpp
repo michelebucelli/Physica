@@ -399,45 +399,79 @@ void lcHide(){
 }
 
 //Function to draw achievement screen
-void achShow(control* c, eventData* d){	
+void achShow(control* c, eventData* d){
 	ui_achievements->children.clear();
 	
 	if (progress.unlockedAch.size() == 0){
-	}
-	
-	int spacing = (*c)["spacing"]->getInt();
-	int columns = (*c)["columns"]->getInt();
-	
-	int xOffset = -((ui_ach_single->area.w + spacing) * columns - spacing) / 2 + ui_ach_single->area.w / 2;
-	int yOffset = -((ui_ach_single->area.h + spacing) * floor(progress.unlockedAch.size() / columns)) / 2 + ui_ach_single->area.h / 2;
-	
-	int col = 0, row = 0;
-	
-	LOG("Drawing " << progress.unlockedAch.size() << " achievements");
-	
-	for (deque<string>::iterator i = progress.unlockedAch.begin(); i != progress.unlockedAch.end(); i++) {
 		control* ach = ui_ach_single->copy();
-		
 		ach->clearScriptVar();
 		
 		ach->area.xRef = 1;
 		ach->area.yRef = 1;
-		ach->area.x = xOffset + col * (ach->area.w + spacing);
-		ach->area.y = yOffset + row * (ach->area.h + spacing);
+		ach->area.x = 0;
+		ach->area.y = 0;
 		
-		achievement* a = getAchievement(*i);
-		
-		*ach->getContent("title")->data.text = a->name;
-		*ach->getContent("info")->data.text = a->info;
-		ach->getContent("icon")->data.img = &a->icon;
+		*ach->getContent("title")->data.text = "NO ACHIEVEMENTS UNLOCKED!";
+		ach->getContent("icon")->data.img = NULL;
 		
 		ui_achievements->addChild(ach);
 		
 		ach->genScriptVar();
 		ach->linkScriptVar();
 		
+		return;
+	}
+	
+	int spacing = 2;//(*c)["spacing"]->getInt();
+	int columns = 4;//(*c)["columns"]->getInt();
+	
+	int xOffset = -((ui_ach_single->area.w + spacing) * columns - spacing) / 2 + ui_ach_single->area.w / 2;
+	int yOffset = -((ui_ach_single->area.h + spacing) * floor(progress.unlockedAch.size() / columns)) / 2 + ui_ach_single->area.h / 2;
+	
+	int col = 0, row = 0;
+	
+	if (progress.unlockedAch.size() < columns){
+		xOffset = -((ui_ach_single->area.w + spacing) * (int(progress.unlockedAch.size()) - columns * row) - spacing) / 2 + ui_ach_single->area.w / 2;
+	}
+	
+	LOG("Drawing " << progress.unlockedAch.size() << " achievements (" << xOffset << "," << yOffset << ")");
+	
+	for (deque<string>::iterator i = progress.unlockedAch.begin(); i != progress.unlockedAch.end(); i++) {
+		achievement* a = getAchievement(*i);
+				
+		if( !a ) continue;
+		
+		control* ach = ui_ach_single->copy();
+		
+		ach->clearScriptVar();
+		
+		ach->area.xRef = 1;
+		ach->area.yRef = 1;
+		ach->area.y = yOffset + row * (ach->area.h + spacing);
+		ach->area.x = xOffset + col * (ach->area.w + spacing);
+		
+		ach->getContent("title")->data.text = &a->name;
+		ach->getContent("info")->data.text = &a->info;
+		
+		ach->getContent("icon")->data.img = new image(a->icon);		
+		ach->getContent("icon")->data.img->userDefined = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
+		ach->getContent("icon")->data.img->userDefined->ref();
+		
+		ui_achievements->addChild(ach);
+		
+		ach->genScriptVar();
+		ach->jsVar->ref();
+		ach->linkScriptVar();
+				
 		col++;
-		if (col % columns == 0) { col = 0; row++; }
+		if (col % columns == 0) {
+			col = 0;
+			row++;
+			
+			if (row == ceil(progress.unlockedAch.size() / columns)){
+				xOffset = -((ui_ach_single->area.w + spacing) * (progress.unlockedAch.size() - columns * row) - spacing) / 2 + ui_ach_single->area.w / 2;
+			}
+		}
 	}
 }
 

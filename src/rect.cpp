@@ -122,6 +122,8 @@ rect::rect(_rect r){
 	w = r.w;
 	h = r.h;
 	
+	type = "rect";
+	
 	xRef = r.xRef;
 	yRef = r.yRef;
 	
@@ -137,6 +139,8 @@ rect::rect(int x, int y, int w, int h){
 	this->y = y;
 	this->w = w;
 	this->h = h;
+	
+	type = "rect";
 	
 	xRef = 0;
 	yRef = 0;
@@ -156,10 +160,10 @@ void rect::load(xml_node source){
 	xml_attribute a;//Attribute
 	
 	//Gets members
-	if (xml_attribute a = source.attribute( "x")) x = a.as_int();
-	if (xml_attribute a = source.attribute( "y")) y = a.as_int();
-	if (xml_attribute a = source.attribute( "w")) w = a.as_int();
-	if (xml_attribute a = source.attribute( "h")) h = a.as_int();
+	if (xml_attribute a = source.attribute("x")) x = a.as_int();
+	if (xml_attribute a = source.attribute("y")) y = a.as_int();
+	if (xml_attribute a = source.attribute("w")) w = a.as_int();
+	if (xml_attribute a = source.attribute("h")) h = a.as_int();
 	
 	if (xml_attribute a = source.attribute( "xRef")) xRef = a.as_int();
 	if (xml_attribute a = source.attribute( "yRef")) yRef = a.as_int();

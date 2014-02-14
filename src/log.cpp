@@ -15,5 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "log.h"
 
+string logIndent = "";
 ofstream outputLog (FILE_LOG);
 int logTime = 0;

@@ -427,7 +427,27 @@ int globalProgress::percent(string id){
 
 ////TO DO//////////////
 void globalProgress::check(){
-	verifyAchs();
+	iterator i;
+	
+	for (i = begin(); i != end(); i++){
+		string packId = "";//Pack id
+
+		packId = i->id.substr(0, i->id.find("."));//Pack id
+
+		levelPack* s = getPack (packId);//Gets level pack
+
+		if (!s){//If pack is invalid
+			i = erase(i);//Erases element
+			i--;//Goes back
+		}
+	}
+	
+	for ( deque<string>::iterator i = unlockedAch.begin(); i != unlockedAch.end(); i++ ) {
+		if ( !getAchievement(*i) ) {
+			i = unlockedAch.erase(i);
+			i--;
+		}
+	}
 }
 
 //Current progress
@@ -673,6 +693,13 @@ bool levelPack_compare(levelPack* a, levelPack* b){
 }
 
 list <levelPack*> levelPacks;//Loaded level packs
+
+levelPack* getPack ( string id ) {
+	for ( list<levelPack*>::iterator i = levelPacks.begin(); i != levelPacks.end(); i++ )
+		if ((*i)->id == id) return *i;
+		
+	return NULL;
+}
 
 void loadLevelPacks(){
 	list<string> packs = listFiles(FOLDER_LEVELS);

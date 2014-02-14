@@ -213,6 +213,9 @@ bool levelPack_compare(levelPack*, levelPack*);
 
 extern list<levelPack*> levelPacks;//Loaded level packs
 
+//Returns required level pack
+levelPack* getPack(string);
+
 //Function to load level packs
 void loadLevelPacks();
 

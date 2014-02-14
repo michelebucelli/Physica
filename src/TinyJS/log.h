@@ -22,18 +22,16 @@ LOG MANAGEMENT
 
 #include <iostream>
 #include <fstream>
-#include <string>
 
 #include "files.h"
 
 using namespace std;
 
-extern string logIndent;
 extern ofstream outputLog;
 extern int logTime;
 
 #define LOG_HEADING									outputLog << "=========================== BEGINNING PROGRAM EXECUTION  ===========================\n"
-#define LOG(MSG)									outputLog << logIndent << MSG << endl;
+#define LOG(MSG)									outputLog << MSG << endl;
 #define LOG_HR										outputLog << "====================================================================================\n"
 #define LOG_CLOSING_STD								outputLog << "========================= PROGRAM TERMINATED SUCCESSFULLY  =========================\n"
 
@@ -47,8 +45,5 @@ extern int logTime;
 #define LOG_WARN(MESSAGE)							outputLog << "WARNING: " << MESSAGE << endl
 #define LOG_CHECK(CONDITION,MESSAGE)				if (!CONDITION) outputLog << "WARNING: " << MESSAGE << endl
 #define LOG_ERR(MESSAGE)							outputLog << "ERROR:   " << MESSAGE << endl
-
-#define LOG_INDENT									logIndent += " "
-#define LOG_UNINDENT								if (logIndent.size() > 0) logIndent.erase(logIndent.size() - 1)
 
 #endif

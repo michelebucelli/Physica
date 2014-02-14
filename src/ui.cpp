@@ -1141,6 +1141,8 @@ controlContent* control::getContent(string id){
 control* control::copy(){
 	control* result = new control (*this);
 	
+	result->clearScriptVar();
+	
 	result->userDefined = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
 	result->userDefined->ref();
 	result->userDefined->setString("userDefined");
@@ -1156,6 +1158,7 @@ control* control::copy(){
 	result->prevSibling = NULL;
 	
 	result->genScriptVar();
+	result->jsVar->ref();
 	
 	for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
 		addChild((*i)->copy());

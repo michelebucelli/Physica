@@ -139,6 +139,7 @@ int main(int argc, char** argv){
 			ui_menu.handleEvents(NULL, windowRect);
 			ui_menu.refresh();
 			
+			progress.verifyAchs();
 			progress.check();
 			
 			if (currentGame.completed && ui_levelClear->cStatus == cs_disabled){

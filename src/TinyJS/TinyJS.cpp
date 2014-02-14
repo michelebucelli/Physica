@@ -135,6 +135,8 @@
 #include <cstdlib>
 #include <stdio.h>
 
+#include "../log.h"
+
 using namespace std;
 
 #ifdef _WIN32
@@ -759,7 +761,6 @@ CScriptVar::~CScriptVar(void) {
     mark_deallocated(this);
 #endif
     removeAllChildren();
-	
 }
 
 void CScriptVar::init() {
@@ -873,12 +874,16 @@ void CScriptVar::removeLink(CScriptVarLink *link) {
 }
 
 void CScriptVar::removeAllChildren() {
-    CScriptVarLink *c = firstChild;
+	CScriptVarLink *c = firstChild;
+	
+	if(!c)return;
+	
     while (c) {
         CScriptVarLink *t = c->nextSibling;
         delete c;
         c = t;
     }
+    
     firstChild = 0;
     lastChild = 0;
 }

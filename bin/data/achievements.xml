@@ -2,8 +2,4 @@
 	<firstOfMany name="The First of Many" info="die for the first time" expression="global.deaths >= 1" checkOnce="1">
 		<icon file="(@graphics)/achievements.png"> <area x="96" y="96" w="48" h="48"></area> </icon>
 	</firstOfMany>
-	
-	<firstOfMay name="The First of May" info="die for the first time" expression="global.deaths >= 1" checkOnce="1">
-		<icon file="(@graphics)/achievements.png"> <area x="96" y="96" w="48" h="48"></area> </icon>
-	</firstOfMay>
 </achievements>
