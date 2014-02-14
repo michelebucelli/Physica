@@ -43,6 +43,7 @@ class controls: public content {
 	SDL_Scancode up, left, right;//Movement keys
 	
 	controls();
+	controls(const controls&);
 	void load(xml_node);
 	void save(xml_node*);
 };
@@ -97,6 +98,7 @@ class rules: public content, public _rules {
 	public:
 	
 	rules();
+	rules(const rules&);
 	void load(xml_node);
 };
 
@@ -111,6 +113,7 @@ class area: public rect {
 	rules areaRules;//Rules applied within the area
 	
 	area();
+	area(const area&);
 	void load(xml_node);
 };
 
@@ -150,6 +153,7 @@ class achievement: public content {
 	bool checkOnce;
 	
 	achievement();
+	achievement(const achievement&);
 	achievement(string, string, string, string, image, bool);
 	void load(xml_node);
 	

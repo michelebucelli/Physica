@@ -60,6 +60,7 @@ class image: public renderable {
 	int tw, th;//Actual size of the texture
 	
 	image();
+	image(const image&);
 	~image();
 	
 	//Function to print the image

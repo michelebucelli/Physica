@@ -43,6 +43,16 @@ image::image(){
 	type = "image";
 }
 
+image::image ( const image& i ) : renderable (i) {
+	texture = i.texture;
+	useRect = i.useRect;
+	
+	tw = i.tw;
+	th = i.th;
+	
+	area = rect ( i.area );
+}
+
 //Image destructor
 image::~image(){
 }

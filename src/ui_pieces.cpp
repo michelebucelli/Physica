@@ -289,6 +289,7 @@ void drawLevelSelect(){
 		
 		for (int j = 0; j < bpr && l < levCount; j++, l++){
 			control *btn = ui_lev_button->copy();
+			btn->clearScriptVar();
 
 			btn->id = selectedPack->levels[l]->id;
 			
@@ -314,6 +315,8 @@ void drawLevelSelect(){
 			(*btn)["levelIndex"]->setInt(l);//Level index is stored within the script variable "levelIndex" inside the button
 			
 			ui_levelSelMenu->addChild(btn);
+			
+			btn->genScriptVar();
 		}
 	}
 	
@@ -422,8 +425,8 @@ void achShow(control* c, eventData* d){
 		return;
 	}
 	
-	int spacing = 2;//(*c)["spacing"]->getInt();
-	int columns = 4;//(*c)["columns"]->getInt();
+	int spacing = (*c)["spacing"]->getInt();
+	int columns = (*c)["columns"]->getInt();
 	
 	int xOffset = -((ui_ach_single->area.w + spacing) * columns - spacing) / 2 + ui_ach_single->area.w / 2;
 	int yOffset = -((ui_ach_single->area.h + spacing) * floor(progress.unlockedAch.size() / columns)) / 2 + ui_ach_single->area.h / 2;
@@ -451,17 +454,14 @@ void achShow(control* c, eventData* d){
 		ach->area.x = xOffset + col * (ach->area.w + spacing);
 		
 		ach->getContent("title")->data.text = &a->name;
-		ach->getContent("info")->data.text = &a->info;
-		
-		ach->getContent("icon")->data.img = new image(a->icon);		
-		ach->getContent("icon")->data.img->userDefined = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
-		ach->getContent("icon")->data.img->userDefined->ref();
+		ach->getContent("info")->data.text = &a->info;		
+		ach->getContent("icon")->data.img = new image(a->icon);
 		
 		ui_achievements->addChild(ach);
 		
 		ach->genScriptVar();
 		ach->jsVar->ref();
-		ach->linkScriptVar();
+		//ach->linkScriptVar();
 				
 		col++;
 		if (col % columns == 0) {

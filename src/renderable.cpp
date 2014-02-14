@@ -16,6 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "renderable.h"
 #include "image.h"
 
+renderable::renderable () { }
+renderable::renderable (const renderable& r) : content (r) { }
+renderable::~renderable () { }
+
 //Function to load a renderable from XML
 renderable* renderableFromXML(xml_node source){
 	renderable* result = NULL;

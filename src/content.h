@@ -50,6 +50,7 @@ class content {
 	CScriptVar* userDefined;
 	
 	content();
+	content(const content&);
 	content(string);
 	~content();
 	

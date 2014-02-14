@@ -52,6 +52,7 @@ class rect: public content, public _rect {
 	
 	rect();
 	rect(_rect);
+	rect(rect&);
 	rect (int, int, int, int);
 	
 	//Function to load from XML

@@ -35,6 +35,15 @@ content::content (string id){
 	userDefined->setString("userDefined");
 }
 
+content::content ( const content &c ) {
+	this->id = c.id;
+	this->type = c.type;
+	
+	userDefined = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_OBJECT);
+	userDefined->ref();
+	userDefined->setString("userDefined");
+}
+
 //Content destructor
 content :: ~content(){
 	userDefined->unref();
@@ -105,7 +114,7 @@ void content::toJSVar(CScriptVar* c){
 	c->findChildOrCreate("id")->var->setString(id);
 	c->findChildOrCreate("type")->var->setString(type);
 	
-	c->addChildNoDup("userDefined", userDefined);
+	if (userDefined) c->addChildNoDup("userDefined", userDefined);
 }
 
 //Function to load from javascript variable

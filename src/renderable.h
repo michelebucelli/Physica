@@ -29,6 +29,10 @@ objects
 class renderable: public content {
 	public:
 	
+	renderable();
+	renderable(const renderable&);
+	~renderable();
+	
 	//Print function
 	//Prints the renderable object with position relative to top left corner
 	virtual void print(SDL_Renderer*, int, int) = 0;

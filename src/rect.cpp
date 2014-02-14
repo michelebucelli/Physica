@@ -133,6 +133,21 @@ rect::rect(_rect r){
 	hEasing = NULL;
 }
 
+rect::rect ( rect &r ) : content(r) {	
+	x = r.x;
+	y = r.y;
+	w = r.w;
+	h = r.h;
+	
+	xRef = r.xRef;
+	yRef = r.yRef;
+	
+	xEasing = NULL;
+	yEasing = NULL;
+	wEasing = NULL;
+	hEasing = NULL;
+}
+
 //Rectangle constructor from data
 rect::rect(int x, int y, int w, int h){
 	this->x = x;

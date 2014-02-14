@@ -21,6 +21,12 @@ controls::controls(){
 	right = SDL_SCANCODE_RIGHT;
 }
 
+controls::controls ( const controls &c ) : content ( c ) {
+	up = c.up;
+	left = c.left;
+	right = c.right;
+}
+
 void controls::load(xml_node source){
 	content::load(source);
 	
@@ -90,6 +96,18 @@ _rules::_rules(){
 rules::rules(){
 }
 
+rules::rules(const rules &r) : content(r) {
+	mask = r.mask;
+	jumpImpulse = r.jumpImpulse;
+	groundSpeed = r.groundSpeed;
+	groundForce = r.groundForce;
+	groundDamping = r.groundDamping;
+	airSpeed = r.airSpeed;
+	airForce = r.airForce;
+	gravity = r.gravity;
+	jumpCount = r.jumpCount;
+}
+
 void rules::load(xml_node source){
 	content::load(source);
 	
@@ -129,6 +147,10 @@ void _rules::operator += (_rules r){
 rules defaultRules, loadedRules;
 
 area::area(){
+}
+
+area::area(const area& a) : rect (a) {
+	areaRules = rules(a.areaRules);
 }
 
 void area::load(xml_node source){
@@ -198,6 +220,15 @@ achievement::achievement(){
 	info = "";
 	checkOnce = true;
 	expression = "";
+}
+
+achievement::achievement(const achievement &a) : content (a) {
+	name = a.name;
+	info = a.info;
+	checkOnce = a.checkOnce;
+	expression = a.expression;
+	
+	icon = image(a.icon);
 }
 
 achievement::achievement (string id, string name, string info, string verify, image icon, bool checkOnce){
