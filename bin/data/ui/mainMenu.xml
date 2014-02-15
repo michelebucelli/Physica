@@ -22,10 +22,10 @@
 			</content>
 			
 			<event type="onMouseUp"> <script>
-					importScript("(@script)/control_funcs.js");
-					
-					menu_hide(caller.parent, -1);
-					menu_show(caller.parent.parent.levelPackSelect, 1);
+				importScript("(@script)/control_funcs.js");
+			
+				menu_hide(caller.parent, -1);
+				menu_show(caller.parent.parent.levelPackSelect, 1);
 			</script> </event>
 		</playButton>
 		

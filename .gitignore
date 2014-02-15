@@ -4,6 +4,6 @@
 bin/*.log
 *.zip
 progress.xml
-settings.xml
+*/settings.xml
 *~
-bin/test
+bin/exe

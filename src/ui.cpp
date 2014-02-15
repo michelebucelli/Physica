@@ -789,7 +789,7 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 			data.data.mouse.y = e->button.y;
 			data.data.mouse.button = e->button.button;
 			
-			triggerEvent("onMouseDown", &data, disabled);
+			if (e->button.button == 1) triggerEvent("onMouseDown", &data, disabled);
 		}
 		
 		if (e->type == SDL_MOUSEBUTTONUP && inside){
@@ -801,7 +801,7 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 			data.data.mouse.y = e->button.y;
 			data.data.mouse.button = e->button.button;
 			
-			triggerEvent("onMouseUp", &data, disabled);
+			if (e->button.button == 1) triggerEvent("onMouseUp", &data, disabled);
 		}
 		
 		if (e->type == SDL_MOUSEBUTTONDOWN && !inside){
