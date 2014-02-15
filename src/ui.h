@@ -32,6 +32,7 @@ a control
 #include "image.h"
 #include "viewport.h"
 #include "files.h"
+#include "locale.h"
 
 #include "SDL2/SDL_ttf.h"
 

@@ -58,6 +58,7 @@ string preprocessFilePath(string filePath){
 void folderDebug(ostream &o){
 	o << "PROGRAM FOLDERS STRUCTURE:" << endl;
 	o << "  DATA         " << FOLDER_DATA << endl;
+	o << "  LOCALE       " << FOLDER_LOCALE << endl;
 	o << "  GRAPHICS     " << FOLDER_GRAPHICS << endl;
 	o << "  AUDIO        " << FOLDER_AUDIO << endl;
 	o << "  FONTS        " << FOLDER_FONTS << endl;

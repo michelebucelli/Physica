@@ -1,0 +1,71 @@
+# Italian translations for PACKAGE package
+# Traduzioni italiane per il pacchetto PACKAGE..
+# Copyright (C) 2014 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# Michele <michelebucelli@alice.it>, 2014.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: 1\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-02-15 18:34+0100\n"
+"PO-Revision-Date: 2014-02-15 18:36+0100\n"
+"Last-Translator: Michele <michelebucelli@alice.it>\n"
+"Language-Team: Italian\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: output:1
+msgid "PHYSICA"
+msgstr ""
+
+#: output:2
+msgid "Fullscreen"
+msgstr "Schermo intero"
+
+#: output:3
+msgid "Enable SFX"
+msgstr "Abilita suono"
+
+#: output:4
+msgid "Enable debug mode"
+msgstr "Abilita modalità debug"
+
+#: output:5
+msgid "Jump"
+msgstr "Salta"
+
+#: output:6
+msgid "Left"
+msgstr "Sinistra"
+
+#: output:7
+msgid "Right"
+msgstr "Destra"
+
+#: output:8
+msgid "Language"
+msgstr "Lingua"
+
+#: output:9
+msgid "English"
+msgstr "Inglese"
+
+#: output:10
+msgid "Italiano"
+msgstr "Italiano"
+
+#: output:11
+msgid "Back"
+msgstr "Indietro"
+
+#: output:12
+msgid "SUCCESS!"
+msgstr "VITTORIA!"
+
+#: output:13
+msgid "next"
+msgstr "Avanti"

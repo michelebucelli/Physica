@@ -578,7 +578,7 @@ void controlContent::print(SDL_Renderer* target, rect r, theme* t){
 		if (i == t->fonts.end()) return;//Exits function if fails finding the font
 		if (!i->f) return;
 		
-		SDL_Surface* text = i->render(*data.text);
+		SDL_Surface* text = i->render(_(data.text->c_str()));
 		if (!text) { SDL_FreeSurface(text); return; }
 		
 		SDL_Texture* t = SDL_CreateTextureFromSurface(target, text);

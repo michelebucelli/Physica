@@ -40,6 +40,7 @@ using namespace std;
 #define _FOLDER_UI			_FOLDER_DATA/ui
 #define _FOLDER_SETTINGS	data/settings
 #define _FOLDER_LEVELS		_FOLDER_DATA/levels
+#define _FOLDER_LOCALE		_FOLDER_DATA/locale
 
 //Folder path macros (strings with quotes)
 #define FOLDER_DATA			STR(_FOLDER_DATA)
@@ -50,6 +51,7 @@ using namespace std;
 #define FOLDER_UI			STR(_FOLDER_UI)
 #define FOLDER_SETTINGS		STR(_FOLDER_SETTINGS)
 #define FOLDER_LEVELS		STR(_FOLDER_LEVELS)
+#define FOLDER_LOCALE		STR(_FOLDER_LOCALE)
 
 
 
