@@ -14,7 +14,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ui.h"
-#include <iostream>
 
 //Color constructor
 color::color(){	
@@ -42,7 +41,7 @@ void color::load(xml_node source){
 	content::load(source);
 	
 	//NOTE: loading from value needs to be improved with HEX support
-	if (xml_attribute a = source.attribute( "value")) fromInt(a.as_int());
+	if (xml_attribute a = source.attribute("value")) fromInt(a.as_int());
 	
 	else {
 		//If integer value was not found loads individual components
@@ -95,7 +94,7 @@ font::font(){
 
 //Font function to render a text
 SDL_Surface* font::render(string text){
-	return TTF_RenderText_Blended(f, text.c_str(), col);
+	return TTF_RenderUTF8_Blended(f, text.c_str(), col);
 }
 
 //List of the registered font errors

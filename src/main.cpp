@@ -73,7 +73,7 @@ void init(){
 	REPORT_RES_TIME  (IMG_Init(IMG_INIT_PNG), 		    "  Initialized SDL_image");
 	REPORT_RES_TIME  (TTF_Init(),                       "  Initialized SDL_ttf");
 	
-	REPORT_TIME  (initLocale(),						"	Initialized locale");
+	REPORT_TIME  (initLocale(),						"   Initialized locale");
 	REPORT_TIME  (loadSettings(),                   "   Loaded settings");
 	REPORT_TIME  (loadProgress(),					"   Loaded player progress");
 	REPORT_TIME  (initViewport(),                   "   Initialized viewport");

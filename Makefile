@@ -10,10 +10,13 @@ LINKING= -L/usr/local/lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_gfx -lSDL2_ttf
 # SOURCE FILES
 SOURCE= src/*.cpp src/TinyJS/*.cpp src/PugiXML/*.cpp
 
+# HEADER FILES
+HEADERS= src/*.h src/TinyJS/*.h src/PugiXML/*.hpp
+
 # OUTPUT
 OUTPUT= bin/exe
 
-$(OUTPUT): $(SOURCE)
+$(OUTPUT): $(SOURCE) $(HEADERS)
 	@echo "Building"
 	@$(CC) $(CFLAGS) -o $(OUTPUT) $(SOURCE) $(LINKING)
 

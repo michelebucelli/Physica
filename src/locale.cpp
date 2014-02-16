@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 void initLocale(){
 	setlocale(LC_MESSAGES, "");
-	bindtextdomain("physica", FOLDER_LOCALE);
-	textdomain("physica");
+	bindtextdomain("interface", FOLDER_LOCALE);
+	bind_textdomain_codeset("interface", "utf-8");
+	textdomain("interface");
 }

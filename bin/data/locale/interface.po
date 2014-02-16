@@ -6,7 +6,7 @@
 #, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: PACKAGE VERSION\n"
+"Project-Id-Version: 0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-15 18:34+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
@@ -14,61 +14,53 @@ msgstr ""
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: output:1
+# Game title in main menu
 msgid "PHYSICA"
 msgstr ""
 
-#: output:2
+# Fullscreen option in settings screen
 msgid "Fullscreen"
 msgstr ""
 
-#: output:3
+# Enable SFX option in settings screen
 msgid "Enable SFX"
 msgstr ""
 
-#: output:4
+# Enable debug mode option in settings screen
 msgid "Enable debug mode"
 msgstr ""
 
-#: output:5
+# Jump command in settings screen
 msgid "Jump"
 msgstr ""
 
-#: output:6
+# Left command in settings screen (also used for left arrow key)
 msgid "Left"
 msgstr ""
 
-#: output:7
+# Right command in settings screen (also used for right arrow key)
 msgid "Right"
 msgstr ""
 
-#: output:8
+# Up arrow key
+msgid "Up"
+msgstr ""
+
+# Language in settings screen
 msgid "Language"
 msgstr ""
 
-#: output:9
-msgid "English"
-msgstr ""
-
-#: output:10
-msgid "Italiano"
-msgstr ""
-
-#: output:11
+# Back in settings screen and in success screen
 msgid "Back"
 msgstr ""
 
-#: output:12
+# Next in success screen
+msgid "Next"
+msgstr ""
+
+# Success screen title
 msgid "SUCCESS!"
-msgstr ""
-
-#: output:13
-msgid "next"
-msgstr ""
-
-#: output:14
-msgid "back"
 msgstr ""
