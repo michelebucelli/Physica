@@ -8,6 +8,7 @@
 		<game externFile="(@ui)/game.xml" importedNode="base" />
 		<settings externFile="(@ui)/settingsMenu.xml" importedNode="base" />
 		<achievements externFile="(@ui)/achievementsMenu.xml" importedNode="base" />
+		<packEditor externFile="(@ui)/packEditor.xml" importedNode="base" />
 		<credits externFile="(@ui)/creditsMenu.xml" importedNode="base" />
 		<successScreen externFile="(@ui)/successScreen.xml" importedNode="base" />
 	</children>

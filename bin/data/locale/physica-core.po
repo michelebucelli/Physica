@@ -1,9 +1,6 @@
-# SOME DESCRIPTIVE TITLE.
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# PHYSICA
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-#
-#, fuzzy
+
 msgid ""
 msgstr ""
 "Project-Id-Version: 0\n"
@@ -16,6 +13,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+
+# MAIN INTERFACE ELEMENTS
 
 # Game title in main menu
 msgid "PHYSICA"
@@ -63,4 +62,13 @@ msgstr ""
 
 # Success screen title
 msgid "SUCCESS!"
+msgstr ""
+
+# CORE ACHIEVEMENT STRINGS
+
+# 'First of many' achievement
+msgid "The First of Many"
+msgstr ""
+
+msgid "die for the first time"
 msgstr ""

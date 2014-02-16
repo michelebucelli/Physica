@@ -74,14 +74,14 @@
 			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_over" />
 			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_pressed" />
 	
-			<area x="30" y="260" w="72" h="32" xRef="2"/>
+			<area x="30" y="260" w="96" h="32" xRef="2"/>
 			
 			<content>
 				<icon type="image" x_right="8" y_centre="0">
 					<image file="(@graphics)/icons.png"> <area x="80" y="0" w="16" h="16" /> </image>
 				</icon>
 				
-				<label type="text" x_right="32" y_centre="0" text="next" fontId="smallFont" />
+				<label type="text" x_right="32" y_centre="0" text="Next" fontId="smallFont" />
 			</content>
 		</next>
 		
@@ -90,14 +90,14 @@
 			<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_small_over" />
 			<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_small_pressed" />
 	
-			<area x="30" y="260" w="72" h="32" xRef="0"/>
+			<area x="30" y="260" w="96" h="32" xRef="0"/>
 			
 			<content>
 				<icon type="image" x_left="8" y_centre="0">
 					<image file="(@graphics)/icons.png"> <area x="64" y="0" w="16" h="16" /> </image>
 				</icon>
 				
-				<label type="text" x_left="32" y_centre="0" text="back" fontId="smallFont" />
+				<label type="text" x_left="32" y_centre="0" text="Back" fontId="smallFont" />
 			</content>
 		</back>
 	</children>

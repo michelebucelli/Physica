@@ -1,0 +1,72 @@
+# PHYSICA
+# Michele <michelebucelli@alice.it>, 2014.
+msgid ""
+msgstr ""
+"Project-Id-Version: 0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2014-02-15 18:34+0100\n"
+"PO-Revision-Date: 2014-02-16 16:40+0100\n"
+"Last-Translator: Michele <michelebucelli@alice.it>\n"
+"Language-Team: Italian\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# MAIN INTERFACE ELEMENTS
+# Game title in main menu
+msgid "PHYSICA"
+msgstr ""
+
+# Fullscreen option in settings screen
+msgid "Fullscreen"
+msgstr "Schermo intero"
+
+# Enable SFX option in settings screen
+msgid "Enable SFX"
+msgstr "Abilita suono"
+
+# Enable debug mode option in settings screen
+msgid "Enable debug mode"
+msgstr "Abilita modalità debug"
+
+# Jump command in settings screen
+msgid "Jump"
+msgstr "Salta"
+
+# Left command in settings screen (also used for left arrow key)
+msgid "Left"
+msgstr "Sinistra"
+
+# Right command in settings screen (also used for right arrow key)
+msgid "Right"
+msgstr "Destra"
+
+# Up arrow key
+msgid "Up"
+msgstr "Su"
+
+# Language in settings screen
+msgid "Language"
+msgstr "Lingua"
+
+# Back in settings screen and in success screen
+msgid "Back"
+msgstr "Indietro"
+
+# Next in success screen
+msgid "Next"
+msgstr "Avanti"
+
+# Success screen title
+msgid "SUCCESS!"
+msgstr "VITTORIA!"
+
+# CORE ACHIEVEMENT STRINGS
+# 'First of many' achievement
+msgid "The First of Many"
+msgstr "La Prima di Molte"
+
+msgid "die for the first time"
+msgstr "muori per la prima volta"

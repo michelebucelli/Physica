@@ -1,0 +1,23 @@
+<base status="2" visible="0">
+	<children>
+		<title externFile="(@ui)/presets.xml" importedNode="label">
+			<area x="32" y="32" w="96" h="96" />
+			<content>
+				<text type="text" text="Level Pack Editor" x_left="0" y_top="0" fontId="aveFont" />
+			</content>
+		</title>
+		
+		<properties externFile="(@ui)/presets.xml" importedNode="panel" draggable="1">
+			<area x="32" y="128" w="128" h="128" />
+		</properties>
+	</children>
+	
+	<event type="onKeyDown"> <script>
+			if (event.key == key_escape && caller.upKey.status != status_active && caller.leftKey.status != status_active && caller.rightKey.status != status_active){
+				importScript("(@script)/control_funcs.js");
+				
+				menu_hide(caller, 1);
+				menu_show(caller.parent.mainMenu, -1);
+			}
+	</script> </event>
+</base>

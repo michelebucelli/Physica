@@ -37,6 +37,13 @@
 					<image file="(@graphics)/icons.png"> <area x="128" y="0" w="32" h="32" /> </image>
 				</icon>
 			</content>
+			
+			<event type="onMouseUp"> <script>
+				importScript("(@script)/control_funcs.js");
+			
+				menu_hide(caller.parent, -1);
+				menu_show(caller.parent.parent.packEditor, 1);
+			</script> </event>
 		</editorButton>
 		
 		<settingsButton externFile="(@ui)/presets.xml" importedNode="button_big">

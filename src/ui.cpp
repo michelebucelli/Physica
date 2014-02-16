@@ -678,6 +678,11 @@ control::control(){
 		themes[i] = NULL;
 	
 	dontUseAsReference = false;
+	draggable = false;
+	dragging = false;
+	dragInitialX = 0; dragInitialY = 0;
+	
+	clickThrough = false;
 	
 	visible = true;
 	
@@ -769,9 +774,14 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 	
 	mState = SDL_GetMouseState(&mX, &mY);//Gets mouse state
 	
-	bool inside = isInside(mX, mY, ref);
-	
 	disabled = disabled || cStatus == cs_disabled;
+	
+	if (e && e->type == SDL_MOUSEMOTION && dragging){
+		area.x = mX - dragInitialX;
+		area.y = mY - dragInitialY;
+	}
+	
+	bool inside = isInside(mX, mY, ref);
 	
 	//Gets mouse status
 	if (inside && mState & SDL_BUTTON_LEFT) mStatus = ms_pressed;
@@ -789,6 +799,20 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 			data.data.mouse.button = e->button.button;
 			
 			if (e->button.button == 1) triggerEvent("onMouseDown", &data, disabled);
+			
+			if (draggable){
+				bool insideChildren = false;
+				
+				for (list<control*>::iterator i = children.begin(); i != children.end(); i++) {
+					if (((*i)->mStatus == ms_over || (*i)->mStatus == ms_pressed) && !(*i)->clickThrough){ insideChildren = true; break; }
+				}
+				
+				if (!insideChildren){
+					dragging = true;
+					dragInitialX = mX - area.x;
+					dragInitialY = mY - area.y;
+				}
+			}
 		}
 		
 		if (e->type == SDL_MOUSEBUTTONUP && inside){
@@ -799,8 +823,10 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 			data.data.mouse.x = e->button.x;
 			data.data.mouse.y = e->button.y;
 			data.data.mouse.button = e->button.button;
-			
+						
 			if (e->button.button == 1) triggerEvent("onMouseUp", &data, disabled);
+			
+			if (dragging) dragging = false;
 		}
 		
 		if (e->type == SDL_MOUSEBUTTONDOWN && !inside){
@@ -826,6 +852,8 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 			
 			triggerEvent("onMouseUp_outside", &data, disabled);
 		}
+		
+		if (dragging && !inside) dragging = false;
 		
 		if (e->type == SDL_KEYDOWN){//On key down event
 			eventData data;
@@ -911,6 +939,9 @@ void control::load(xml_node source){
 	if (xml_attribute a = source.attribute("status")) cStatus = controlStatus (a.as_int() * 3);
 	if (xml_attribute a = source.attribute("visible")) visible = a.as_int();
 	
+	if (xml_attribute a = source.attribute("draggable")) draggable = a.as_int();
+	if (xml_attribute a = source.attribute("clickThrough")) clickThrough = a.as_int();
+	
 	//Gets content
 	for (xml_node n = source.child("content"); n; n = n.next_sibling("content")){//If content node is found
 		for (xml_node child = n.first_child(); child; child = child.next_sibling()){//For each child
@@ -955,6 +986,8 @@ void control::toJSVar(CScriptVar* c){
 	c->findChildOrCreate("visible")->var->setInt(visible);
 	area.toJSVar(c->findChildOrCreate("area")->var);
 	mask.toJSVar(c->findChildOrCreate("mask")->var);
+	c->findChildOrCreate("draggable")->var->setInt(draggable);
+	c->findChildOrCreate("clickThrough")->var->setInt(clickThrough);
 	
 	CScriptVar* contentVar = c->addChildNoDup("content")->var;
 	
@@ -1018,6 +1051,8 @@ void control::fromJSVar(CScriptVar* c){
 	if (CScriptVarLink* v = c->findChild("mask")) mask.fromJSVar(v->var);
 	if (CScriptVarLink* v = c->findChild("dontUseAsReference")) dontUseAsReference = v->var->getInt();	
 	if (CScriptVarLink* v = c->findChild("visible")) visible = v->var->getInt();
+	if (CScriptVarLink* v = c->findChild("draggable")) draggable = v->var->getInt();
+	if (CScriptVarLink* v = c->findChild("clickThrough")) clickThrough = v->var->getInt();
 }
 
 //Function to clear script variable
