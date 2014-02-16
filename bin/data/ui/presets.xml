@@ -215,27 +215,51 @@
 <!-- SEPARATOR -->
 <separator type="separator">
 	<theme_normal_outside>
-		<left file="(@graphics)/ui.png"> <area x="96" y="112" w="8" h="4" /> </left>
-		<centre file="(@graphics)/ui.png"> <area x="104" y="112" w="8" h="4" /> </centre>
-		<right file="(@graphics)/ui.png"> <area x="112" y="112" w="8" h="4" /> </right>
+		<left file="(@graphics)/ui.png"> <area x="64" y="36" w="8" h="2" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="72" y="36" w="8" h="2" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="80" y="36" w="8" h="2" /> </right>
 	</theme_normal_outside>
 	
 	<theme_normal_over>
-		<left file="(@graphics)/ui.png"> <area x="96" y="112" w="8" h="4" /> </left>
-		<centre file="(@graphics)/ui.png"> <area x="104" y="112" w="8" h="4" /> </centre>
-		<right file="(@graphics)/ui.png"> <area x="112" y="112" w="8" h="4" /> </right>
+		<left file="(@graphics)/ui.png"> <area x="64" y="36" w="8" h="2" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="72" y="36" w="8" h="2" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="80" y="36" w="8" h="2" /> </right>
 	</theme_normal_over>
 	
 	<theme_normal_pressed>
-		<left file="(@graphics)/ui.png"> <area x="96" y="112" w="8" h="4" /> </left>
-		<centre file="(@graphics)/ui.png"> <area x="104" y="112" w="8" h="4" /> </centre>
-		<right file="(@graphics)/ui.png"> <area x="112" y="112" w="8" h="4" /> </right>
+		<left file="(@graphics)/ui.png"> <area x="64" y="36" w="8" h="2" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="72" y="36" w="8" h="2" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="80" y="36" w="8" h="2" /> </right>
 	</theme_normal_pressed>
 	
 	<event type="onLoad" status="-2"> <script>
-		caller.area.h = 4;
+		caller.area.h = 2;
 	</script> </event>
 </separator>
+
+<separator_light type="separator">
+	<theme_normal_outside>
+		<left file="(@graphics)/ui.png"> <area x="96" y="36" w="8" h="2" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="104" y="36" w="8" h="2" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="112" y="36" w="8" h="2" /> </right>
+	</theme_normal_outside>
+	
+	<theme_normal_over>
+		<left file="(@graphics)/ui.png"> <area x="96" y="36" w="8" h="2" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="104" y="36" w="8" h="2" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="112" y="36" w="8" h="2" /> </right>
+	</theme_normal_over>
+	
+	<theme_normal_pressed>
+		<left file="(@graphics)/ui.png"> <area x="96" y="36" w="8" h="2" /> </left>
+		<centre file="(@graphics)/ui.png"> <area x="104" y="36" w="8" h="2" /> </centre>
+		<right file="(@graphics)/ui.png"> <area x="112" y="36" w="8" h="2" /> </right>
+	</theme_normal_pressed>
+	
+	<event type="onLoad" status="-2"> <script>
+		caller.area.h = 2;
+	</script> </event>
+</separator_light>
 
 <!-- FILLBAR -->
 <fillbar type="fillbar">
@@ -321,3 +345,66 @@
 		</slider>
 	</children>	
 </slider>
+
+<!--FOLDABLE PANEL-->
+<foldPanel type="panel">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_disabled_outside externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_disabled_over	 externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	<theme_disabled_pressed externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	
+	<content>
+		<title type="text" text="" x_left="12" y_top="8" fontId="midFont" />
+	</content>
+	
+	<children>
+		<collapse externFile="(@ui)/presets.xml" importedNode="button_round">
+			<area x="4" y="4" xRef="2" />
+			
+			<content>
+				<icon type="image" x_centre="0" y_centre="0">
+					<image file="(@graphics)/icons.png"><area x="224" y="32" w="16" h="16" /></image>
+				</icon>
+			</content>
+			
+			<event type="onMouseUp"><script>
+				<![CDATA[
+				
+				if (!caller.parent.userDefined.collapsed){
+					var c;
+					
+					for (c = caller.firstChild; c; c = c.nextSibling) {
+						if (c.area.y > 40) c.visible = 0;
+					}
+					
+					importScript("(#easings)");
+					
+					caller.parent.userDefined.initialH = caller.parent.area.h;
+					caller.parent.area.setEasingH ( caller.parent.area.h, 40 - caller.parent.area.h, 400, easings.quarticInOut, 0, 0 );
+					
+					caller.parent.userDefined.collapsed = 1;
+					
+					caller.content.icon.image.area.y = 48;
+				}
+				
+				else {
+					importScript("(#easings)");
+					caller.parent.area.setEasingH ( caller.parent.area.h, caller.parent.userDefined.initialH - caller.parent.area.h, 400, easings.quarticInOut, 0, 0 );
+					caller.parent.userDefined.collapsed = 0;
+					
+					caller.content.icon.image.area.y = 32;
+					
+					var c;
+					
+					for (c = caller.firstChild; c; c = c.nextSibling) {
+						if (c.area.y > 40) c.visible = 1;
+					}
+				}
+				
+				]]>
+			</script></event>
+		</collapse>
+	</children>
+</foldPanel>
