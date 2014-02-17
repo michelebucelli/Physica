@@ -34,7 +34,7 @@
 					<image file="(@graphics)/icons.png"> <area x="16" y="0" w="16" h="16" /> </image>
 				</icon>
 				
-				<label type="text" x_left="32" y_centre="0" text="00:00:00" fontId="monoFont" />
+				<label type="text" x_left="32" y_centre="0" text="[0,2,0]:[1,2,0]:[2,2,0]" fontId="monoFont" />
 			</content>
 		</timer>
 		
@@ -50,7 +50,7 @@
 					<image file="(@graphics)/icons.png"> <area x="48" y="0" w="16" h="16" /> </image>
 				</icon>
 				
-				<label type="text" x_left="32" y_centre="0" text="000" fontId="monoFont" />
+				<label type="text" x_left="32" y_centre="0" text="[0,3,0]" fontId="monoFont" />
 			</content>
 		</deaths>
 		

@@ -340,13 +340,13 @@ void updateHud(){
 	controlContent* deathsText = ui_gam_deaths->getContent("label");
 	
 	if (timerText){
-		if (timerText->type == "text") *timerText->data.text = timeToString(currentGame.time);
-		else timerText->data.text = new string(timeToString(currentGame.time));
+		timerText->setTextParameter(0, toString( floor(currentGame.time/60000) ) );
+		timerText->setTextParameter(1, toString( int( floor(currentGame.time/1000) ) % 60));
+		timerText->setTextParameter(2, toString( int( floor(currentGame.time/10) ) % 100));
 	}
 	
 	if (deathsText){
-		if (deathsText->type == "text") *deathsText->data.text = (currentGame.deaths < 10 ? "00" : (currentGame.deaths < 100 ? "0" : "")) + toString(currentGame.deaths);
-		else deathsText->data.text = new string((currentGame.deaths < 10 ? "00" : (currentGame.deaths < 100 ? "0" : "")) + toString(currentGame.deaths));
+		deathsText->setTextParameter(0, toString( currentGame.deaths ));
 	}
 }
 
@@ -375,13 +375,13 @@ void lcShow(){
 	string oldtext = *timerText->data.text;
 	
 	if (timerText){
-		if (timerText->type == "text") *timerText->data.text = timeToString(currentGame.time);
-		else timerText->data.text = new string(timeToString(currentGame.time));
+		timerText->setTextParameter(0, toString( floor(currentGame.time/60000) ) );
+		timerText->setTextParameter(1, toString( int( floor(currentGame.time/1000) ) % 60));
+		timerText->setTextParameter(2, toString( int( floor(currentGame.time/10) ) % 100));
 	}
 	
 	if (deathsText){
-		if (deathsText->type == "text") *deathsText->data.text = (currentGame.deaths < 10 ? "00" : (currentGame.deaths < 100 ? "0" : "")) + toString(currentGame.deaths);
-		else deathsText->data.text = new string((currentGame.deaths < 10 ? "00" : (currentGame.deaths < 100 ? "0" : "")) + toString(currentGame.deaths));
+		deathsText->setTextParameter(0, toString( currentGame.deaths ));
 	}
 	
 	ui_menu.clearScriptVar();

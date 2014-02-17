@@ -472,7 +472,6 @@ int globalProgress::completed(string id){
 int globalProgress::percent(string id){
 }
 
-////TO DO//////////////
 void globalProgress::check(){
 	iterator i;
 	

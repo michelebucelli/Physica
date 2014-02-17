@@ -24,6 +24,7 @@ a control
 #define _UI
 
 #include <list>
+#include <deque>
 #include <algorithm>
 
 #include "TinyJS/TinyJS.h"
@@ -247,6 +248,7 @@ class event: public content {
 class controlContent: public position {
 	public:
 	
+	deque<string> textParameters;//Text parameters
 	union { string *text; renderable *img; } data;//Content data
 	string fontId;//Name of the font used to print this content (relative to fonts within given theme)
 	
@@ -263,6 +265,9 @@ class controlContent: public position {
 	
 	//Function to load from javascript variable
 	void fromJSVar(CScriptVar*);
+	
+	//Function to set a parameter to text
+	void setTextParameter(int, string);
 };
 
 //Event timeout structure

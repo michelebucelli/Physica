@@ -577,7 +577,39 @@ void controlContent::print(SDL_Renderer* target, rect r, theme* t){
 		if (i == t->fonts.end()) return;//Exits function if fails finding the font
 		if (!i->f) return;
 		
-		SDL_Surface* text = i->render(_(data.text->c_str()));
+		string s = _(data.text->c_str());
+		
+		int n = s.find("["), m = s.find("]", n);
+		while (n != s.npos && m != s.npos) {
+			string token = s.substr(n, m - n);
+			
+			int paramIndex, paddingLength;
+			string paddingChar;
+			
+			int comma = token.find(",");
+			int sndComma = comma != token.npos ? token.find(",", comma + 1) : token.npos;
+			
+			if (comma != token.npos) paramIndex = atoi(token.substr(1, comma - 1).c_str());
+			else paramIndex = atoi(token.substr(1, token.size() - 2).c_str());
+			
+			if (sndComma != token.npos) paddingLength = atoi(token.substr(comma + 1, sndComma - comma).c_str());
+			else paddingLength = atoi(token.substr(comma + 1, token.size() - 2 - comma).c_str());
+			
+			if (sndComma != token.npos) paddingChar = token.substr(sndComma + 1, token.size() - 1 - sndComma);
+			else paddingChar = " ";
+			
+			if (textParameters.size() > paramIndex){
+				string replace = textParameters[paramIndex];
+				while ( replace.size() < paddingLength ) replace = paddingChar + replace;
+				
+				s.replace ( n, token.size() + 1, replace );
+			}
+			
+			n = s.find("[", n + 1);
+			m = s.find("]", n);
+		}
+		
+		SDL_Surface* text = i->render(s);
 		if (!text) { SDL_FreeSurface(text); return; }
 		
 		SDL_Texture* t = SDL_CreateTextureFromSurface(target, text);
@@ -662,6 +694,11 @@ void controlContent::fromJSVar(CScriptVar* c){
 	}
 	
 	if (CScriptVarLink *v = c->findChild("fontId")) fontId = v->var->getString();
+}
+
+void controlContent::setTextParameter ( int index, string value ) {
+	while ( textParameters.size() <= index ) textParameters.push_back("");
+	textParameters[index] = value;
 }
 
 //Control constructor
