@@ -47,6 +47,8 @@ image::image ( const image& i ) : renderable (i) {
 	texture = i.texture;
 	useRect = i.useRect;
 	
+	filePath = i.filePath;
+	
 	tw = i.tw;
 	th = i.th;
 	

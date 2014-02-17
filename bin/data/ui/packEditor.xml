@@ -18,6 +18,17 @@
 			</script></event>
 		</properties>
 		
+		<levels externFile="(@ui)/presets.xml" importedNode="foldPanel" draggable="1">
+			<area x="24" y="320" w="280" h="600" />
+			
+			<children>
+			</children>
+			
+			<event type="onLoad" status="-2"><script>
+				caller.content.title.text = "Levels";
+			</script></event>
+		</levels>
+		
 		<back externFile="(@ui)/presets.xml" importedNode="button_round">
 			<area x="32" y="96" />
 			

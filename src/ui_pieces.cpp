@@ -440,7 +440,16 @@ void achShow(control* c, eventData* d){
 	LOG("Drawing " << progress.unlockedAch.size() << " achievements (" << xOffset << "," << yOffset << ")");
 	
 	for (deque<string>::iterator i = progress.unlockedAch.begin(); i != progress.unlockedAch.end(); i++) {
-		achievement* a = getAchievement(*i);
+		achievement* a = NULL;
+		int n = i->find(".");
+		
+		if (n != i->npos) {
+			levelPack* p = getPack(i->substr(0, n));
+			if (p) a = p->getAchievement(i->substr(n + 1));
+			else continue;
+		}
+		
+		else a = getAchievement(*i);
 				
 		if( !a ) continue;
 		

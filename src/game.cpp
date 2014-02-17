@@ -255,7 +255,6 @@ void achievement::load(xml_node source){
 	if (xml_attribute a = source.attribute("checkOnce")) checkOnce = a.as_bool();
 }
 
-////TO DO//////////////
 bool achievement::verify(CTinyJS* js){
 	CScriptVarLink result = js->evaluateComplex ( expression );
 	return result.var->getBool();
@@ -445,6 +444,23 @@ void globalProgress::verifyAchs(){
 		}
 	}
 	
+	//Verifies level-pack related achievements
+	for ( list<levelPack*>::iterator l = levelPacks.begin(); l != levelPacks.end(); l++ ) {
+		for ( list<achievement>::iterator i = (*l)->lpAchs.begin(); i != (*l)->lpAchs.end(); i++ ) {
+			string id = (*l)->id + "." + i->id;
+		
+			if ( i->checkOnce && find ( unlockedAch.begin(), unlockedAch.end(), id ) != unlockedAch.end() ){
+				continue;
+			}
+		
+			else if ( i->verify ( js ) ) {
+				LOG("Unlocked achievement '" << id << "'");
+				showUnlockedAchievement ( &*i );
+				unlockedAch.push_back(id);
+			}
+		}
+	}
+	
 	delete js;
 }
 
@@ -475,8 +491,13 @@ void globalProgress::check(){
 	
 	for ( deque<string>::iterator i = unlockedAch.begin(); i != unlockedAch.end(); i++ ) {
 		if ( !getAchievement(*i) ) {
-			i = unlockedAch.erase(i);
-			i--;
+			levelPack* p;
+			int n = i->find(".");
+			
+			if ( n == i->npos || !(p = getPack(i->substr(0, n))) || !p->getAchievement(i->substr(n + 1))){
+				i = unlockedAch.erase(i);
+				i--;
+			}
 		}
 	}
 }
@@ -695,6 +716,14 @@ void levelPack::load(xml_node source){
 	
 	for (xml_node n = source.child("level"); n; n = n.next_sibling("level"))
 		if (xml_attribute a = n.attribute("file")) levelFiles.push_back(preprocessFilePath("(@levels)/" + id + "/" + a.value()));
+		
+	if (xml_node n = source.child("achievements")) {
+		for (xml_node m = n.first_child(); m; m = m.next_sibling()) {
+			achievement a;
+			a.load(m);
+			lpAchs.push_back(a);
+		}
+	}
 }
 
 void levelPack::loadLevels(){
@@ -717,6 +746,13 @@ void levelPack::loadLevels(){
 		l->path = *i;
 		levels.push_back(l);
 	}
+}
+
+achievement* levelPack::getAchievement(string id){
+	for (list<achievement>::iterator i = lpAchs.begin(); i != lpAchs.end(); i++)
+		if (i->id == id) return &*i;
+	
+	return NULL;
 }
 
 bool levelPack_compare(levelPack* a, levelPack* b){

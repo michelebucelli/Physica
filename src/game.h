@@ -198,7 +198,7 @@ class levelPack: public content {
 	deque<string> levelFiles;
 	deque<level*> levels;
 	
-	deque<achievement> lpAchs;//Level pack specific achievements
+	list<achievement> lpAchs;//Level pack specific achievements
 	
 	rules lpRules;//Level pack specific rules
 	
@@ -210,6 +210,9 @@ class levelPack: public content {
 	
 	//Function to load levels
 	void loadLevels();
+	
+	//Function to get achievement
+	achievement* getAchievement(string);
 };
 
 //Comparison function (used to sort level packs)

@@ -20,7 +20,7 @@
 		var v = caller.addChild ( "(@ui)/achievement.xml" );
 		
 		v.id = "ach_" + caller.userDefined.achievementsCount;
-				
+		
 		v.content.icon.image = event.custom.icon;
 		v.content.title.text = event.custom.title;
 		v.content.info.text = event.custom.info;
