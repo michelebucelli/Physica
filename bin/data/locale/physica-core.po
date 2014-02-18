@@ -64,6 +64,22 @@ msgstr ""
 msgid "SUCCESS!"
 msgstr ""
 
+# Level pack editor title
+msgid "Level Pack Editor"
+msgstr ""
+
+# Properties panel title inside level pack editor and level editor
+msgid "Properties"
+msgstr ""
+
+# Levels panel title inside level pack editor
+msgid "Levels"
+msgstr ""
+
+# Achievements panel title inside level pack editor
+msgid "Achievements"
+msgstr ""
+
 # CORE ACHIEVEMENT STRINGS
 
 # 'First of many' achievement

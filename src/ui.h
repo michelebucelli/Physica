@@ -303,6 +303,7 @@ class control: public content {
 	bool draggable;//If true, control can be dragged around
 	bool dragging;//If true, control is being dragged
 	int dragInitialX, dragInitialY;//Drag initial positions
+	int dragGrid;//Drag grid size
 	
 	bool clickThrough;//If true, parent control can be dragged even clicking on this
 	

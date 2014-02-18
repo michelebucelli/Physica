@@ -19,7 +19,7 @@
 		</properties>
 		
 		<levels externFile="(@ui)/presets.xml" importedNode="foldPanel" draggable="1">
-			<area x="24" y="320" w="280" h="600" />
+			<area x="316" y="148" w="280" h="600" />
 			
 			<children>
 			</children>
@@ -28,6 +28,17 @@
 				caller.content.title.text = "Levels";
 			</script></event>
 		</levels>
+		
+		<achievements externFile="(@ui)/presets.xml" importedNode="foldPanel" draggable="1">
+			<area x="24" y="320" w="280" h="428" />
+			
+			<children>
+			</children>
+			
+			<event type="onLoad" status="-2"><script>
+				caller.content.title.text = "Achievements";
+			</script></event>
+		</achievements>
 		
 		<back externFile="(@ui)/presets.xml" importedNode="button_round">
 			<area x="32" y="96" />

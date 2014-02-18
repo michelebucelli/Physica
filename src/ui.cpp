@@ -495,6 +495,7 @@ void eventData::toJSVar(CScriptVar* c){
 	
 	if (type == 1){		
 		c->findChildOrCreate("key")->var->setInt(data.keyboard.key.scancode);
+		c->findChildOrCreate("unicode")->var->setInt(data.keyboard.key.unicode);
 	}
 	
 	if (type == 2) {
@@ -718,6 +719,7 @@ control::control(){
 	draggable = false;
 	dragging = false;
 	dragInitialX = 0; dragInitialY = 0;
+	dragGrid = 1;
 	
 	clickThrough = false;
 	
@@ -814,8 +816,8 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 	disabled = disabled || cStatus == cs_disabled;
 	
 	if (e && e->type == SDL_MOUSEMOTION && dragging){
-		area.x = mX - dragInitialX;
-		area.y = mY - dragInitialY;
+		area.x = floor((mX - dragInitialX) / dragGrid) * dragGrid;
+		area.y = floor((mY - dragInitialY) / dragGrid) * dragGrid;
 	}
 	
 	bool inside = isInside(mX, mY, ref);
@@ -978,6 +980,7 @@ void control::load(xml_node source){
 	
 	if (xml_attribute a = source.attribute("draggable")) draggable = a.as_int();
 	if (xml_attribute a = source.attribute("clickThrough")) clickThrough = a.as_int();
+	if (xml_attribute a = source.attribute("dragGrid")) dragGrid = a.as_int();
 	
 	//Gets content
 	for (xml_node n = source.child("content"); n; n = n.next_sibling("content")){//If content node is found
@@ -1024,6 +1027,7 @@ void control::toJSVar(CScriptVar* c){
 	area.toJSVar(c->findChildOrCreate("area")->var);
 	mask.toJSVar(c->findChildOrCreate("mask")->var);
 	c->findChildOrCreate("draggable")->var->setInt(draggable);
+	c->findChildOrCreate("dragGrid")->var->setInt(dragGrid);
 	c->findChildOrCreate("clickThrough")->var->setInt(clickThrough);
 	
 	CScriptVar* contentVar = c->addChildNoDup("content")->var;
@@ -1090,6 +1094,7 @@ void control::fromJSVar(CScriptVar* c){
 	if (CScriptVarLink* v = c->findChild("visible")) visible = v->var->getInt();
 	if (CScriptVarLink* v = c->findChild("draggable")) draggable = v->var->getInt();
 	if (CScriptVarLink* v = c->findChild("clickThrough")) clickThrough = v->var->getInt();
+	if (CScriptVarLink* v = c->findChild("dragGrid")) dragGrid = v->var->getInt();
 }
 
 //Function to clear script variable

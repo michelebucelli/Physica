@@ -5,7 +5,7 @@ msgstr ""
 "Project-Id-Version: 0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2014-02-15 18:34+0100\n"
-"PO-Revision-Date: 2014-02-16 16:40+0100\n"
+"PO-Revision-Date: 2014-02-17 19:08+0100\n"
 "Last-Translator: Michele <michelebucelli@alice.it>\n"
 "Language-Team: Italian\n"
 "Language: it\n"
@@ -62,6 +62,22 @@ msgstr "Avanti"
 # Success screen title
 msgid "SUCCESS!"
 msgstr "VITTORIA!"
+
+# Level pack editor title
+msgid "Level Pack Editor"
+msgstr "Editor di pacchetti livello"
+
+# Properties panel title inside level pack editor and level editor
+msgid "Properties"
+msgstr "Proprietà"
+
+# Levels panel title inside level pack editor
+msgid "Levels"
+msgstr "Livelli"
+
+# Achievements panel title inside level pack editor
+msgid "Achievements"
+msgstr "Achievement"
 
 # CORE ACHIEVEMENT STRINGS
 # 'First of many' achievement
