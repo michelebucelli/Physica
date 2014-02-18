@@ -17,8 +17,6 @@
 	
 	<event type="onLoad" status="-2"> <script>
 		importScript("(@script)/dialogs.js");
-		
-		textDialog(caller.dialogs, "Test dialog", "This is nothing but a test dialog");
 	</script> </event>
 	
 	<event type="onAchievementUnlocked" status="-2"> <script>		

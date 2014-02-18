@@ -7,8 +7,29 @@
 	
 	<children>
 		<field externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="12" y="64" w="376" h="24" />
+			<area x="12" y="68" w="376" h="24" />
 		</field>
+		
+		<ok externFile="(@ui)/presets.xml" importedNode="button_small">
+			<area x="12" y="116" w="96" h="32" xRef="2" />
+			
+			<content>
+				<text type="text" text="OK" x_centre="0" y_centre="0" fontId="smallFont" />
+			</content>
+			
+			<event type="onMouseUp"><script>
+				importScript("(@script)/dialogs.js");
+				dialogReturn(caller.parent, caller.parent.field.content.text.text);
+			</script></event>
+		</ok>
+		
+		<cancel externFile="(@ui)/presets.xml" importedNode="button_small">
+			<area x="12" y="116" w="96" h="32" xRef="0" />
+			
+			<content>
+				<text type="text" text="Cancel" x_centre="0" y_centre="0" fontId="smallFont" />
+			</content>
+		</cancel>
 	</children>
 	
 	<event type="prePrint"><script>
@@ -16,9 +37,9 @@
 	</script></event>
 	
 	<event type="onKeyDown"><script>
-		if ( event.key == key_enter ) {
-			caller.releaseEvents();
-			caller.parent.removeChild(caller.id);
+		if (event.key == key_enter) {
+			importScript("(@script)/dialogs.js");
+			dialogReturn(caller, caller.field.content.text.text);
 		}
 	</script></event>
 </textDialog>
