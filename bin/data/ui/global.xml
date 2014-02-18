@@ -32,7 +32,7 @@
 		
 		v.visible = 1;
 		
-		v.timeout ( 4000, "hideAchievement" );
+		v.eventTimeout ( 4000, "hideAchievement" );
 	</script> </event>
 	
 	<event type="popAchievements" status="-2"> <script>

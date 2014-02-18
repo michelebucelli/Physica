@@ -19,6 +19,6 @@
 		
 		caller.userDefined.mustPop = true;
 		
-		caller.parent.timeout(500, "popAchievements");
+		caller.parent.eventTimeout(500, "popAchievements");
 	</script></event>
 </achievement>

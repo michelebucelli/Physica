@@ -271,13 +271,23 @@ class controlContent: public position {
 	void setTextParameter(int, string);
 };
 
-//Event timeout structure
-struct eventTimeout {
+//Basic timeout structure
+struct timeout {	
 	int startTime;//Time when timeout was setup
-	int time;//Time after which event is triggered
+	int time;//Time after which timeout is triggered
 	
+	int type = 0;//Type (0 for event, 1 for script)
+};
+
+//Event timeout structure
+struct eventTimeout: public timeout {	
 	string eventType;//Type of the triggered event
 	eventData* data;//Event data (unused at the moment)
+};
+
+//Script timeout structure
+struct scriptTimeout: public timeout {
+	string script;
 };
 
 //Control class
@@ -327,7 +337,7 @@ class control: public content {
 	list <event> events;//Control events
 	
 	//Event timeouts
-	list <eventTimeout> eventTimeouts;
+	list <timeout*> timeouts;
 	
 	CScriptVar* jsVar;//Script variable associated to the control
 	
@@ -425,7 +435,8 @@ void scGrabEvents(CScriptVar*, void*);//Grabs events
 void scReleaseEvents(CScriptVar*, void*);//Releases events
 
 void scTriggerEvent(CScriptVar*, void*);//Triggers events
-void scTimeout(CScriptVar*, void*);//Triggers events after some time
+void scEventTimeout(CScriptVar*, void*);//Triggers events after some time
+void scScriptTimeout(CScriptVar*, void*);//Executes script after some time
 
 void scStartTextInput(CScriptVar*, void*);//Starts text input
 void scStopTextInput(CScriptVar*, void*);//Stops text input

@@ -375,11 +375,11 @@
 				if (!caller.parent.userDefined.collapsed){
 					var c;
 					
-					for (c = caller.parent.firstChild; c != undefined; c = c.nextSibling) {
-						if (c.area.y > 40) c.visible = 0;
-					}
-					
 					importScript("(#easings)");
+					
+					for (c = caller.parent.firstChild; c != undefined; c = c.nextSibling) {
+						if (c.area.y > 40) c.scriptTimeout ( -c.area.y * 400 / (40 - caller.parent.area.h), "caller.visible = 0;" );
+					}
 					
 					caller.parent.userDefined.initialH = caller.parent.area.h;
 					caller.parent.area.setEasingH ( caller.parent.area.h, 40 - caller.parent.area.h, 400, easings.quarticInOut, 0, 0 );
@@ -399,7 +399,7 @@
 					var c;
 					
 					for (c = caller.parent.firstChild; c != undefined; c = c.nextSibling) {
-						if (c.area.y > 40) c.visible = 1;
+						if (c.area.y > 40) c.scriptTimeout ( c.area.y * 400 / (caller.parent.userDefined.initialH - caller.parent.area.h), "caller.visible = 1;" );
 					}
 				}
 				

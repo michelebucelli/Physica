@@ -1054,8 +1054,9 @@ void control::toJSVar(CScriptVar* c){
 				*grabEventsFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
 				*releaseEventsFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
 				*triggerEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
-				*timeoutEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE);
-	
+				*timeoutEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
+				*timeoutScriptFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE);
+					
 	addChildFunc->addChildNoDup("sourceFile");
 	addChildFunc->setCallback(scAddChildFromFile, this);
 	
@@ -1071,14 +1072,19 @@ void control::toJSVar(CScriptVar* c){
 	
 	timeoutEventFunc->addChildNoDup("time");
 	timeoutEventFunc->addChildNoDup("event");
-	timeoutEventFunc->setCallback(scTimeout, this);
+	timeoutEventFunc->setCallback(scEventTimeout, this);
+	
+	timeoutScriptFunc->addChildNoDup("time");
+	timeoutScriptFunc->addChildNoDup("script");
+	timeoutScriptFunc->setCallback(scScriptTimeout, this);
 	
 	c->addChild("addChild", addChildFunc);
 	c->addChild("removeChild", removeChildFunc);
 	c->addChild("grabEvents", grabEventsFunc);
 	c->addChild("releaseEvents", releaseEventsFunc);
 	c->addChild("triggerEvent", triggerEventFunc);
-	c->addChild("timeout", timeoutEventFunc);
+	c->addChild("eventTimeout", timeoutEventFunc);
+	c->addChild("scriptTimeout", timeoutScriptFunc);
 }
 
 //Function to reload control from its own js variable
@@ -1180,10 +1186,13 @@ void control::refresh(){
 	area.move(SDL_GetTicks());
 	
 	//Checks for timeouts
-	for (list<eventTimeout>::iterator i = eventTimeouts.begin(); i != eventTimeouts.end(); i++){
-		if (SDL_GetTicks() - i->startTime >= i->time) {
-			triggerEvent ( i->eventType, NULL );
-			eventTimeouts.erase(i);
+	for (list<timeout*>::iterator i = timeouts.begin(); i != timeouts.end(); i++){
+		if (SDL_GetTicks() - (*i)->startTime >= (*i)->time) {
+			if ((*i)->type == 0) triggerEvent ( ((eventTimeout*)(*i))->eventType, NULL );			
+			if ((*i)->type == 1) runScript ( ((scriptTimeout*)(*i))->script );			
+			
+			delete *i;
+			timeouts.erase(i);
 			i--;
 		}
 	}
@@ -1365,15 +1374,28 @@ void scTriggerEvent(CScriptVar*v, void* userdata){
 }
 
 //Function to add a timeout to a control
-void scTimeout ( CScriptVar* v, void* userdata ) {
+void scEventTimeout ( CScriptVar* v, void* userdata ) {
 	control* caller = (control*) userdata;
 	
-	eventTimeout t;
-	t.startTime = SDL_GetTicks();
-	t.time = v->getParameter("time")->getInt();
-	t.eventType = v->getParameter("event")->getString();
+	eventTimeout *t = new eventTimeout();
+	t->startTime = SDL_GetTicks();
+	t->time = v->getParameter("time")->getInt();
+	t->type = 0;
+	t->eventType = v->getParameter("event")->getString();
 	
-	caller->eventTimeouts.push_back(t);
+	caller->timeouts.push_back(t);
+}
+
+void scScriptTimeout ( CScriptVar* v, void* userdata ) {
+	control* caller = (control*) userdata;
+	
+	scriptTimeout* t = new scriptTimeout();
+	t->startTime = SDL_GetTicks();
+	t->time = v->getParameter("time")->getInt();
+	t->type = 1;
+	t->script = v->getParameter("script")->getString();
+	
+	caller->timeouts.push_back(t);
 }
 
 void scStartTextInput ( CScriptVar* v, void* userdata ) {
