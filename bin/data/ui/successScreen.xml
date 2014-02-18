@@ -83,6 +83,10 @@
 				
 				<label type="text" x_right="32" y_centre="0" text="Next" fontId="smallFont" />
 			</content>
+			
+			<event type="onMouseUp"><script>
+				caller.parent.releaseEvents();
+			</script></event>
 		</next>
 		
 		<back>

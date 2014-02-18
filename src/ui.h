@@ -416,6 +416,10 @@ class control: public content {
 	//Function to clear children
 	void clear();
 	
+	//Function to get if any of the children has an event grabber
+	//If so, even events of this control are not triggered
+	//Returns the child with event grabber, or null if none
+	control* childHasGrabber();
 };
 
 //Scripting:

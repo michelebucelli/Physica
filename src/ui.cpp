@@ -780,6 +780,14 @@ void control::printChildren(SDL_Renderer* target, _rect* ref){
 		(*i)->printChildren(target, dontUseAsReference ? ref : &absRect);
 }
 
+//Function to get grabbing child
+control* control::childHasGrabber () {
+	for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
+		if ((*i)->eventGrabber || (*i)->childHasGrabber()) return *i;
+		
+	return NULL;
+}
+
 //Function to trigger events
 void control::triggerEvent(string type, eventData* data, bool disabled){
 	for (list<event>::iterator i = events.begin(); i != events.end(); i++)
@@ -802,12 +810,16 @@ void control::triggerEventChildren(string type, eventData* data, bool disabled){
 void control::handleEvents(SDL_Event* e, _rect ref, bool disabled){
 	disabled = disabled || cStatus == cs_disabled;
 	
-	if (!eventGrabber){
+	control* grabber = NULL;
+	if (eventGrabber) grabber = eventGrabber;
+	else grabber = childHasGrabber();
+	
+	if (!grabber){
 		handleEventsChildren(e, ref, disabled);
 		handleEventsBase(e, ref, disabled);
 	}
 	
-	else eventGrabber->handleEvents(e, dontUseAsReference ? ref : area.abs(ref));
+	else grabber->handleEvents(e, dontUseAsReference ? ref : area.abs(ref));
 }
 
 //Function to handle events on a control
@@ -821,6 +833,10 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 	if (e && e->type == SDL_MOUSEMOTION && dragging){
 		area.x = floor((mX - dragInitialX) / dragGrid) * dragGrid;
 		area.y = floor((mY - dragInitialY) / dragGrid) * dragGrid;
+		
+		CScriptVarLink* a = jsVar->findChild("area");
+		a->var->findChild("x")->var->setInt(area.x);
+		a->var->findChild("y")->var->setInt(area.y);
 	}
 	
 	bool inside = isInside(mX, mY, ref);
@@ -1309,6 +1325,7 @@ void registerUIFunctions(CTinyJS* js){
 	js->execute("var key_escape = " + toString(SDL_SCANCODE_ESCAPE) + ";");
 	js->execute("var key_enter = " + toString(SDL_SCANCODE_RETURN) + ";");
 	js->execute("var key_backspace = " + toString(SDL_SCANCODE_BACKSPACE) + ";");
+	js->execute("var key_tab = " + toString(SDL_SCANCODE_TAB) + ";");
 	
 	int mX, mY;
 	SDL_GetMouseState(&mX, &mY);

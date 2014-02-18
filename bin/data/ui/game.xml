@@ -103,6 +103,8 @@
 		caller.parent.successScreen.status = status_normal;
 		caller.status = status_disabled;
 		
+		caller.parent.successScreen.grabEvents();
+		
 		if (event.custom.rating > 0)
 			caller.parent.successScreen.stars.content.star1.image.file = caller.parent.successScreen.stars.userDefined.star_on;
 		else caller.parent.successScreen.stars.content.star1.image.file = caller.parent.successScreen.stars.userDefined.star_off;

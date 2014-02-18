@@ -8,12 +8,24 @@
 		</title>
 		
 		<properties externFile="(@ui)/presets.xml" importedNode="foldPanel" draggable="1">
-			<area x="24" y="148" w="280" h="160" />
+			<area x="24" y="148" w="360" h="160" />
 			
 			<children>
 				<idInput externFile="(@ui)/presets.xml" importedNode="input">
-					<area x="8" y="48" w="264" h="24" />
+					<area x="64" y="48" w="200" h="24" />
+					
+					<content>
+						<label x_right="202" y_centre="0" type="text" text="ID:" fontId="monoFont" />
+					</content>
 				</idInput>
+				
+				<nameInput externFile="(@ui)/presets.xml" importedNode="input">
+					<area x="64" y="80" w="200" h="24" />
+					
+					<content>
+						<label x_right="202" y_centre="0" type="text" text="Name:" fontId="monoFont" />
+					</content>
+				</nameInput>
 			</children>
 			
 			<event type="onLoad" status="-2"><script>
@@ -22,7 +34,7 @@
 		</properties>
 		
 		<levels externFile="(@ui)/presets.xml" importedNode="foldPanel" draggable="1">
-			<area x="316" y="148" w="280" h="600" />
+			<area x="396" y="148" w="360" h="600" />
 			
 			<children>
 			</children>
@@ -33,7 +45,7 @@
 		</levels>
 		
 		<achievements externFile="(@ui)/presets.xml" importedNode="foldPanel" draggable="1">
-			<area x="24" y="320" w="280" h="428" />
+			<area x="24" y="320" w="360" h="428" />
 			
 			<children>
 			</children>

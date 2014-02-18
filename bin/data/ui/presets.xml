@@ -8,6 +8,10 @@
 	<theme_disabled_outside externFile="(@ui)/themes.xml" importedNode="button_dark" />
 	<theme_disabled_over	 externFile="(@ui)/themes.xml" importedNode="button_dark" />
 	<theme_disabled_pressed externFile="(@ui)/themes.xml" importedNode="button_dark" />
+	
+	<content>
+		<title type="text" text="" x_left="12" y_top="8" fontId="midFont" />
+	</content>
 </panel>
 
 <!-- TEXT ONLY -->
@@ -378,7 +382,7 @@
 					importScript("(#easings)");
 					
 					for (c = caller.parent.firstChild; c != undefined; c = c.nextSibling) {
-						if (c.area.y > 40) c.scriptTimeout ( -c.area.y * 400 / (40 - caller.parent.area.h), "caller.visible = 0;" );
+						if (c.area.y > 40) c.scriptTimeout ( -(caller.parent.area.h - c.area.y - c.area.h) * 400 / (40 - caller.parent.area.h), "caller.visible = 0;" );
 					}
 					
 					caller.parent.userDefined.initialH = caller.parent.area.h;
@@ -410,7 +414,7 @@
 </foldPanel>
 
 <!--INPUT BOX-->
-<input>
+<input type="input">
 	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
 	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
 	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
@@ -436,6 +440,36 @@
 		if (event.key == key_backspace) {
 			caller.userDefined.storedText = substr(caller.userDefined.storedText, 0, strlen(caller.userDefined.storedText) - 1);
 			caller.content.text.text = caller.userDefined.storedText + caller.userDefined.caret;
+		}
+		
+		if (event.key == key_enter) {
+			caller.content.text.text = caller.userDefined.storedText;
+			caller.status = status_normal;
+		}
+		
+		if (event.key == key_tab) {
+			var c = caller.nextSibling;
+			if (c == undefined) c = caller.parent.firstChild;
+			
+			while ( c != undefined ) {
+				if (c.type == "input" && c.id != caller.id) {
+					caller.content.text.text = caller.userDefined.storedText;
+					caller.status = status_normal;
+					
+					c.scriptTimeout(0, "caller.status = status_active; caller.content.text.text = caller.userDefined.storedText + caller.userDefined.caret;");
+					
+					c = undefined;
+				}
+				
+				else if ( c.id == caller.id ) {
+					c = undefined;
+				}
+				
+				else {
+					c = c.nextSibling;
+					if ( c == undefined ) c = caller.parent.firstChild;
+				}
+			}
 		}
 	</script> </event>
 	

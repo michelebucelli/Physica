@@ -1,0 +1,24 @@
+<textDialog externFile="(@ui)/presets.xml" importedNode="panel" draggable="1">
+	<area x="0" y="0" w="400" h="160" xRef="1" yRef="1" />
+	
+	<content>
+		<prompt type="text" text="" x_left="12" y_top="48" fontId="smallFont" />
+	</content>
+	
+	<children>
+		<field externFile="(@ui)/presets.xml" importedNode="input">
+			<area x="12" y="64" w="376" h="24" />
+		</field>
+	</children>
+	
+	<event type="prePrint"><script>
+		dark();
+	</script></event>
+	
+	<event type="onKeyDown"><script>
+		if ( event.key == key_enter ) {
+			caller.releaseEvents();
+			caller.parent.removeChild(caller.id);
+		}
+	</script></event>
+</textDialog>

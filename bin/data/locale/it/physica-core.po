@@ -71,6 +71,14 @@ msgstr "Editor di pacchetti livello"
 msgid "Properties"
 msgstr "Proprietà"
 
+# Properties: id
+msgid "ID:"
+msgstr ""
+
+# Properties name
+msgid "Name:"
+msgstr "Nome:"
+
 # Levels panel title inside level pack editor
 msgid "Levels"
 msgstr "Livelli"

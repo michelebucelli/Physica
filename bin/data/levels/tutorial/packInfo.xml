@@ -2,5 +2,4 @@
 	<icon file="(@graphics)/levelPacks.png"> <area x="0" y="0" w="56" h="56" /> </icon>
 	
 	<level file="level_1.xml" />
-	<level file="level_2.xml" />
 </tutorial>
