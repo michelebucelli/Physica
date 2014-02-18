@@ -375,7 +375,7 @@
 				if (!caller.parent.userDefined.collapsed){
 					var c;
 					
-					for (c = caller.firstChild; c; c = c.nextSibling) {
+					for (c = caller.parent.firstChild; c != undefined; c = c.nextSibling) {
 						if (c.area.y > 40) c.visible = 0;
 					}
 					
@@ -398,7 +398,7 @@
 					
 					var c;
 					
-					for (c = caller.firstChild; c; c = c.nextSibling) {
+					for (c = caller.parent.firstChild; c != undefined; c = c.nextSibling) {
 						if (c.area.y > 40) c.visible = 1;
 					}
 				}
@@ -408,3 +408,56 @@
 		</collapse>
 	</children>
 </foldPanel>
+
+<!--INPUT BOX-->
+<input>
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	<theme_active_outside externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_active_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_active_pressed externFile="(@ui)/themes.xml" importedNode="box_over" />
+	
+	<content>
+		<text type="text" x_left="3" y_centre="0" fontId="monoFont"/>
+	</content>
+	
+	<event type="onLoad" status="-2"> <script>
+		var caller.userDefined.storedText = "";
+		var caller.userDefined.caret = "|";
+	</script> </event>
+	
+	<event type="onTextInput" status="1"> <script>
+		caller.userDefined.storedText += event.text;
+		caller.content.text.text = caller.userDefined.storedText + caller.userDefined.caret;
+	</script> </event>
+	
+	<event type="onKeyDown" status="1"> <script>
+		if (event.key == key_backspace) {
+			caller.userDefined.storedText = substr(caller.userDefined.storedText, 0, strlen(caller.userDefined.storedText) - 1);
+			caller.content.text.text = caller.userDefined.storedText + caller.userDefined.caret;
+		}
+	</script> </event>
+	
+	<event type="onMouseUp"> <script>
+		if (caller.status == status_normal){
+			caller.status = status_active;
+			startTextInput();
+			caller.content.text.text = caller.userDefined.storedText + caller.userDefined.caret;
+		}
+		
+		else {
+			caller.status = status_normal;
+			stopTextInput();
+			caller.content.text.text = caller.userDefined.storedText;
+		}
+	</script> </event>
+	
+	<event type="onMouseUp_outside"> <script>
+		if ( caller.status == status_active ){
+			stopTextInput();
+			caller.status = status_normal;
+			caller.content.text.text = caller.userDefined.storedText;
+		}
+	</script> </event>
+</input>

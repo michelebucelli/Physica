@@ -11,6 +11,9 @@
 			<area x="24" y="148" w="280" h="160" />
 			
 			<children>
+				<idInput externFile="(@ui)/presets.xml" importedNode="input">
+					<area x="8" y="48" w="264" h="24" />
+				</idInput>
 			</children>
 			
 			<event type="onLoad" status="-2"><script>

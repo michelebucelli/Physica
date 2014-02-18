@@ -211,13 +211,14 @@ enum controlStatus {
 union _eventData {
 	struct { int x; int y; int button; } mouse;//Mouse event data
 	struct { SDL_Keysym key; } keyboard;//Keyboard event data
+	struct { char* text; } textInput;//Text input event data
 	struct { CScriptVar* var; } custom;//Custom event data
 };
 
 //Event data class
 class eventData {
 	public:
-	int type;//Data type (mouse = 0, keyboard = 1, custom = 2)
+	int type;//Data type (mouse = 0, keyboard = 1, custom = 2, textInput = 3)
 	_eventData data;//Data
 	
 	eventData();
@@ -424,7 +425,9 @@ void scGrabEvents(CScriptVar*, void*);//Grabs events
 void scReleaseEvents(CScriptVar*, void*);//Releases events
 
 void scTriggerEvent(CScriptVar*, void*);//Triggers events
-
 void scTimeout(CScriptVar*, void*);//Triggers events after some time
+
+void scStartTextInput(CScriptVar*, void*);//Starts text input
+void scStopTextInput(CScriptVar*, void*);//Stops text input
 
 #endif

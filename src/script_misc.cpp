@@ -60,10 +60,24 @@ void scGetKeyName(CScriptVar* c, void* userdata){
 	c->getReturnVar()->setString(SDL_GetKeyName(SDL_GetKeyFromScancode((SDL_Scancode) c->getParameter("key")->getInt())));
 }
 
+void scSubstr(CScriptVar* c, void* userdata){
+	string source = c->getParameter("string")->getString();
+	int begin = c->getParameter("begin")->getInt();
+	int length = c->getParameter("length")->getInt();
+	
+	c->getReturnVar()->setString(source.substr(begin, length));
+}
+
+void scStrlen(CScriptVar* c, void* userdata){
+	c->getReturnVar()->setInt(c->getParameter("string")->getString().size());
+}
+
 //Function to register misc functions
 void registerMiscFunctions(CTinyJS* c){
 	c->addNative("function readFile (file)", scReadFile, NULL);
 	c->addNative("function importScript (file)", scImportScript, c);
 	c->addNative("function output (out)", scOut, NULL);
 	c->addNative("function getKeyName (key)", scGetKeyName, NULL);
+	c->addNative("function substr (string, begin, length)", scSubstr, NULL);
+	c->addNative("function strlen (string)", scStrlen, NULL);
 }

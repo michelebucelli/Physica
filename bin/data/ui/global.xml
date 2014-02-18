@@ -1,7 +1,7 @@
 <!-- GLOBAL UI DEFINITION -->
 
 <global dontUseAsReference="1">
-	<children>	
+	<children>		
 		<mainMenu externFile="(@ui)/mainMenu.xml" importedNode="base" />
 		<levelPackSelect externFile="(@ui)/levelPackSelectMenu.xml" importedNode="base" />
 		<levelSelect externFile="(@ui)/levelSelectMenu.xml" importedNode="base" />

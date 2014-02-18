@@ -495,11 +495,14 @@ void eventData::toJSVar(CScriptVar* c){
 	
 	if (type == 1){		
 		c->findChildOrCreate("key")->var->setInt(data.keyboard.key.scancode);
-		c->findChildOrCreate("unicode")->var->setInt(data.keyboard.key.unicode);
 	}
 	
 	if (type == 2) {
 		c->addChild("custom", data.custom.var);
+	}
+	
+	if (type == 3) {
+		c->addChild("text")->var->setString(data.textInput.text);
 	}
 }
 
@@ -904,6 +907,15 @@ void control::handleEventsBase(SDL_Event *e, _rect ref, bool disabled){
 			triggerEvent("onKeyDown", &data, disabled);
 		}
 		
+		if (e->type == SDL_TEXTINPUT){//On text input
+			eventData data;
+			data.type = 3;
+			
+			data.data.textInput.text = e->text.text;
+			
+			triggerEvent("onTextInput", &data, disabled);
+		}
+		
 		if (e->type == SDL_WINDOWEVENT && e->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) triggerEvent("onWindowResize", NULL, disabled);
 	}
 }
@@ -1287,12 +1299,16 @@ void registerUIFunctions(CTinyJS* js){
 	
 	js->execute("var key_escape = " + toString(SDL_SCANCODE_ESCAPE) + ";");
 	js->execute("var key_enter = " + toString(SDL_SCANCODE_RETURN) + ";");
+	js->execute("var key_backspace = " + toString(SDL_SCANCODE_BACKSPACE) + ";");
 	
 	int mX, mY;
 	SDL_GetMouseState(&mX, &mY);
 	
 	js->execute("var mouse.x = " + toString(mX) + ";");
 	js->execute("var mouse.y = " + toString(mY) + ";");
+	
+	js->addNative ("function startTextInput()", scStartTextInput, NULL);
+	js->addNative ("function stopTextInput()", scStopTextInput, NULL);
 	
 	if (customSetupJS_UI) customSetupJS_UI(js);//Custom setup
 }
@@ -1358,4 +1374,12 @@ void scTimeout ( CScriptVar* v, void* userdata ) {
 	t.eventType = v->getParameter("event")->getString();
 	
 	caller->eventTimeouts.push_back(t);
+}
+
+void scStartTextInput ( CScriptVar* v, void* userdata ) {
+	SDL_StartTextInput();
+}
+
+void scStopTextInput ( CScriptVar* v, void* userdata ) {
+	SDL_StopTextInput();
 }
