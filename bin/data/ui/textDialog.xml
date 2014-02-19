@@ -29,6 +29,11 @@
 			<content>
 				<text type="text" text="Cancel" x_centre="0" y_centre="0" fontId="smallFont" />
 			</content>
+			
+			<event type="onMouseUp"><script>
+				importScript("(@script)/dialogs.js");
+				dialogReturn(caller.parent, "");
+			</script></event>
 		</cancel>
 	</children>
 	
@@ -40,6 +45,11 @@
 		if (event.key == key_enter) {
 			importScript("(@script)/dialogs.js");
 			dialogReturn(caller, caller.field.content.text.text);
+		}
+		
+		if (event.key == key_escape) {
+			importScript("(@script)/dialogs.js");
+			dialogReturn(caller, "");
 		}
 	</script></event>
 </textDialog>
