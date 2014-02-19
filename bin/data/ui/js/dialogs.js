@@ -1,11 +1,13 @@
 //Script functions to show dialogs
 
 //Shows a text dialog
-function textDialog (control, title, prompt, after) {
+function textDialog (control, title, prompt, defaultText, after) {
 	var dialog = control.addChild("(@ui)/textDialog.xml");
 	
 	dialog.content.title.text = title;
 	dialog.content.prompt.text = prompt;
+	dialog.field.content.text.text = defaultText;
+	dialog.field.userDefined.storedText = defaultText;
 	
 	dialog.userDefined.after = after;
 	
@@ -13,7 +15,7 @@ function textDialog (control, title, prompt, after) {
 };
 
 //Shows an image dialog
-function imageDialog (control, title, after) {
+function imageDialog (control, title, defaultImg, after) {
 	var dialog = control.addChild("(@ui)/imageDialog.xml");
 	
 	dialog.content.title.text = title;

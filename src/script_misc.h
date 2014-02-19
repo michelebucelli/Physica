@@ -27,7 +27,19 @@ MISC SCRIPT FUNCTIONS
 #include "log.h"
 #include "files.h"
 
+#include <list>
+
 using namespace std;
+
+class cachedScript {
+	public:
+	string path;
+	string script;
+};
+
+extern list<cachedScript> cachedScripts;
+
+string getScript (string);
 
 void registerMiscFunctions(CTinyJS*);
 

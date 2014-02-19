@@ -2,7 +2,8 @@
 	<area x="0" y="0" w="400" h="220" xRef="1" yRef="1" />
 	
 	<content>
-		<prompt type="text" text="File path:" x_left="12" y_top="48" fontId="smallFont" />
+		<filePrompt type="text" text="File path:" x_left="12" y_top="48" fontId="smallFont" />
+		<areaPropmt type="text" text="Image portion (x,y,w,h):" x_left="12" y_top="108" fontId="smallFont" />
 	</content>
 	
 	<children>
@@ -11,16 +12,20 @@
 		</filePath>
 		
 		<areaX externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="12" y="100" w="64" h="24" />
+			<area x="12" y="128" w="85" h="24" />
 		</areaX>
 		
 		<areaY externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="80" y="100" w="64" h="24" />
+			<area x="109" y="128" w="85" h="24" />
 		</areaY>
 		
 		<areaW externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="148" y="100" w="64" h="24" />
+			<area x="206" y="128" w="85" h="24" />
 		</areaW>
+		
+		<areaH externFile="(@ui)/presets.xml" importedNode="input">
+			<area x="303" y="128" w="85" h="24" />
+		</areaH>
 		
 		<ok externFile="(@ui)/presets.xml" importedNode="button_small">
 			<area x="12" y="12" w="96" h="32" xRef="2" yRef="2" />
@@ -34,6 +39,14 @@
 				dialogReturn(caller.parent, caller.parent.filePath.content.text.text);
 			</script></event>
 		</ok>
+		
+		<preview externFile="(@ui)/presets.xml" importedNode="button_small">
+			<area x="0" y="12" w="85" h="32" xRef="1" yRef="2" />
+			
+			<content>
+				<text type="text" text="Preview" x_centre="0" y_centre="0" fontId="smallFont" />
+			</content>
+		</preview>
 		
 		<cancel externFile="(@ui)/presets.xml" importedNode="button_small">
 			<area x="12" y="12" w="96" h="32" xRef="0" yRef="2" />

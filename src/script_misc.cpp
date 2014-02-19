@@ -15,32 +15,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "script_misc.h"
 
-//Function to load a file into a string
-void scReadFile(CScriptVar* c, void * userdata){
-	string fName = preprocessFilePath(c->getParameter("file")->getString());
-	ifstream i (fName.c_str());
-	
-	string result = "";
-	string tmp;
-	
-	while (!i.eof()){
-		getline(i, tmp);
-		result += tmp + "\n";
-	}
-	
-	i.close();
-	c->getReturnVar()->setString(result);
-}
+list<cachedScript> cachedScripts;
 
-//Function to import (and execute) a script from a file
-void scImportScript(CScriptVar* c, void* userdata){
+string getScript ( string path ) {
+	for ( list<cachedScript>::iterator it = cachedScripts.begin(); it != cachedScripts.end(); it++ )
+		if ( it->path == path ) return it->script;
 	
-	string fName = preprocessFilePath(c->getParameter("file")->getString());
-	ifstream i (fName.c_str());
+	ifstream i ( path.c_str() );
 	
-	c->getReturnVar()->setInt(i.good());
-	
-	LOG("[IMPORT] " << fName << (i.good() ? " - OK" : " - FAILED!"));
+	LOG("[IMPORT] " << path << (i.good() ? " - OK" : " - FAILED!"));
+	if (!i.good()) return "";
 	
 	string script = "";
 	string tmp;
@@ -51,6 +35,30 @@ void scImportScript(CScriptVar* c, void* userdata){
 	}
 	
 	i.close();
+		
+	cachedScript s;
+	s.path = path;
+	s.script = script;
+	
+	cachedScripts.push_back(s);
+	
+	return script;
+}
+
+//Function to load a file into a string
+void scReadFile(CScriptVar* c, void * userdata){
+	string fName = preprocessFilePath(c->getParameter("file")->getString());
+	string result = getScript ( fName );
+	
+	c->getReturnVar()->setString(result);
+}
+
+//Function to import (and execute) a script from a file
+void scImportScript(CScriptVar* c, void* userdata){
+	
+	string fName = preprocessFilePath(c->getParameter("file")->getString());
+	string script = getScript( fName );
+	
 	((CTinyJS*) userdata)->execute(script);
 }
 

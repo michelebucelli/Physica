@@ -1,26 +1,14 @@
 <textDialog externFile="(@ui)/presets.xml" importedNode="panel" draggable="1">
-	<area x="0" y="0" w="400" h="220" xRef="1" yRef="1" />
+	<area x="0" y="0" w="400" h="160" xRef="1" yRef="1" />
 	
 	<content>
 		<prompt type="text" text="" x_left="12" y_top="48" fontId="smallFont" />
 	</content>
 	
 	<children>
-		<field1 externFile="(@ui)/presets.xml" importedNode="input">
+		<field externFile="(@ui)/presets.xml" importedNode="input">
 			<area x="12" y="68" w="376" h="24" />
-		</field1>
-		
-		<field2 externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="12" y="100" w="376" h="24" />
-		</field2>
-		
-		<field3 externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="12" y="132" w="376" h="24" />
-		</field3>
-		
-		<field4 externFile="(@ui)/presets.xml" importedNode="input">
-			<area x="12" y="164" w="376" h="24" />
-		</field4>
+		</field>
 		
 		<ok externFile="(@ui)/presets.xml" importedNode="button_small">
 			<area x="12" y="12" w="96" h="32" xRef="2" yRef="2" />
