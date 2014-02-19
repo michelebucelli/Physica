@@ -45,6 +45,15 @@ class event;
 class controlContent;
 class control;
 
+class cachedFont {
+	public:
+	TTF_Font* font;
+	int size;
+	string path;
+};
+
+extern list<cachedFont> cachedFonts;
+
 //Color class
 //Joins a standard SDL color with functions to convert in other formats
 //and to load from XML

@@ -423,13 +423,8 @@
 	<theme_active_pressed externFile="(@ui)/themes.xml" importedNode="box_over" />
 	
 	<content>
-		<text type="text" x_left="3" y_centre="0" fontId="monoFont"/>
+		<text type="text" text="" x_left="3" y_centre="0" fontId="monoFont" />
 	</content>
-	
-	<event type="onLoad" status="-2"> <script>
-		var caller.userDefined.storedText = "";
-		var caller.userDefined.caret = "|";
-	</script> </event>
 	
 	<event type="onTextInput" status="1"> <script>
 		caller.userDefined.storedText += event.text;
@@ -445,6 +440,7 @@
 		if (event.key == key_enter) {
 			caller.content.text.text = caller.userDefined.storedText;
 			caller.status = status_normal;
+			stopTextInput();
 		}
 		
 		if (event.key == key_tab) {

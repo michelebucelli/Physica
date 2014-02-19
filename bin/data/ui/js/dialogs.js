@@ -12,11 +12,23 @@ function textDialog (control, title, prompt, after) {
 	dialog.grabEvents();
 };
 
+//Shows an image dialog
+function imageDialog (control, title, after) {
+	var dialog = control.addChild("(@ui)/imageDialog.xml");
+	
+	dialog.content.title.text = title;
+	dialog.userDefined.after = after;
+	
+	dialog.grabEvents();
+}
+
 //Returns to the caller
 function dialogReturn (dialog, result) {
 	dialog.releaseEvents();
 	dialog.parent.removeChild(dialog.id);
 	
 	dialog.parent.userDefined.dialogResult = result;
-	dialog.parent.scriptTimeout ( 0, dialog.userDefined.after );
+	
+	if (dialog.userDefined.after != "")
+		dialog.parent.scriptTimeout ( 0, dialog.userDefined.after );
 }

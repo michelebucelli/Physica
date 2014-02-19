@@ -34,13 +34,18 @@ void scReadFile(CScriptVar* c, void * userdata){
 
 //Function to import (and execute) a script from a file
 void scImportScript(CScriptVar* c, void* userdata){
+	
 	string fName = preprocessFilePath(c->getParameter("file")->getString());
 	ifstream i (fName.c_str());
+	
+	c->getReturnVar()->setInt(i.good());
+	
+	LOG("[IMPORT] " << fName << (i.good() ? " - OK" : " - FAILED!"));
 	
 	string script = "";
 	string tmp;
 	
-	while (!i.eof()){
+	while (i.good()){
 		getline(i, tmp);
 		script += tmp + "\n";
 	}

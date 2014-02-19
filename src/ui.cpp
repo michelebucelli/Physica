@@ -15,6 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui.h"
 
+list<cachedFont> cachedFonts;
+
 //Color constructor
 color::color(){	
 	r = 0;
@@ -71,6 +73,9 @@ void color::fromJSVar(CScriptVar* c){
 }
 
 TTF_Font* openFont ( const char* path, int size ) {
+	for (list<cachedFont>::iterator i = cachedFonts.begin(); i != cachedFonts.end(); i++)
+		if (i->path == string(path) && i->size == size) return i->font;
+	
 	SDL_RWops *rw = SDL_RWFromFile ( path, "rb" );
 	
 	if (!rw) return NULL;
@@ -82,6 +87,14 @@ TTF_Font* openFont ( const char* path, int size ) {
 			LOG_WARN("invalid font path: " << path << " - " << TTF_GetError());
 			fontErrors.push_back ( string ( path ) );
 		}
+		
+		cachedFont f;
+		
+		f.path = string(path);
+		f.size = size;
+		f.font = font;
+		
+		cachedFonts.push_back(f);
 		
 		return font;
 	}

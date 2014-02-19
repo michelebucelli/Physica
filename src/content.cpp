@@ -15,6 +15,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "content.h"
 
+list<cachedFile> cachedFiles;
+
+xml_document* getCachedFile ( string path ) {
+	for (list<cachedFile>::iterator i = cachedFiles.begin(); i != cachedFiles.end(); i++)
+		if (i->path == path) return i->file;
+		
+	if (!ifstream(path.c_str())) { LOG_ERR ("invalid file path " << path); return NULL; }
+		
+	cachedFile newFile;
+	newFile.path = path;
+	newFile.file = new xml_document;
+	newFile.file->load_file(path.c_str());
+	
+	cachedFiles.push_back(newFile);
+	
+	return newFile.file;
+}
+
 //Content constructor
 content::content(){
 	id = "";
@@ -67,16 +85,14 @@ void content::load(xml_node source){
 	
 	if (importedNode){//If a node is imported
 		xpath_node n;//Node to import
-		xml_document file;//File to be imported
 		
 		if (externFile){//If both extern file and imported node are specified
 			string path = preprocessFilePath(externFile.value());
-			if (!ifstream(path.c_str())) LOG_ERR ("invalid file path " << path);
-			
-			else {
-				file.load_file(preprocessFilePath(path.c_str()).c_str());//Loads file
-				n = file.select_single_node(importedNode.value());//Gets required node
+			if ( xml_document* file = getCachedFile ( preprocessFilePath(path.c_str()) ) ) {
+				n = file->select_single_node(importedNode.value());//Gets required node
 			}
+			
+			else LOG_ERR("Couldn't get file " << path);
 		}
 		
 		else {//If only imported node is specified

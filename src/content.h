@@ -32,9 +32,20 @@ The class is meant to be inherited by any XML loaded class
 #include "log.h"
 #include <fstream>
 #include <string>
+#include <list>
 
 using namespace std;
 using namespace pugi;
+
+class cachedFile {
+	public:
+	string path;
+	xml_document *file;
+};
+
+extern list <cachedFile> cachedFiles;
+
+xml_document* getCachedFile(string);
 
 class content {
 	public:
