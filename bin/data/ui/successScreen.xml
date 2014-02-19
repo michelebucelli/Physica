@@ -103,6 +103,13 @@
 				
 				<label type="text" x_left="32" y_centre="0" text="Back" fontId="smallFont" />
 			</content>
+			
+			<event type="onMouseUp"><script>
+				importScript("(@script)/control_funcs.js");
+				
+				menu_hide(caller.parent.parent, -1);
+				menu_show(caller.parent.parent.parent.levelPackSelect, 1);
+			</script></event>
 		</back>
 	</children>
 	
@@ -113,5 +120,8 @@
 	<event type="onKeyDown"> <script>
 		if (event.key == key_enter)
 			caller.next.triggerEvent("onMouseUp");
+			
+		if (event.key == key_escape)
+			caller.back.triggerEvent("onMouseUp");
 	</script> </event>
 </base>

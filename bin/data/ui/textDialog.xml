@@ -32,7 +32,7 @@
 			
 			<event type="onMouseUp"><script>
 				importScript("(@script)/dialogs.js");
-				dialogReturn(caller.parent, "");
+				dialogReturn(caller.parent, undefined);
 			</script></event>
 		</cancel>
 	</children>
@@ -42,14 +42,10 @@
 	</script></event>
 	
 	<event type="onKeyDown"><script>
-		if (event.key == key_enter) {
-			importScript("(@script)/dialogs.js");
-			dialogReturn(caller, caller.field.content.text.text);
-		}
+		if (event.key == key_enter) 
+			caller.ok.triggerEvent("onMouseUp");
 		
-		if (event.key == key_escape) {
-			importScript("(@script)/dialogs.js");
-			dialogReturn(caller, "");
-		}
+		if (event.key == key_escape) 
+			caller.cancel.triggerEvent("onMouseUp");
 	</script></event>
 </textDialog>

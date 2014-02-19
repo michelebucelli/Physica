@@ -36,7 +36,16 @@
 			
 			<event type="onMouseUp"><script>
 				importScript("(@script)/dialogs.js");
-				dialogReturn(caller.parent, caller.parent.filePath.content.text.text);
+				
+				var image;
+				
+				image.file = caller.parent.filePath.content.text.text;
+				image.area.x = strtoi(caller.parent.areaX.content.text.text);
+				image.area.y = strtoi(caller.parent.areaY.content.text.text);
+				image.area.w = strtoi(caller.parent.areaW.content.text.text);
+				image.area.h = strtoi(caller.parent.areaH.content.text.text);
+				
+				dialogReturn(caller.parent, image);
 			</script></event>
 		</ok>
 		
@@ -57,7 +66,7 @@
 			
 			<event type="onMouseUp"><script>
 				importScript("(@script)/dialogs.js");
-				dialogReturn(caller.parent, "");
+				dialogReturn(caller.parent, undefined);
 			</script></event>
 		</cancel>
 	</children>
@@ -67,14 +76,10 @@
 	</script></event>
 	
 	<event type="onKeyDown"><script>
-		if (event.key == key_enter) {
-			importScript("(@script)/dialogs.js");
-			dialogReturn(caller, caller.filePath.content.text.text);
-		}
+		if (event.key == key_enter) 
+			caller.ok.triggerEvent("onMouseUp");
 		
-		if (event.key == key_escape) {
-			importScript("(@script)/dialogs.js");
-			dialogReturn(caller, "");
-		}
+		if (event.key == key_escape) 
+			caller.cancel.triggerEvent("onMouseUp");
 	</script></event>
 </imageDialog>

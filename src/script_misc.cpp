@@ -85,6 +85,14 @@ void scStrlen(CScriptVar* c, void* userdata){
 	c->getReturnVar()->setInt(c->getParameter("string")->getString().size());
 }
 
+void scCopy(CScriptVar* c, void* userdata){
+	c->getReturnVar()->copyValue(c->getParameter("source"));
+}
+
+void scStringToInt(CScriptVar* c, void* userdata){
+	c->getReturnVar()->setInt(atof(c->getParameter("s")->getString().c_str()));
+}
+
 //Function to register misc functions
 void registerMiscFunctions(CTinyJS* c){
 	c->addNative("function readFile (file)", scReadFile, NULL);
@@ -93,4 +101,6 @@ void registerMiscFunctions(CTinyJS* c){
 	c->addNative("function getKeyName (key)", scGetKeyName, NULL);
 	c->addNative("function substr (string, begin, length)", scSubstr, NULL);
 	c->addNative("function strlen (string)", scStrlen, NULL);
+	c->addNative("function copy (source)", scCopy, NULL);
+	c->addNative("function strtoi (s)", scStringToInt, NULL);
 }

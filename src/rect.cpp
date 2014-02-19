@@ -134,10 +134,10 @@ rect::rect(_rect r){
 }
 
 rect::rect ( rect &r ) : content(r) {	
-	x = r.x;
-	y = r.y;
-	w = r.w;
-	h = r.h;
+	this->x = r.x;
+	this->y = r.y;
+	this->w = r.w;
+	this->h = r.h;
 	
 	xRef = r.xRef;
 	yRef = r.yRef;

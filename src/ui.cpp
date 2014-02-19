@@ -1218,7 +1218,7 @@ void control::refresh(){
 	for (list<timeout*>::iterator i = timeouts.begin(); i != timeouts.end(); i++){
 		if (SDL_GetTicks() - (*i)->startTime >= (*i)->time) {
 			if ((*i)->type == 0) triggerEvent ( ((eventTimeout*)(*i))->eventType, NULL );			
-			if ((*i)->type == 1) runScript ( ((scriptTimeout*)(*i))->script );			
+			if ((*i)->type == 1) runScript ( ((scriptTimeout*)(*i))->script );		
 			
 			delete *i;
 			timeouts.erase(i);

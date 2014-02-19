@@ -125,11 +125,11 @@ void image::fromJSVar(CScriptVar* c){
 		string newFile = v->var->getString();
 		
 		if (newFile != filePath){
-			if (texture) SDL_DestroyTexture(texture);
+			//if (texture) SDL_DestroyTexture(texture);
 			texture = NULL;
 			
-			filePath = newFile;
-			texture = textureFromCache(preprocessFilePath(filePath));
+			filePath = preprocessFilePath(newFile);
+			texture = textureFromCache(filePath);
 			
 			if (texture) SDL_QueryTexture(texture, NULL, NULL, &tw, &th);
 		}

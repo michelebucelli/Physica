@@ -12,12 +12,12 @@
 		<credits externFile="(@ui)/creditsMenu.xml" importedNode="base" />
 		<successScreen externFile="(@ui)/successScreen.xml" importedNode="base" />
 		
-		<dialogs dontUseAsReference="1"/>
+		<dialogs dontUseAsReference="1" />
 	</children>
 	
 	<event type="onLoad" status="-2"> <script>
 		//importScript("(@script)/dialogs.js");
-		//imageDialog(caller.dialogs, "Image", 0, "output(caller.userDefined.dialogResult);");
+		//imageDialog(caller.dialogs, "Image", 0, "caller.parent.mainMenu.playButton.content.icon.image = caller.userDefined.dialogResult;");
 	</script> </event>
 	
 	<event type="onAchievementUnlocked" status="-2"> <script>		
