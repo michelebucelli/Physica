@@ -58,6 +58,21 @@
 		
 		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="231" w="150" /> </sep>
 		
+		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="293" w="150" /> </sep>
+		
+		<back externFile="(@ui)/presets.xml" importedNode="button_small">
+			<area x="57" y="312" w="96" h="32" />
+			
+			<content> <label type="text" text="Back" x_centre="0" y_centre="0" fontId="smallFont" /> </content>
+			
+			<event type="onMouseUp"> <script>
+				importScript("(@script)/control_funcs.js");
+				
+				menu_hide(caller.parent, 1);
+				menu_show(caller.parent.parent.mainMenu, -1);
+			</script> </event>
+		</back>
+		
 		<language externFile="(@ui)/presets.xml" importedNode="comboBox">
 			<area x="94" y="250" w="96" h="24" />
 			
@@ -73,21 +88,6 @@
 				</it>
 			</children>
 		</language>
-		
-		<sep externFile="(@ui)/presets.xml" importedNode="separator"> <area x="30" y="293" w="150" /> </sep>
-		
-		<back externFile="(@ui)/presets.xml" importedNode="button_small">
-			<area x="57" y="312" w="96" h="32" />
-			
-			<content> <label type="text" text="Back" x_centre="0" y_centre="0" fontId="smallFont" /> </content>
-			
-			<event type="onMouseUp"> <script>
-				importScript("(@script)/control_funcs.js");
-				
-				menu_hide(caller.parent, 1);
-				menu_show(caller.parent.parent.mainMenu, -1);
-			</script> </event>
-		</back>
 	</children>
 	
 	<event type="onKeyDown"> <script>

@@ -12,6 +12,8 @@ function textDialog (control, title, prompt, defaultText, after) {
 	dialog.userDefined.after = after;
 	
 	dialog.grabEvents();
+	
+	return dialog;
 };
 
 //Shows an image dialog
@@ -22,6 +24,20 @@ function imageDialog (control, title, defaultImg, after) {
 	dialog.userDefined.after = after;
 	
 	dialog.grabEvents();
+	
+	return dialog;
+}
+
+//Shows an image viewer dialog
+function imageViewerDialog (control, img, after) {
+	var dialog = control.addChild("(@ui)/imageViewerDialog.xml");
+	
+	dialog.content.image.image = img;
+	dialog.userDefined.after = after;
+	
+	dialog.grabEvents();
+	
+	return dialog;
 }
 
 //Returns to the caller

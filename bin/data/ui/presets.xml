@@ -167,8 +167,8 @@
 			<theme_active_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
 			
 			<content>
-				<selected type="text" x_centre="-8" y_centre="0" fontId="smallFont" />
-				<icon type="image" x_right="4" y_centre="0">
+				<selected type="text" x_centre="-8" y_top="2" fontId="smallFont" />
+				<icon type="image" x_right="4" y_top="2">
 					<image file="(@graphics)/icons.png"> <area x="224" y="32" w="16" h="16" /> </image>
 				</icon>
 			</content>

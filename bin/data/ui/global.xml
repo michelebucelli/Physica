@@ -16,8 +16,8 @@
 	</children>
 	
 	<event type="onLoad" status="-2"> <script>
-		//importScript("(@script)/dialogs.js");
-		//imageDialog(caller.dialogs, "Image", 0, "caller.parent.mainMenu.playButton.content.icon.image = caller.userDefined.dialogResult;");
+		importScript("(@script)/dialogs.js");
+		imageDialog(caller.dialogs, "Image", 0, "");
 	</script> </event>
 	
 	<event type="onAchievementUnlocked" status="-2"> <script>		

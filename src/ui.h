@@ -429,6 +429,9 @@ class control: public content {
 	//If so, even events of this control are not triggered
 	//Returns the child with event grabber, or null if none
 	control* childHasGrabber();
+	
+	//Sets root of this and of all children
+	void setRoot(control*);
 };
 
 //Scripting:

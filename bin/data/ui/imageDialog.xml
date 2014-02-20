@@ -55,6 +55,20 @@
 			<content>
 				<text type="text" text="Preview" x_centre="0" y_centre="0" fontId="smallFont" />
 			</content>
+			
+			<event type="onMouseUp"><script>
+				importScript("(@script)/dialogs.js");
+				
+				var image;
+				
+				image.file = caller.parent.filePath.content.text.text;
+				image.area.x = strtoi(caller.parent.areaX.content.text.text);
+				image.area.y = strtoi(caller.parent.areaY.content.text.text);
+				image.area.w = strtoi(caller.parent.areaW.content.text.text);
+				image.area.h = strtoi(caller.parent.areaH.content.text.text);
+				
+				imageViewerDialog(caller.parent, image, "");
+			</script></event>
 		</preview>
 		
 		<cancel externFile="(@ui)/presets.xml" importedNode="button_small">

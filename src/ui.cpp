@@ -721,6 +721,7 @@ void controlContent::setTextParameter ( int index, string value ) {
 //Control constructor
 control::control(){	
 	root = this;
+	
 	parent = NULL;
 	nextSibling = NULL;
 	prevSibling = NULL;
@@ -767,10 +768,10 @@ void control::printBase(SDL_Renderer* target, _rect* ref){
 		
 	if (t){
 		t->print(target, absRect);
-		
-		for (list<controlContent*>::iterator i = cContent.begin(); i != cContent.end(); i++)
-			(*i)->print(target, absRect, t);
 	}
+	
+	for (list<controlContent*>::iterator i = cContent.begin(); i != cContent.end(); i++)
+		(*i)->print(target, absRect, t);
 }
 
 //Function to print children
@@ -782,15 +783,15 @@ void control::printChildren(SDL_Renderer* target, _rect* ref){
 	//First prints disabled controls, then others
 	
 	for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
-		if ((*i)->cStatus == cs_disabled) (*i)->printBase(target, dontUseAsReference ? ref : &absRect);
+		if ((*i)->cStatus == cs_disabled) (*i)->print(target, dontUseAsReference ? ref : &absRect);
 		
 	for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
-		if ((*i)->cStatus != cs_disabled) (*i)->printBase(target, dontUseAsReference ? ref : &absRect);
+		if ((*i)->cStatus != cs_disabled) (*i)->print(target, dontUseAsReference ? ref : &absRect);
 		
 	//Prints children of children
 	
-	for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
-		(*i)->printChildren(target, dontUseAsReference ? ref : &absRect);
+	/*for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
+		(*i)->printChildren(target, dontUseAsReference ? ref : &absRect);*/
 }
 
 //Function to get grabbing child
@@ -824,6 +825,7 @@ void control::handleEvents(SDL_Event* e, _rect ref, bool disabled){
 	disabled = disabled || cStatus == cs_disabled;
 	
 	control* grabber = NULL;
+	
 	if (eventGrabber) grabber = eventGrabber;
 	else grabber = childHasGrabber();
 	
@@ -1168,6 +1170,7 @@ void control::genScriptVar(){
 //Function to link script variable
 void control::linkScriptVar(){
 	if (parent) jsVar->addChildNoDup("parent", parent->jsVar);
+	if (root) jsVar->addChildNoDup("root", root->jsVar);
 	
 	if (nextSibling) jsVar->addChildNoDup("nextSibling", nextSibling->jsVar);
 	else jsVar->addChildNoDup("nextSibling", new CScriptVar(0));
@@ -1303,7 +1306,7 @@ control* control::copy(){
 
 //Function to add child control
 void control::addChild(control* childControl){
-	childControl->root = this->root;
+	childControl->setRoot(this->root);
 	childControl->parent = this;
 	
 	if (children.size() > 0){
@@ -1321,6 +1324,13 @@ void control::clear(){
 	}
 	
 	children.clear();
+}
+
+void control::setRoot ( control* c ) {
+	root = c;
+	
+	/*for (list<control*>::iterator i = children.begin(); i != children.end(); i++)
+		(*i)->setRoot(c);*/
 }
 
 //Script handling
@@ -1383,7 +1393,8 @@ void scRemoveChild(CScriptVar* v, void* userdata){
 void scGrabEvents(CScriptVar* v, void* userdata){
 	control* caller = (control*) userdata;
 	
-	if (caller->parent) caller->parent->eventGrabber = caller;
+	if (caller->parent && !caller->parent->eventGrabber) caller->parent->eventGrabber = caller;
+	else if (caller->parent) LOG_WARN("can't grab events with " << caller->id << " because they are already grabbed by " << caller->parent->eventGrabber->id);
 }
 
 //Function to release events
@@ -1391,6 +1402,7 @@ void scReleaseEvents(CScriptVar* v, void* userdata){
 	control* caller = (control*) userdata;
 	
 	if (caller->parent && caller->parent->eventGrabber == caller) caller->parent->eventGrabber = NULL;
+	else if (caller->parent) LOG_WARN("releasing events from a control that had not grabbed them: " << caller->id);
 }
 
 //Function to trigger event on control

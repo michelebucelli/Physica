@@ -1,2 +1,16 @@
 <imageViewerDialog>
+	<area xRef="1" yRef="1" x="0" y="0" w="200" h="200" />
+	
+	<content>
+		<image type="image" x_centre="0" y_centre="0"><image file=""><area /></image></image>
+	</content>
+	
+	<event type="prePrint"><script>
+		dark();
+	</script></event>
+	
+	<event type="onKeyDown"><script>
+		importScript("(@script)/dialogs.js");
+		dialogReturn ( caller, 0 );
+	</script></event>
 </imageViewerDialog>
