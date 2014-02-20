@@ -137,6 +137,7 @@ void initUI(){
 	LOG_CHECK(ui_lc_deaths, "successScreen/deaths control not found");
 	
 	ui_lc_nextLevel->events.push_back( event("onMouseUp", lcNextClick) );
+	ui_lc_back->events.push_back( event("onMouseUp", lcBackClick) );
 	
 	ui_achievements = ui_menu.getChild("achievements");
 	LOG_CHECK(ui_achievements, "achievements control not found");
@@ -363,6 +364,8 @@ void lcNextClick(control* caller, eventData* data){
 
 //Function to handle back click on level cleared screen
 void lcBackClick(control* caller, eventData* data){
+	lcHide();
+	ui_game->triggerEvent ("onCompleted", NULL );
 }
 
 //Function to show level cleared screen

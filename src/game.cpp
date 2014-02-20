@@ -358,9 +358,10 @@ void globalProgress::save (xml_node *target){
 	for ( deque<string>::iterator i = unlockedAch.begin(); i != unlockedAch.end(); i++ )
 		achString += "," + *i;
 	
-	achString.erase(achString.begin());
-	
+	if (achString.size() > 0) achString.erase(achString.begin());
+
 	target->append_attribute ("achievements") = achString.c_str();
+
 	target->append_attribute ("deaths") = globalDeaths;
 	target->append_attribute ("time") = globalTime;
 }

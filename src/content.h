@@ -41,6 +41,10 @@ class cachedFile {
 	public:
 	string path;
 	xml_document *file;
+	
+	cachedFile();
+	cachedFile(const cachedFile&);
+	~cachedFile();	
 };
 
 extern list <cachedFile> cachedFiles;

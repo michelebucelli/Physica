@@ -145,7 +145,7 @@ int main(int argc, char** argv){
 			progress.verifyAchs();
 			progress.check();
 			
-			if (currentGame.completed && ui_levelClear->cStatus == cs_disabled){
+			if (currentGame.completed && ui_levelClear->cStatus == cs_disabled && ui_game->cStatus == cs_normal){
 				lcShow();
 				ui_game->cStatus = cs_disabled;
 			}

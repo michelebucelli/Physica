@@ -17,6 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 list<cachedFile> cachedFiles;
 
+cachedFile::cachedFile() {
+	path = "";
+	file = NULL;
+}
+
+cachedFile::cachedFile(const cachedFile& f) {
+	path = f.path;
+	file = f.file;
+}
+
+cachedFile::~cachedFile() { }
+
 xml_document* getCachedFile ( string path ) {
 	for (list<cachedFile>::iterator i = cachedFiles.begin(); i != cachedFiles.end(); i++)
 		if (i->path == path) return i->file;
