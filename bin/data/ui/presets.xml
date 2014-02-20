@@ -47,6 +47,13 @@
 	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="button_pressed" />
 </button_big>
 
+<!-- RECTANGULAR BUTTON -->
+<button_rect type="button">
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+</button_rect>
+
 <!-- CHECKBOX -->
 <checkBox type="checkBox">
 	<theme_normal_outside>
@@ -496,3 +503,19 @@
 		}
 	</script> </event>
 </input>
+
+<!--IMAGE SELECTOR-->
+<imageSelector>
+	<theme_normal_outside externFile="(@ui)/themes.xml" importedNode="box_normal" />
+	<theme_normal_over	 externFile="(@ui)/themes.xml" importedNode="box_over" />
+	<theme_normal_pressed externFile="(@ui)/themes.xml" importedNode="box_pressed" />
+	
+	<content>
+		<image type="image" x_centre="0" y_centre="0"><image /></image>
+	</content>
+	
+	<event type="onMouseUp"><script>
+		importScript("(@script)/dialogs.js");
+		imageDialog(caller, "Select image", caller.content.image.image, "caller.content.image.image = caller.userDefined.dialogResult;");
+	</script></event>
+</imageSelector>

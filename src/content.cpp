@@ -131,10 +131,9 @@ void content::load_file(string source){
 	source = preprocessFilePath(source);
 	if (!ifstream(source.c_str())) LOG_ERR("invalid file path " << source);
 	
-	xml_document doc;//Document to load
-	doc.load_file(source.c_str());//Loads document
-	
-	if (xml_node n = doc.first_child()) load(n);//Loads from first child
+	xml_document* doc = getCachedFile(source);//Document to load
+	xml_node n; if (doc) n = doc->first_child();
+	if (n) load(n);//Loads from first child
 }
 
 //Function to store into a javascript variable

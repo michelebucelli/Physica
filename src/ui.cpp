@@ -1072,6 +1072,7 @@ void control::toJSVar(CScriptVar* c){
 	c->findChildOrCreate("draggable")->var->setInt(draggable);
 	c->findChildOrCreate("dragGrid")->var->setInt(dragGrid);
 	c->findChildOrCreate("clickThrough")->var->setInt(clickThrough);
+	c->findChildOrCreate("completeId")->var->setString(completeId());
 	
 	CScriptVar* contentVar = c->addChildNoDup("content")->var;
 	
@@ -1086,8 +1087,9 @@ void control::toJSVar(CScriptVar* c){
 				*releaseEventsFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
 				*triggerEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
 				*timeoutEventFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
-				*timeoutScriptFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE);
-					
+				*timeoutScriptFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE),
+				*childFunc = new CScriptVar(TINYJS_BLANK_DATA, SCRIPTVAR_FUNCTION | SCRIPTVAR_NATIVE);
+									
 	addChildFunc->addChildNoDup("sourceFile");
 	addChildFunc->setCallback(scAddChildFromFile, this);
 	
@@ -1109,6 +1111,9 @@ void control::toJSVar(CScriptVar* c){
 	timeoutScriptFunc->addChildNoDup("script");
 	timeoutScriptFunc->setCallback(scScriptTimeout, this);
 	
+	childFunc->addChildNoDup("id");
+	childFunc->setCallback(scChild, this);
+	
 	c->addChild("addChild", addChildFunc);
 	c->addChild("removeChild", removeChildFunc);
 	c->addChild("grabEvents", grabEventsFunc);
@@ -1116,6 +1121,7 @@ void control::toJSVar(CScriptVar* c){
 	c->addChild("triggerEvent", triggerEventFunc);
 	c->addChild("eventTimeout", timeoutEventFunc);
 	c->addChild("scriptTimeout", timeoutScriptFunc);
+	c->addChild("child", childFunc);
 }
 
 //Function to reload control from its own js variable
@@ -1201,10 +1207,32 @@ bool control::isInside(int x, int y, rect ref){
 
 //Function to get control child by id
 control* control::getChild(string id){
+	int n = id.find(".");
+	if (n != id.npos) {
+		control* c = getChild(id.substr(0, n));
+		
+		if (c) return c->getChild(id.substr(n + 1));
+		else return NULL;
+	}
+	
 	for (list<control*>::iterator i = children.begin(); i != children.end(); i++)//For each child
 		if ((*i)->id == id) return *i;//Returns control if it matches
 		
 	return NULL;//Returns null if no child was found
+}
+
+string control::completeId () {
+	control* current = this;
+	string result = current->id;
+	
+	current = current->parent;
+	
+	while (current && current != current->root) {
+		result = current->id + "." + result;
+		current = current->parent;
+	}
+	
+	return result;
 }
 
 //Function to refresh control
@@ -1393,16 +1421,24 @@ void scRemoveChild(CScriptVar* v, void* userdata){
 void scGrabEvents(CScriptVar* v, void* userdata){
 	control* caller = (control*) userdata;
 	
-	if (caller->parent && !caller->parent->eventGrabber) caller->parent->eventGrabber = caller;
-	else if (caller->parent) LOG_WARN("can't grab events with " << caller->id << " because they are already grabbed by " << caller->parent->eventGrabber->id);
+	if (!caller->parent) return;
+	
+	if (caller->parent->eventGrabber) caller->parent->pastGrabbers.push(caller->parent->eventGrabber);
+	caller->parent->eventGrabber = caller;
 }
 
 //Function to release events
 void scReleaseEvents(CScriptVar* v, void* userdata){
 	control* caller = (control*) userdata;
 	
-	if (caller->parent && caller->parent->eventGrabber == caller) caller->parent->eventGrabber = NULL;
-	else if (caller->parent) LOG_WARN("releasing events from a control that had not grabbed them: " << caller->id);
+	if (!caller->parent) return;
+	
+	if (caller->parent->pastGrabbers.size() > 0) {
+		caller->parent->eventGrabber = caller->parent->pastGrabbers.top();
+		caller->parent->pastGrabbers.pop();
+	}
+	
+	else caller->parent->eventGrabber = NULL;
 }
 
 //Function to trigger event on control
@@ -1446,4 +1482,12 @@ void scStartTextInput ( CScriptVar* v, void* userdata ) {
 
 void scStopTextInput ( CScriptVar* v, void* userdata ) {
 	SDL_StopTextInput();
+}
+
+void scChild ( CScriptVar* v, void* userdata ) {
+	control* caller = (control*) userdata;	
+	control* result = caller->getChild(v->getParameter("id")->getString());
+	
+	if (result) v->setReturnVar(result->jsVar);
+	else v->getReturnVar()->setUndefined();
 }

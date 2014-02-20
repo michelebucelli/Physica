@@ -24,6 +24,7 @@ a control
 #define _UI
 
 #include <list>
+#include <stack>
 #include <deque>
 #include <algorithm>
 
@@ -311,6 +312,7 @@ class control: public content {
 	
 	//If eventGrabber is pointing to a child control, all events are passed only to the eventGrabber control
 	//and events are ignored within other controls
+	stack<control*> pastGrabbers;
 	control* eventGrabber;
 	
 	control *nextSibling, *prevSibling;
@@ -432,6 +434,9 @@ class control: public content {
 	
 	//Sets root of this and of all children
 	void setRoot(control*);
+	
+	//Gets complete id starting from root node
+	string completeId();
 };
 
 //Scripting:
@@ -456,5 +461,7 @@ void scScriptTimeout(CScriptVar*, void*);//Executes script after some time
 
 void scStartTextInput(CScriptVar*, void*);//Starts text input
 void scStopTextInput(CScriptVar*, void*);//Stops text input
+
+void scChild(CScriptVar*, void*);//Gets child
 
 #endif
